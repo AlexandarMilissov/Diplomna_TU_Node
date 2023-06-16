@@ -1,0 +1,13 @@
+idf_component_register(SRCS 
+                        "EspnowManager.c"
+                        "EspnowManager_Private.c"
+                        "Debug_Txt/Debug_Txt.c"
+                        "RSSI_Calculation/RSSI_Calculation.c"
+                       INCLUDE_DIRS 
+                        "."
+                        "./Debug_Txt"
+                        "./RSSI_Calculation"
+                       REQUIRES 
+                        "Common"
+                        "esp-now"
+                       )

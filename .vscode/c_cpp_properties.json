@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/**",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/newlib/platform_include",
+                "${config:idf.espIdfPathWin}/components/**",
+                "${workspaceFolder}/Components/Common",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/newlib/platform_include/sys",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/hal/esp32/include",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/esp_timer/include",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/heap/include",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/driver/include",
+                "C:/Espressif/frameworks/esp-idf-v5.0.1/components/freertos/include/freertos",
+                "C:/MinGW/**",
+                "        "
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22000.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
