@@ -19,7 +19,7 @@ Init_cfg_struct init_cfg[] =
 #define Init_cfg_size sizeof(init_cfg)/sizeof(Init_cfg_struct)
 Task_cfg_struct task_cfg[] =
 {
-    {"EspnowManager_MainFunction", EspnowManager_MainFunction, 1000, 0, 4096, 200 , false, 0, NULL}
+    {"EspnowManager_MainFunction", EspnowManager_MainFunction, NULL, 1000, 0, 4096, 200 , false, 0, NULL, NULL}
 };
 
 #define Task_cfg_size sizeof(task_cfg)/sizeof(Task_cfg_struct)

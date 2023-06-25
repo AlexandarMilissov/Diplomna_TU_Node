@@ -55,7 +55,7 @@ void Task(void* config)
         time = (esp_timer_get_time() / 1000) - time;
 
         time = (esp_timer_get_time() / 1000);
-        cfg.MainFunction(NULL);
+        cfg.MainFunction(cfg.mainFunctionParams);
         time = (esp_timer_get_time() / 1000) - time;
 
         esp_task_wdt_reset();
@@ -72,7 +72,7 @@ void Task(void* config)
 
     if(NULL != cfg.OnComplete)
     {
-        cfg.OnComplete(NULL);
+        cfg.OnComplete(cfg.onCompleteParams);
     }
 
     esp_task_wdt_delete(NULL);
@@ -81,7 +81,7 @@ void Task(void* config)
 
 TaskHandle_t* RequestTask(Task_cfg_struct config)
 {
-    
+    printf("%s\n",config.name);
     if(!IsTaskCfgValid(config))
     {
         return NULL;

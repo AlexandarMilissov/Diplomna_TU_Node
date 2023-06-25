@@ -9,6 +9,7 @@
 typedef struct Task_cfg_struct{
     const char* name;
     void (*MainFunction)(void*);
+    void *mainFunctionParams;
     uint16 period;
     uint32 core;
     uint32 stack_size;
@@ -16,6 +17,7 @@ typedef struct Task_cfg_struct{
     bool finite;
     uint16 repetition;
     void (*OnComplete)(void*);
+    void* onCompleteParams;
 }Task_cfg_struct;
 
 void TaskManager_Init(void);

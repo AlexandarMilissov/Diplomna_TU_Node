@@ -4,37 +4,38 @@
 #include "RSSI_Calculation.h"
 #include "Debug_Txt.h"
 
-#include "espnow.h"
-#include "espnow_utils.h"
-
 extern State state;
 
 esp_err_t DataReceive(uint8_t* src_addr, void* pvmessage, size_t size, wifi_pkt_rx_ctrl_t* rx_ctrl)
 {
-    if(state != INIT)
+    if(state != RUN)
     {
         return ESP_ERR_ESPNOW_NOT_INIT;
     }
-
     Message* message = MessageDeconstruct((uint8*)pvmessage, size);
 
     switch (message->messageId)
     {
+    case RSSI_REQUEST:
     case RSSI_CALCULATION:
-        //printf("%d\n",size);
-        //printf("%d\n",sizeof(Message));
-        //printf("%d\n",sizeof(Message)-sizeof(void*));
-        //printf("%d\n",message->messageSize);
-        RSSI_Calculation_Msg_Received(message->message, message->messageSize, rx_ctrl->rssi);
+    case RSSI_KEEP_ALIVE:
+    case RSSI_ACKNOWLEDGE:
+    {
+        RSSI_Common_Received( src_addr, *message, size, rx_ctrl);
+    }
         break;
     case DEBUG_TXT:
-        Debug_Txt_Msg_Received(message->message);
+    {
+        if(sizeof(Debug_Txt_Msg) == message->messageSize)
+        {
+            Debug_Txt_Msg_Received(*(Debug_Txt_Msg*)message->message);
+        }
+    }
         break;
-    
     default:
         break;
     }
-
+    free(message->message);
     free(message);
     return ESP_OK;
 }

@@ -8,6 +8,6 @@ typedef struct Debug_Txt_Msg
     char msg[240];
 }Debug_Txt_Msg;
 
-void Debug_Txt_Msg_Received(void*);
+void Debug_Txt_Msg_Received(Debug_Txt_Msg);
 
 #endif
