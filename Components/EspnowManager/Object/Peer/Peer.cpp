@@ -93,6 +93,15 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
     if(CALCULATION_INIT  == calculationStatus
     || CONNECTION_NOT_OK == EvaluateConnection())
     {
+        calculationStatus = CALCULATING;
+        printf("Keep Alive received, validation failed, sender: %02x:%02x:%02x:%02x:%02x:%02x\n", 
+            sourceAddress[0], 
+            sourceAddress[1], 
+            sourceAddress[2], 
+            sourceAddress[3], 
+            sourceAddress[4], 
+            sourceAddress[5]);
+        TaskSleepMiliSeconds(3000);
         RSSI_Message_Request RSSI_Message = RSSI_Message_Request(RSSI);
         RSSI_Message.Send();
     }
@@ -105,3 +114,4 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
         Recalculate();
     }
 }
+/*  */

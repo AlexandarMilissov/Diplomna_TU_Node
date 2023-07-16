@@ -43,7 +43,7 @@ esp_err_t RSSI_MessageReceive(uint8_t *src_addr, MessageStruct messageStruct, si
         sender = new Peer(src_addr);
         Peers.push_back(*sender);
     }
-
+    
     // Proccess the message
     try
     {

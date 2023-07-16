@@ -81,7 +81,7 @@ void Task(void* config)
 
 TaskHandle_t* RequestTask(Task_cfg_struct config)
 {
-    printf("%s\n",config.name);
+    printf("Requested task name: %s\n",config.name);
     if(!IsTaskCfgValid(config))
     {
         return NULL;

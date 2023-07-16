@@ -12,7 +12,7 @@
 typedef enum CalculationStatus
 {
     CALCULATION_INIT,
-    CALCULATED_POST_INIT,
+    CALCULATING,
 }CalculationStatus;
 
 typedef enum PeerConnection

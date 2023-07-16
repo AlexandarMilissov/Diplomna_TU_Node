@@ -16,7 +16,6 @@ uint8 myID = 2;
 
 void EspnowManager_Init(void* pvParameters)
 {
-    state = INIT;
     espnow_storage_init();
 
     espnow_config_t espnow_config = ESPNOW_INIT_CONFIG_DEFAULT();
@@ -26,10 +25,20 @@ void EspnowManager_Init(void* pvParameters)
 
     To_CPP_Encapsulation_Init(NULL);
 
-    state = RUN;
+    state = INIT;
+
+    EspnowManager_ActivateNetwork();
 }
 
 void EspnowManager_MainFunction(void* pvParameters)
 {
-    Send_Keep_Alive_Msg();
+    if(RUN == state)
+    {
+        Send_Keep_Alive_Msg();
+    }
+}
+
+void EspnowManager_ActivateNetwork()
+{
+    state = RUN;
 }
