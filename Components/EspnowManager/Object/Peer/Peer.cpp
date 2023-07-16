@@ -18,27 +18,18 @@ void Peer::CalculationChain_EndFunction(void* args)
     RSSI_Message_Interface::rssi_Calculation_Request_Status = NOT_REQUESTED;
 }
 
-void Peer::Recalculate()
-{
-}
-
-PeerConnection Peer::EvaluateConnection()
-{
-    return CONNECTION_OK;
-}
-
 Peer::Peer(uint8_t *src_addr)
 {
     if(false) // TODO: Validate
     {
         throw "Invalid input in constructor!\n";
     }
-
-    RSSI = 0;
-    RSSI_average = 0;
-
     memcpy(sourceAddress, src_addr, 6);
-    memset(lastReceived, 0, sizeof(lastReceived[0]) * NUM_OF_KEPT_RECEIVED);
+    distance = Distance();
+}
+
+Peer::~Peer()
+{
 }
 
 bool Peer::IsCorrectAdress(uint8* src_addr)
@@ -84,16 +75,13 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
 {
-    lastReceived[received_counter % NUM_OF_KEPT_RECEIVED] = message.GetRSSI();
-    received_counter++;
+    distance.Receive(message.GetRSSI());
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
 {
-    if(CALCULATION_INIT  == calculationStatus
-    || CONNECTION_NOT_OK == EvaluateConnection())
+    if(CONNECTION_NOT_OK == distance.EvaluateConnection())
     {
-        calculationStatus = CALCULATING;
         printf("Keep Alive received, validation failed, sender: %02x:%02x:%02x:%02x:%02x:%02x\n", 
             sourceAddress[0], 
             sourceAddress[1], 
@@ -101,8 +89,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
             sourceAddress[3], 
             sourceAddress[4], 
             sourceAddress[5]);
-        TaskSleepMiliSeconds(3000);
-        RSSI_Message_Request RSSI_Message = RSSI_Message_Request(RSSI);
+        RSSI_Message_Request RSSI_Message = RSSI_Message_Request(0);
         RSSI_Message.Send();
     }
 }
@@ -111,7 +98,6 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
 {
     if(SENDEND == message.GetStatus())
     {
-        Recalculate();
+        distance.TheyFinishedSending();
     }
 }
-/*  */
