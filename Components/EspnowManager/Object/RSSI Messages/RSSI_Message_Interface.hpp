@@ -5,8 +5,6 @@
 #include "To_C_Encapsulation.h"
 #include <exception>
 
-typedef signed int RSSI_Type;
-
 typedef enum RSSI_Calculation_Request_Status
 {
     ONGOING,

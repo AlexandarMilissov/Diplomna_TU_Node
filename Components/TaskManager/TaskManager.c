@@ -8,10 +8,6 @@
 
 void Task(void*);
 bool IsTaskCfgValid(Task_cfg_struct);
-void tt1(void*);
-void tt2(void*);
-void tt1C(void*);
-void tt2C(void*);
 
 #define WATCHDOG_RESET_TIME_IN_SECONDS 5
 #define WATCHDOG_RESET_MAX_TASK_TIME 0.9 * WATCHDOG_RESET_TIME_IN_SECONDS

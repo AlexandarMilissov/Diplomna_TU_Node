@@ -22,7 +22,6 @@ esp_err_t DataReceive(uint8_t* src_addr, void* pvmessage, size_t size, wifi_pkt_
     case RSSI_KEEP_ALIVE:
     case RSSI_ACKNOWLEDGE:
     {
-        //RSSI_Common_Received(src_addr, *message, size, rx_ctrl);
         RSSI_MessageReceive(src_addr, *message, size, rx_ctrl);
     }
         break;

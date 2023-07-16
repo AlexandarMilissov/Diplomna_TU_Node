@@ -13,5 +13,6 @@ typedef enum State{
 void EspnowManager_Init(void*);
 void EspnowManager_MainFunction(void*);
 void EspnowManager_ActivateNetwork();
+void EspnowManager_DeactivateNetwork();
 
 #endif

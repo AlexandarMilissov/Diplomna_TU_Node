@@ -7,11 +7,11 @@
 class RSSI_Message_Request : public RSSI_Message_Interface
 {
 private:
-    uint16 info;
+    RSSI_Type info;
     uint8 GetElementsSize();
 public:
     RSSI_Message_Request(MessageStruct);
-    RSSI_Message_Request(uint16);
+    RSSI_Message_Request(RSSI_Type);
     ~RSSI_Message_Request();
     void Send();
 };

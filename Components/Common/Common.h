@@ -12,6 +12,8 @@ typedef SemaphoreHandle_t Mutex;
 #define LockMutex(value) xSemaphoreTake(value,portMAX_DELAY)
 #define UnlockMutex(value) xSemaphoreGive(value)
 
+typedef signed int RSSI_Type;
+
 typedef uint8_t  uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;

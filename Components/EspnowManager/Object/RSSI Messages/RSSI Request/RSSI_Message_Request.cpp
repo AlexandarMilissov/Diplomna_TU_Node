@@ -14,7 +14,7 @@ RSSI_Message_Request::RSSI_Message_Request(MessageStruct messageStruct)
     info = *((uint8*)messageStruct.message);
 }
 
-RSSI_Message_Request::RSSI_Message_Request(uint16 info)
+RSSI_Message_Request::RSSI_Message_Request(RSSI_Type info)
 {
 
 }

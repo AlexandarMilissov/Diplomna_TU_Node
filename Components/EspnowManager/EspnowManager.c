@@ -42,3 +42,8 @@ void EspnowManager_ActivateNetwork()
 {
     state = RUN;
 }
+
+void EspnowManager_DeactivateNetwork()
+{
+    state = INIT;
+}
