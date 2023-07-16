@@ -1,12 +1,18 @@
 #include "Common.h"
 #include "EspnowManager.h"
-#include "EspnowManager_Private.h"
-#include "RSSI_Calculation.h"
+#include "Espnow_Message_General.h"
 #include "Debug_Txt.h"
 #include "TaskManager.h"
+#include "To_CPP_Encapsulation.hpp"
 
 State state = NO_INIT;
 uint8 myID = 2;
+
+#define RSSI_REF_AT_1M -50
+// -50 at 1 m should be -90 at 100m
+// https://www.changpuak.ch/electronics/calc_10.php
+// Antenna gain -30
+#define RSSI_N 2
 
 void EspnowManager_Init(void* pvParameters)
 {
@@ -18,29 +24,12 @@ void EspnowManager_Init(void* pvParameters)
 
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, DataReceive);
 
-    RSSI_Calculation_Init(NULL);
+    To_CPP_Encapsulation_Init(NULL);
+
     state = RUN;
 }
 
 void EspnowManager_MainFunction(void* pvParameters)
 {
-    RSSI_Keep_Alive_Msg_Send(NULL);
-}
-
-void Request_RSSI_Calculation_Chain(uint8* address)
-{
-    Task_cfg_struct task_config = {
-        .name = "RSSI_Calculation_Msg_Send",
-        .MainFunction = RSSI_Calculation_Msg_Send,
-        .mainFunctionParams = (void*)address,
-        .period = 20,
-        .core = -1,
-        .stack_size = 4096,
-        .priority = 100,
-        .finite = true,
-        .repetition = NUM_OF_KEPT_RECEIVED,
-        .OnComplete = RSSI_Acknowledge_Msg_Send,
-        .onCompleteParams = (void*)SENDEND
-    };
-    RequestTask(task_config);
+    Send_Keep_Alive_Msg();
 }

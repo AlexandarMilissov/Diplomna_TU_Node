@@ -1,8 +1,8 @@
 #include "EspnowManager.h"
-#include "EspnowManager_Private.h"
+#include "Espnow_Message_General.h"
 
-#include "RSSI_Calculation.h"
 #include "Debug_Txt.h"
+#include "To_CPP_Encapsulation.hpp"
 
 extern State state;
 
@@ -12,16 +12,18 @@ esp_err_t DataReceive(uint8_t* src_addr, void* pvmessage, size_t size, wifi_pkt_
     {
         return ESP_ERR_ESPNOW_NOT_INIT;
     }
-    Message* message = MessageDeconstruct((uint8*)pvmessage, size);
+    
+    MessageStruct* message = MessageDeconstruct((uint8*)pvmessage, size);
 
-    switch (message->messageId)
+    switch (message->messageType)
     {
     case RSSI_REQUEST:
     case RSSI_CALCULATION:
     case RSSI_KEEP_ALIVE:
     case RSSI_ACKNOWLEDGE:
     {
-        RSSI_Common_Received( src_addr, *message, size, rx_ctrl);
+        //RSSI_Common_Received(src_addr, *message, size, rx_ctrl);
+        RSSI_MessageReceive(src_addr, *message, size, rx_ctrl);
     }
         break;
     case DEBUG_TXT:
@@ -40,7 +42,7 @@ esp_err_t DataReceive(uint8_t* src_addr, void* pvmessage, size_t size, wifi_pkt_
     return ESP_OK;
 }
 
-esp_err_t DataSend(uint8_t* dst_addr, Message message)
+esp_err_t DataSend(uint8_t* dst_addr, MessageStruct message)
 {
     size_t size;
 
@@ -65,10 +67,10 @@ esp_err_t DataSend(uint8_t* dst_addr, Message message)
     return ret;
 }
 
-uint8* MessageConstruct(Message message, size_t* out_size)
+uint8* MessageConstruct(MessageStruct message, size_t* out_size)
 {
     *out_size = 0;
-    *out_size += sizeof(Message);       // The size of the sturct;
+    *out_size += sizeof(MessageStruct);       // The size of the sturct;
     *out_size -= sizeof(void*);         // Minus the size of the pointer
     *out_size += message.messageSize;   // Plus the size of the payload
 
@@ -84,11 +86,11 @@ uint8* MessageConstruct(Message message, size_t* out_size)
     return out;
 }
 
-Message* MessageDeconstruct(uint8* in, size_t in_size)
+MessageStruct* MessageDeconstruct(uint8* in, size_t in_size)
 {
-    uint8 header_len = sizeof(Message) - sizeof(void*);
+    uint8 header_len = sizeof(MessageStruct) - sizeof(void*);
 
-    Message* message = (Message*)malloc(sizeof(Message));   // Allocate message space
+    MessageStruct* message = (MessageStruct*)malloc(sizeof(MessageStruct));   // Allocate message space
     uint8* data = (uint8*)malloc(in_size - header_len);     // Allocate data space
 
     memcpy(message, in, header_len);                        // Copy the info of the message

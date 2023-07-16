@@ -15,7 +15,6 @@
                 "C:/Espressif/frameworks/esp-idf-v5.0.1/components/driver/include",
                 "C:/Espressif/frameworks/esp-idf-v5.0.1/components/freertos/include/freertos",
                 "C:/MinGW/**",
-                "        "
             ],
             "defines": [
                 "_DEBUG",

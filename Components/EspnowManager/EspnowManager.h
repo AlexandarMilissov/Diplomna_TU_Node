@@ -3,9 +3,14 @@
 
 #include <esp_now.h>
 #include "Common.h"
+                 
+typedef enum State{
+    NO_INIT,
+    INIT,
+    RUN,
+}State;
 
 void EspnowManager_Init(void*);
 void EspnowManager_MainFunction(void*);
-void Request_RSSI_Calculation_Chain(uint8*);
 
 #endif

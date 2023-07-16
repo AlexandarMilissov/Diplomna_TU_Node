@@ -6,7 +6,6 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "freertos/semphr.h"
-#include "Lists.h"
 
 typedef SemaphoreHandle_t Mutex;
 #define CreateMutex xSemaphoreCreateMutex
