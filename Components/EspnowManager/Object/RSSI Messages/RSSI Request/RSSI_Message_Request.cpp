@@ -1,26 +1,19 @@
 #include "RSSI_Message_Request.hpp"
 
-uint8 RSSI_Message_Request::GetElementsSize()
-{
-    return sizeof(info);
-}
-
+// Functions for receiving messages
 RSSI_Message_Request::RSSI_Message_Request(MessageStruct messageStruct)
 {
     if(messageStruct.messageSize != GetElementsSize())
     {
         throw ValidationFailedException();
     }
-    info = *((uint8*)messageStruct.message);
+    subsricptionStatus = *((uint8*)messageStruct.message);
 }
 
-RSSI_Message_Request::RSSI_Message_Request(RSSI_Type info)
+// Functions for sending messages
+RSSI_Message_Request::RSSI_Message_Request(bool value)
 {
-
-}
-
-RSSI_Message_Request::~RSSI_Message_Request()
-{
+    subsricptionStatus = value;
 }
 
 void RSSI_Message_Request::Send()
@@ -28,9 +21,25 @@ void RSSI_Message_Request::Send()
     size_t data_size = GetElementsSize();
     void* data = malloc(data_size);
 
-    *((uint16*)data) = info;
+    *((bool*)data) = subsricptionStatus;
     
     MessageSend(RSSI_REQUEST, data_size, data);
 
     free(data);
+}
+
+// Other functions
+
+uint8 RSSI_Message_Request::GetElementsSize()
+{
+    return sizeof(subsricptionStatus);
+}
+
+RSSI_Message_Request::~RSSI_Message_Request()
+{
+}
+
+bool RSSI_Message_Request::GetSubsricptionStatus()
+{
+    return subsricptionStatus;
 }

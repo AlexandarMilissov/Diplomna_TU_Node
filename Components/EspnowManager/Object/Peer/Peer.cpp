@@ -1,21 +1,18 @@
 #include "Peer.hpp"
 #include "RSSI_Message_Interface.hpp"
 #include "EspnowManager.h"
+#include "To_C_Encapsulation.h"
 
 #include <cstring>
 
-void Peer::CalculationChain_MainFunction(void* args)
+void Peer::SendSubsriptionRequest()
 {
-    RSSI_Message_Calculation RSSI_Message = RSSI_Message_Calculation();
+    if(false == acknowledgeRequired)
+    {
+        return;
+    }
+    RSSI_Message_Request RSSI_Message = RSSI_Message_Request(areWeSubscirbedToPeer);
     RSSI_Message.Send();
-}
-
-void Peer::CalculationChain_EndFunction(void* args)
-{
-    RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(SENDEND);
-    RSSI_Message.Send();
-
-    RSSI_Message_Interface::rssi_Calculation_Request_Status = NOT_REQUESTED;
 }
 
 Peer::Peer(uint8_t *src_addr)
@@ -46,58 +43,111 @@ bool Peer::IsCorrectAdress(uint8* src_addr)
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
 {
-    if(ONGOING == RSSI_Message_Interface::rssi_Calculation_Request_Status)
+    if(SUBSCRIBE == message.GetSubsricptionStatus())
     {
-        RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(REJECT);
-        RSSI_Message.Send();
+        if(!isPeerSubscirbedToUs)
+        {
+            isPeerSubscirbedToUs = true;
+            ManagerSubscribe();
+        }
+        RSSI_Message_Acknowledge ackn = RSSI_Message_Acknowledge(SUBSCRIBE);
+        ackn.Send();
     }
-    else if (NOT_REQUESTED == RSSI_Message_Interface::rssi_Calculation_Request_Status)
+    else if(UNSUBSCRIBE == message.GetSubsricptionStatus())
     {
-        RSSI_Message_Interface::rssi_Calculation_Request_Status = ONGOING;
-        
-        Task_cfg_struct task_config = {
-            .name = "Peer_RSSI_Calculation_Msg_Send",
-            .MainFunction = CalculationChain_MainFunction,
-            .mainFunctionParams = (void*)sourceAddress,
-            .period = 20,
-            .core = (uint32)-1,
-            .stack_size = 4096,
-            .priority = 100,
-            .finite = true,
-            .repetition = NUM_OF_KEPT_RECEIVED,
-            .OnComplete = CalculationChain_EndFunction,
-            .onCompleteParams = (void*)sourceAddress
-        };
-        RequestTask(task_config);
-
+        if(isPeerSubscirbedToUs)
+        {
+            isPeerSubscirbedToUs = false;
+            ManagerUnsubscribe();
+        }
+        RSSI_Message_Acknowledge ackn = RSSI_Message_Acknowledge(UNSUBSCRIBE);
+        ackn.Send();
+    }
+    else
+    {
+        printf("ERROR\n");
+        while(1);
     }
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
 {
-    distance.Receive(message.GetRSSI());
+    OpenSeries* series = NULL;
+    for(auto& s : openSeries)
+    {
+        if(s.series->IsCorrectId(message.GetSeriesID()))
+        {
+            series = s.series;
+        }
+    }
+    if(NULL == series)
+    {
+        series = new OpenSeries(message.GetSeriesID());
+        SeriesLife sl;
+        sl.life = seriersBeginningLife;
+        sl.series = series;
+        openSeries.push_back(sl);
+    }
+    
+    series->AddValue(message.GetMessagePosition(), message.GetRSSI());
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
 {
-    if(CONNECTION_NOT_OK == distance.EvaluateConnection())
+    /*
+    printf("Keep Alive received (%d, %d) sender: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        areWeSubscirbedToPeer,
+        distance.IsCalculationRequired(),
+        sourceAddress[0], 
+        sourceAddress[1], 
+        sourceAddress[2], 
+        sourceAddress[3], 
+        sourceAddress[4], 
+        sourceAddress[5]);
+        */
+    if(areWeSubscirbedToPeer)
     {
-        printf("Keep Alive received, validation failed, sender: %02x:%02x:%02x:%02x:%02x:%02x\n", 
-            sourceAddress[0], 
-            sourceAddress[1], 
-            sourceAddress[2], 
-            sourceAddress[3], 
-            sourceAddress[4], 
-            sourceAddress[5]);
-        RSSI_Message_Request RSSI_Message = RSSI_Message_Request(0);
-        RSSI_Message.Send();
+        if(!distance.IsCalculationRequired())
+        {
+            areWeSubscirbedToPeer = false;
+            acknowledgeRequired = true;
+        }
+    }
+    else
+    {
+        if(distance.IsCalculationRequired())
+        {
+            areWeSubscirbedToPeer = true;
+            acknowledgeRequired = true;
+        }
     }
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
 {
-    if(SENDEND == message.GetStatus())
+    if(message.GetStatus() == areWeSubscirbedToPeer)
     {
-        distance.TheyFinishedSending();
+        acknowledgeRequired = false;
+    }
+}
+
+void Peer::UpdateSeries()
+{
+    for(auto it = openSeries.begin(); it != openSeries.end();)
+    {
+        (*it).life--;
+        if(0 == (*it).life)
+        {
+            ClosedSeries* cs = (*it).series->CloseSeries();
+
+            distance.AddSeries(cs);
+
+            delete((*it).series);
+            it = openSeries.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }

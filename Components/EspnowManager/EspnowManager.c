@@ -7,12 +7,7 @@
 
 State state = NO_INIT;
 uint8 myID = 2;
-
-#define RSSI_REF_AT_1M -50
-// -50 at 1 m should be -90 at 100m
-// https://www.changpuak.ch/electronics/calc_10.php
-// Antenna gain -30
-#define RSSI_N 2
+uint16 calculationSubscibers = 0;
 
 void EspnowManager_Init(void* pvParameters)
 {
@@ -32,12 +27,33 @@ void EspnowManager_Init(void* pvParameters)
 
 void EspnowManager_MainFunction(void* pvParameters)
 {
-    if(RUN == state)
+    if(RUN != state)
     {
-        Send_Keep_Alive_Msg();
+        return;
     }
-}
+    HandleReceivedMessages();
 
+    if(0 < calculationSubscibers)
+    {
+        //calculationSubscibers--;
+        Task_cfg_struct task_cfg = {
+            .core = CORE_1,
+            .finite = true,
+            .repetition = 10,
+            .MainFunction = SeriesSend,
+            .name = "Series Task",
+            .OnComplete = NULL,
+            .onCompleteParams = NULL,
+            .period = 3,
+            .priority = 200,
+            .stack_size = 8192,
+        };
+        RequestTask(task_cfg);
+    }
+    Send_Cyclic_Msg();
+
+    UpdateSeries();
+}
 void EspnowManager_ActivateNetwork()
 {
     state = RUN;
@@ -46,4 +62,16 @@ void EspnowManager_ActivateNetwork()
 void EspnowManager_DeactivateNetwork()
 {
     state = INIT;
+}
+
+void AddCalculationSubsciber()
+{
+    calculationSubscibers++;
+    printf("Subscibers: %d\n", calculationSubscibers);
+}
+
+void RemoveCalculationSubsciber()
+{
+    calculationSubscibers--;
+    printf("Subscibers: %d\n", calculationSubscibers);
 }

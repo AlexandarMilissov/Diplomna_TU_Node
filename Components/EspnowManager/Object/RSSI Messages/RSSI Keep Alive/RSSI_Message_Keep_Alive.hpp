@@ -12,8 +12,8 @@ private:
 public:
     RSSI_Message_Keep_Alive(RSSI_Type);
     ~RSSI_Message_Keep_Alive();
-    static void StaticSend();
     void Send();
+    static void StaticSend();
 };
 
 #endif // RSSI_MESSAGE_KEEP_ALIVE_HPP_

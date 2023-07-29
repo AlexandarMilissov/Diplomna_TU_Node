@@ -7,12 +7,12 @@
 #include "driver/ledc.h"
 #include "freertos/semphr.h"
 
-typedef SemaphoreHandle_t Mutex;
-#define CreateMutex xSemaphoreCreateMutex
-#define LockMutex(value) xSemaphoreTake(value,portMAX_DELAY)
-#define UnlockMutex(value) xSemaphoreGive(value)
-
-typedef signed int RSSI_Type;
+typedef portMUX_TYPE Spinlock;
+#define Spinlock_Init portMUX_INITIALIZER_UNLOCKED
+#define Enter_Critical_Spinlock(mux) taskENTER_CRITICAL(&mux)
+#define Exit_Critical_Spinlock(mux) taskEXIT_CRITICAL(&mux)
+#define Enter_Critical_Spinlock_ISR(mux) taskENTER_CRITICAL_ISR(&mux)
+#define Exit_Critical_Spinlock_ISR(mux) taskEXIT_CRITICAL_ISR(&mux)
 
 typedef uint8_t  uint8;
 typedef uint16_t uint16;
@@ -22,6 +22,9 @@ typedef uint64_t uint64;
 typedef int8_t   sint8;
 typedef int16_t  sint16;
 typedef int32_t  sint32;
+typedef int64_t  sint64;
+
+typedef signed int RSSI_Type;
 
 #ifndef portTICK_PERIOD_MS
     #define portTICK_PERIOD_MS ( ( TickType_t ) 1000 / CONFIG_FREERTOS_HZ )

@@ -1,3 +1,0 @@
-#include "RSSI_Message_Interface.hpp"
-
-RSSI_Calculation_Request_Status RSSI_Message_Interface::rssi_Calculation_Request_Status = NOT_REQUESTED;

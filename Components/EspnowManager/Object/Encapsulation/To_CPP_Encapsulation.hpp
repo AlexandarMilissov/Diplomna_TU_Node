@@ -11,8 +11,11 @@ extern "C"
 #endif //__cplusplus
 
 
-void Send_Keep_Alive_Msg();
-esp_err_t RSSI_MessageReceive(uint8_t*, MessageStruct, size_t, wifi_pkt_rx_ctrl_t*);
+void Send_Cyclic_Msg();
+void SeriesSend();
+void UpdateSeries();
+esp_err_t RSSI_OnMessageReceive(uint8_t*, MessageStruct*, size_t, wifi_pkt_rx_ctrl_t*);
+void HandleReceivedMessages();
 void To_CPP_Encapsulation_Init(void*);
 
 

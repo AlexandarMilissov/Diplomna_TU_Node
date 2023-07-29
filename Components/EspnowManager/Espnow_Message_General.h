@@ -18,10 +18,10 @@ typedef enum MessageType
 
 typedef struct MessageStruct
 {
-    uint32 messageCouter; // 4
+    uint32 messageCouter;       // 4
     MessageType messageType;    // 1
-    uint8 messageSize;    // 1
-    void* message;        // 4
+    uint8 messageSize;          // 1
+    void* message;              // 4
 }MessageStruct;
 
 esp_err_t DataReceive(uint8_t*, void*, size_t, wifi_pkt_rx_ctrl_t*);

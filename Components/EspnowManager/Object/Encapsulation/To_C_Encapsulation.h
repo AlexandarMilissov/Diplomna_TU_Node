@@ -11,6 +11,8 @@ extern "C"
 #include "TaskManager.h"
 
 void MessageSend(MessageType, uint8, void*);
+void ManagerSubscribe();
+void ManagerUnsubscribe();
 
 
 #ifdef __cplusplus

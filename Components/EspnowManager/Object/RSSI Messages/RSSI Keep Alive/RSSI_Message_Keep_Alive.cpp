@@ -5,6 +5,7 @@ uint8 RSSI_Message_Keep_Alive::GetElementsSize()
     return 0;
 }
 
+// On receive
 RSSI_Message_Keep_Alive::RSSI_Message_Keep_Alive(RSSI_Type _RSSI)
 {
     RSSI = _RSSI;

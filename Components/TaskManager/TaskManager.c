@@ -5,7 +5,6 @@
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "nvs_flash.h"
-
 void Task(void*);
 bool IsTaskCfgValid(Task_cfg_struct);
 
@@ -14,7 +13,6 @@ bool IsTaskCfgValid(Task_cfg_struct);
 
 void TaskManager_Init(void)
 {
-    vTaskDelay(1000/(1000 / CONFIG_FREERTOS_HZ));
     nvs_flash_init();
     esp_task_wdt_init(WATCHDOG_RESET_TIME_IN_SECONDS, true);
 
@@ -48,19 +46,22 @@ void Task(void* config)
             cfg.repetition--;
         }
 
-        time = (esp_timer_get_time() / 1000) - time;
-
-        time = (esp_timer_get_time() / 1000);
+        time = esp_timer_get_time();
         cfg.MainFunction(cfg.mainFunctionParams);
-        time = (esp_timer_get_time() / 1000) - time;
+        time = esp_timer_get_time() - time;
 
         esp_task_wdt_reset();
-        if(cfg.period - time > 0)
+        if((cfg.period * 1000) >= time)
         {
-            TaskSleepMiliSeconds(cfg.period - time);
+            TaskSleepMiliSeconds(cfg.period - (time / 1000));
+            if(cfg.finite == true)
+            {
+                printf("%s executed on time by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
+            }
         }
         else
         {
+            printf("%s took to long to execute by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
             // task took more time to complete than it was its period
             // TODO: throw error or warning
         }
@@ -77,7 +78,6 @@ void Task(void* config)
 
 TaskHandle_t* RequestTask(Task_cfg_struct config)
 {
-    printf("Requested task name: %s\n",config.name);
     if(!IsTaskCfgValid(config))
     {
         return NULL;
@@ -86,7 +86,6 @@ TaskHandle_t* RequestTask(Task_cfg_struct config)
     switch (config.core)
     {
     case CORE_0:
-        break;
     case CORE_1:
         break;
     default:

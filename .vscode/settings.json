@@ -112,7 +112,12 @@
         "bitset": "cpp",
         "stack": "cpp",
         "c_encapsulation.h": "c",
-        "cpp_encapsulation.hpp": "c"
+        "cpp_encapsulation.hpp": "c",
+        "espnow_utils.h": "c",
+        "esp_task_wdt.h": "c",
+        "to_cpp_encapsulation.hpp": "c",
+        "gpio.h": "c",
+        "semphr.h": "c"
     },
     "idf.portWin": "COM3",
     "idf.flashType": "UART",

@@ -22,22 +22,12 @@ esp_err_t DataReceive(uint8_t* src_addr, void* pvmessage, size_t size, wifi_pkt_
     case RSSI_KEEP_ALIVE:
     case RSSI_ACKNOWLEDGE:
     {
-        RSSI_MessageReceive(src_addr, *message, size, rx_ctrl);
-    }
-        break;
-    case DEBUG_TXT:
-    {
-        if(sizeof(Debug_Txt_Msg) == message->messageSize)
-        {
-            Debug_Txt_Msg_Received(*(Debug_Txt_Msg*)message->message);
-        }
+        RSSI_OnMessageReceive(src_addr, message, size, rx_ctrl);
     }
         break;
     default:
         break;
     }
-    free(message->message);
-    free(message);
     return ESP_OK;
 }
 
