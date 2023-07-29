@@ -1,11 +1,10 @@
 #include "To_C_Encapsulation.h"
 #include "EspnowManager.h"
 
-#include "Espnow_Message_General.h"
+#include "EspnowDriver_Upper.h"
 
 void MessageSend(MessageType messageType, uint8 data_size, void* data)
 {
-    //printf("MessageSend\n");
     MessageStruct RSSIMessage = {
         .messageCouter = 0,
         .messageType = messageType,

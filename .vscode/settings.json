@@ -117,7 +117,9 @@
         "esp_task_wdt.h": "c",
         "to_cpp_encapsulation.hpp": "c",
         "gpio.h": "c",
-        "semphr.h": "c"
+        "semphr.h": "c",
+        "espnow_message_general.h": "c",
+        "espnowdriver_upper.h": "c"
     },
     "idf.portWin": "COM3",
     "idf.flashType": "UART",

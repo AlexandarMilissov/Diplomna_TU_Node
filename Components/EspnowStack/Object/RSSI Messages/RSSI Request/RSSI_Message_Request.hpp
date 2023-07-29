@@ -1,7 +1,7 @@
 #ifndef RSSI_MESSAGE_REQUEST_HPP
 #define RSSI_MESSAGE_REQUEST_HPP
 
-#include "Espnow_Message_General.h"
+#include "EspnowDriver_Upper.h"
 #include "RSSI_Message_Interface.hpp"
 #include "OpenSeries.hpp"
 

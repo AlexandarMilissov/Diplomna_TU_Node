@@ -2,7 +2,7 @@
 #define RSSI_MESSAGE_KEEP_ALIVE_HPP_
 
 #include "RSSI_Message_Interface.hpp"
-#include "Espnow_Message_General.h"
+#include "EspnowDriver_Upper.h"
 
 class RSSI_Message_Keep_Alive : public RSSI_Message_Interface
 {

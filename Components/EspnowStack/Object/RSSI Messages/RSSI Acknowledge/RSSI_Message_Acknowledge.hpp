@@ -2,7 +2,7 @@
 #define RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 
 #include "RSSI_Message_Interface.hpp"
-#include "Espnow_Message_General.h"
+#include "EspnowDriver_Upper.h"
 
 class RSSI_Message_Acknowledge: public RSSI_Message_Interface
 {

@@ -1,5 +1,5 @@
-#ifndef ESPNOW_MESSAGE_GENERAL_H_
-#define ESPNOW_MESSAGE_GENERAL_H_
+#ifndef ESPNOWDRIVER_UPPER_H_
+#define ESPNOWDRIVER_UPPER_H_
 
 #include "Common.h"
 
@@ -30,4 +30,4 @@ esp_err_t DataSend(uint8_t*, MessageStruct);
 uint8* MessageConstruct(MessageStruct, size_t*);
 MessageStruct* MessageDeconstruct(uint8*, size_t);
 
-#endif // ESPNOW_MESSAGE_GENERAL_H_
+#endif // ESPNOWDRIVER_UPPER_H_

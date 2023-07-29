@@ -4,6 +4,6 @@ idf_component_register(SRCS "TaskManager.c"
                        Common
                        esp_timer
                        nvs_flash
-                       EspnowManager
+                       EspnowStack
                        WifiManager
                        )
