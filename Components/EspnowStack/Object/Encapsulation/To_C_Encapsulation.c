@@ -1,18 +1,19 @@
 #include "To_C_Encapsulation.h"
 #include "EspnowManager.h"
+#include "EspnowDriver.h"
 
-#include "EspnowDriver_Upper.h"
 
-void MessageSend(MessageType messageType, uint8 data_size, void* data)
+void MessageSend(uint8* dst_addr, MessageType messageType, Message* data)
 {
-    MessageStruct RSSIMessage = {
-        .messageCouter = 0,
-        .messageType = messageType,
-        .messageSize = data_size,
-        .message = data,
-    };
+    Message* header = MessageInit(MessageTypeSize);
+    *(header->data) = messageType;
 
-    DataSend((uint8_t*)ESPNOW_ADDR_BROADCAST, RSSIMessage);
+    Message* message = MessageCompose(header, data);
+
+    DataSend(dst_addr, message);
+
+    MessageDeinit(message);
+    MessageDeinit(header);
 }
 
 void ManagerSubscribe()

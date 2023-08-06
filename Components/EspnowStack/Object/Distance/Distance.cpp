@@ -1,7 +1,7 @@
 #include "Distance.hpp"
 #include "Distance_ref.hpp"
 
-#define supertest 10000
+const float maximumConfidenceInterval = (float)CONFIG_MINIMUM_CONFIDANCE_INTERVAL / 2.0;
 
 void Distance::AddSeriesSafe(ClosedSeries* cs)
 {
@@ -21,18 +21,8 @@ void Distance::AddSeriesSafe(ClosedSeries* cs)
     valuesCount++;
     sumOfAll += *cs;
 
-    // There are not enough values to calculate reliably
-    // End the function and safe computation time
-    if(valuesCount < minNumberOfValues)
-    {
+    AssignMostCommon(*cs);
 
-    }
-    else
-    {
-        AssignMostCommon(*cs);
-        CalculateStandardDeviation();
-        CalculateMarginOfError();
-    }
 }
 
 void Distance::AssignMostCommon(ClosedSeries cs)
@@ -41,6 +31,7 @@ void Distance::AssignMostCommon(ClosedSeries cs)
     if(0 == mostCommonCount)
     {
         mostCommon = cs;
+        mostCommonCount++;
     }
     // If this is the same value as the most most common
     // Increace the mostCommonCount
@@ -54,19 +45,13 @@ void Distance::AssignMostCommon(ClosedSeries cs)
     {
         mostCommon = cs;
         mostCommonCount = values[cs];
-        CalculateMaximumMarginOfError();
     }
-}
-
-void Distance::CalculateMaximumMarginOfError()
-{
-    maximumMarginOfError = maximumError / mostCommon;
 }
 
 void Distance::CalculateStandardDeviation()
 {
     // Find the mean
-    mean = (sumOfAll / valuesCount);
+    mean = ((double)sumOfAll / (double)valuesCount);
 
     // Calculate standart diviation (σ)
     double tempStandardDeviation = 0;
@@ -83,9 +68,10 @@ void Distance::CalculateStandardDeviation()
     standardDeviation = sqrt(tempStandardDeviation);
 }
 
-void Distance::CalculateMarginOfError()
+void Distance::CalculateConfindenceInterval()
 {
-    marginOfError = z95 * standardDeviation / sqrt(valuesCount);
+    confindenceInterval = standardDeviation / sqrt(valuesCount);
+    confindenceInterval *= z95;
 }
 
 Distance::Distance()
@@ -111,7 +97,7 @@ bool Distance::IsCalculationRequired()
     {
         return true;
     }
-    if(marginOfError < maximumMarginOfError)
+    if(confindenceInterval > maximumConfidenceInterval)
     {
         return true;
     }
@@ -125,7 +111,7 @@ void Distance::AddSeries(ClosedSeries* cs)
     // If it's not then discard it
     if(ClosedSeries::defaltValue == *cs)
     {
-
+        ESP_LOGW("Distance", "Series with default value received");
     }
     else
     {
@@ -134,8 +120,48 @@ void Distance::AddSeries(ClosedSeries* cs)
     delete(cs);
 }
 
+uint32 Distance::GetSeriesCount()
+{
+    return valuesCount;
+}
+
+void Distance::Recalculate()
+{
+    if(valuesCount == valuesCountOld)
+    {
+        return;
+    }
+    valuesCountOld = valuesCount;
+
+    
+    // There are not enough values to calculate reliably
+    // End the function and safe computation time
+    if(valuesCount < minNumberOfValues)
+    {
+        return;
+        ESP_LOGI("Distance", "Not enough values for calculation");
+    }
+    
+    CalculateStandardDeviation();
+    CalculateConfindenceInterval();
+}
+
 DistanceUnits Distance::RSSI_To_DistanceUnits(double value)
 {
     double power = (rssi_dbm_ref_at_1_m - value) / (10.0 * env_variable);
     return (pow(10.0, power) * distanceUnitsInAMeter);
+}
+
+void Distance::LogInfo()
+{
+    ESP_LOGI("Distance", "=====================");
+    ESP_LOGI("Distance", "Recalculation; [%d]/[%d]; most common is %d with standard deviation %f",
+            mostCommonCount, valuesCount, (int)mostCommon, standardDeviation);
+    ESP_LOGI("Distance", "With 95%% certainty, distance is %f ± %funits (minumum confidance: %f)",
+            mean, confindenceInterval, maximumConfidenceInterval);
+    for(auto value : values)
+    {
+        ESP_LOGI("Distance", "Value[%d], count: %d", (int)value.first, value.second);
+    }
+    ESP_LOGI("Distance", "=====================");
 }

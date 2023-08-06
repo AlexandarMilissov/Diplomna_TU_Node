@@ -1,17 +1,19 @@
 #include "RSSI_Message_Acknowledge.hpp"
+#include "To_C_Encapsulation.h"
+#include <stdexcept>
 
 uint8 RSSI_Message_Acknowledge::GetElementsSize()
 {
     return sizeof(status);
 }
 
-RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(MessageStruct messageStruct)
+RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(Message* message)
 {
-    if(messageStruct.messageSize != GetElementsSize())
+    if(message->data_size != GetElementsSize())
     {
-        throw ValidationFailedException();
+        throw std::invalid_argument("Wrong message size");
     }
-    status = *((bool*)messageStruct.message);
+    status = (bool)message->data;
 }
 
 RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(bool _status)
@@ -28,13 +30,11 @@ bool RSSI_Message_Acknowledge::GetStatus()
     return status;
 }
 
-void RSSI_Message_Acknowledge::Send()
+void RSSI_Message_Acknowledge::Send(uint8* dst_addr)
 {
-    size_t data_size = GetElementsSize();
-    void* data = malloc(data_size);
+    Message* message = MessageInit(GetElementsSize());
 
-    *((bool*)data) = status;
-    MessageSend(RSSI_ACKNOWLEDGE, data_size, data);
+    *(message->data) = status;
 
-    free(data);
+    MessageSend(dst_addr, RSSI_ACKNOWLEDGE, message);
 }

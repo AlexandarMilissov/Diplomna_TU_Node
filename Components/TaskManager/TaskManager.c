@@ -5,16 +5,29 @@
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "nvs_flash.h"
+#include "esp_task_wdt.h"
+#include <string.h>
+
+#define TWDT_TIMEOUT_MS 5000
+
 void Task(void*);
 bool IsTaskCfgValid(Task_cfg_struct);
 
-#define WATCHDOG_RESET_TIME_IN_SECONDS 5
-#define WATCHDOG_RESET_MAX_TASK_TIME 0.9 * WATCHDOG_RESET_TIME_IN_SECONDS
-
 void TaskManager_Init(void)
 {
+    esp_log_level_set("Peer", ESP_LOG_INFO);
+    esp_log_level_set("TaskManager", ESP_LOG_WARN);
+
     nvs_flash_init();
-    esp_task_wdt_init(WATCHDOG_RESET_TIME_IN_SECONDS, true);
+
+    // From https://docs.espressif.com/projects/esp-idf/en/v3.3.3/api-reference/system/wdts.html :
+    // "This is called in the init code if the interrupt watchdog is enabled in menuconfig."
+    // esp_task_wdt_config_t twdt_config = {
+    //     .timeout_ms = TWDT_TIMEOUT_MS,
+    //     .idle_core_mask = (1 << portNUM_PROCESSORS) - 1,    // Bitmask of all cores
+    //     .trigger_panic = true,
+    // };
+    // esp_task_wdt_init(&twdt_config);
 
     for (size_t i = 0; i < Init_cfg_size; i++)
     {
@@ -25,7 +38,7 @@ void TaskManager_Init(void)
     {
         RequestTask(task_cfg[i]);
     }
-    printf("init success\n");
+    ESP_LOGI("TaskManager", "init success\n");
 }
 
 void Task(void* config)
@@ -53,17 +66,12 @@ void Task(void* config)
         esp_task_wdt_reset();
         if((cfg.period * 1000) >= time)
         {
+            ESP_LOGV("TaskManager", "%s executed on time by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
             TaskSleepMiliSeconds(cfg.period - (time / 1000));
-            if(cfg.finite == true)
-            {
-                printf("%s executed on time by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
-            }
         }
         else
         {
-            printf("%s took to long to execute by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
-            // task took more time to complete than it was its period
-            // TODO: throw error or warning
+            ESP_LOGW("TaskManager", "%s took to long to execute by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
         }
     }
 
@@ -108,7 +116,7 @@ bool IsTaskCfgValid(Task_cfg_struct config)
     {
         return false;
     }
-    if((WATCHDOG_RESET_MAX_TASK_TIME * 1000) <= config.period)
+    if(TWDT_TIMEOUT_MS <= config.period)
     {
         return false;
     }

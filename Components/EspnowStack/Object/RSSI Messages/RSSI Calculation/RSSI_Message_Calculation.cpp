@@ -1,5 +1,15 @@
 #include "RSSI_Message_Calculation.hpp"
 #include "OpenSeries.hpp"
+#include "To_C_Encapsulation.h"
+#include <stdexcept>
+
+static Series_Id send_series_Id = 0;
+static Message_Position_Id send_message_Position_Id = 0;
+struct RSSI_Message_Calculation_Struct
+{
+    Series_Id series_Id;
+    Message_Position_Id message_Position_Id;
+};
 
 uint8 RSSI_Message_Calculation::GetElementsSize()
 {
@@ -7,14 +17,15 @@ uint8 RSSI_Message_Calculation::GetElementsSize()
 }
 
 // On received
-RSSI_Message_Calculation::RSSI_Message_Calculation(RSSI_Type rssi, MessageStruct messageStruct) : RSSI(rssi)
+RSSI_Message_Calculation::RSSI_Message_Calculation(RSSI_Type rssi, Message message) : RSSI(rssi)
 {
-    if(messageStruct.messageSize != GetElementsSize())
+    if(message.data_size != GetElementsSize())
     {
-        throw ValidationFailedException();
+        throw std::invalid_argument("Wrong message size");
     }
-    series_Id = *((Series_Id*)messageStruct.message);
-    message_Position_Id = *((Message_Position_Id*)((Series_Id*)messageStruct.message + sizeof(Series_Id)));
+    struct RSSI_Message_Calculation_Struct data_s = *((RSSI_Message_Calculation_Struct*)message.data);
+    series_Id = data_s.series_Id;
+    message_Position_Id = data_s.message_Position_Id;
 }
 
 RSSI_Message_Calculation::RSSI_Message_Calculation()
@@ -40,20 +51,29 @@ RSSI_Type RSSI_Message_Calculation::GetRSSI()
     return RSSI;
 }
 
-void RSSI_Message_Calculation::Send()
+void RSSI_Message_Calculation::Send(uint8* dst_addr)
 {
-    size_t data_size = GetElementsSize();
-    void* data = malloc(data_size);
-    *((Series_Id*)data) = 0;
-    *((Message_Position_Id*)data + sizeof(Series_Id)) = 0;
-    
-    MessageSend(RSSI_CALCULATION, data_size, data);
-
-    free(data);
+    StaticSend();
 }
 
-void RSSI_Message_Calculation::StaticSend(void* args)
+void RSSI_Message_Calculation::StaticSend()
 {
-    printf("RSSI_Message_Calculation::StaticSend task main function\n");
-    //MessageSend(RSSI_CALCULATION, *((Series_Id*)args), NULL);
+    Message* message = MessageInit(GetElementsSize());
+
+    ((struct RSSI_Message_Calculation_Struct*)(message->data))->series_Id           = send_series_Id;
+    ((struct RSSI_Message_Calculation_Struct*)(message->data))->message_Position_Id = send_message_Position_Id;
+
+    MessageSend(broadcast_mac, RSSI_CALCULATION, message);
+
+    if((OpenSeries::numberOfMessagesPerSeries - 1) > send_message_Position_Id)
+    {
+        send_message_Position_Id++;
+    }
+    else
+    {
+        send_series_Id++;
+        send_message_Position_Id = 0;
+    }
+
+    MessageDeinit(message);
 }

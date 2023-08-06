@@ -1,4 +1,5 @@
 #include "RSSI_Message_Keep_Alive.hpp"
+#include "To_C_Encapsulation.h"
 
 uint8 RSSI_Message_Keep_Alive::GetElementsSize()
 {
@@ -17,10 +18,10 @@ RSSI_Message_Keep_Alive::~RSSI_Message_Keep_Alive()
 
 void RSSI_Message_Keep_Alive::StaticSend()
 {    
-    MessageSend(RSSI_KEEP_ALIVE, 0, NULL);
+   MessageSend(broadcast_mac, RSSI_KEEP_ALIVE, NULL);
 }
 
-void RSSI_Message_Keep_Alive::Send()
+void RSSI_Message_Keep_Alive::Send(uint8* dst_addr)
 {
     StaticSend();
 }

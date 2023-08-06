@@ -3,20 +3,22 @@
 
 #include <esp_now.h>
 
-#include "EspnowDriver_Upper.h"
 
 #ifdef __cplusplus
 extern "C" 
 {
 #endif //__cplusplus
 
+#include "Common.h"
+#include "Espnow_Message_General.h"
 
 void Send_Cyclic_Msg();
 void SeriesSend();
 void UpdateSeries();
-esp_err_t RSSI_OnMessageReceive(uint8_t*, MessageStruct*, size_t, wifi_pkt_rx_ctrl_t*);
+void MessageReceive(uint8_t*, Message*, RSSI_Type);
 void HandleReceivedMessages();
 void To_CPP_Encapsulation_Init(void*);
+size_t GetSeriersRepetitions();
 
 
 #ifdef __cplusplus

@@ -1,13 +1,15 @@
 #include "RSSI_Message_Request.hpp"
+#include "To_C_Encapsulation.h"
+#include <stdexcept>
 
 // Functions for receiving messages
-RSSI_Message_Request::RSSI_Message_Request(MessageStruct messageStruct)
+RSSI_Message_Request::RSSI_Message_Request(Message message)
 {
-    if(messageStruct.messageSize != GetElementsSize())
+    if(message.data_size != GetElementsSize())
     {
-        throw ValidationFailedException();
+        throw std::invalid_argument("Wrong message size");
     }
-    subsricptionStatus = *((uint8*)messageStruct.message);
+    subsricptionStatus = *((uint8*)message.data);
 }
 
 // Functions for sending messages
@@ -16,16 +18,14 @@ RSSI_Message_Request::RSSI_Message_Request(bool value)
     subsricptionStatus = value;
 }
 
-void RSSI_Message_Request::Send()
+void RSSI_Message_Request::Send(uint8* dst_addr)
 {
-    size_t data_size = GetElementsSize();
-    void* data = malloc(data_size);
+    Message* message = MessageInit(GetElementsSize());
+    *(message->data) = subsricptionStatus;
 
-    *((bool*)data) = subsricptionStatus;
-    
-    MessageSend(RSSI_REQUEST, data_size, data);
+    MessageSend(dst_addr, RSSI_REQUEST, message);
 
-    free(data);
+    MessageDeinit(message);
 }
 
 // Other functions

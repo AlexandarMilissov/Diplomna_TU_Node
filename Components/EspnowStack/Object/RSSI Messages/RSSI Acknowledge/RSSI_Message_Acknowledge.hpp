@@ -1,20 +1,19 @@
 #ifndef RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 #define RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 
-#include "RSSI_Message_Interface.hpp"
-#include "EspnowDriver_Upper.h"
+#include "Espnow_Message_General.h"
 
-class RSSI_Message_Acknowledge: public RSSI_Message_Interface
+class RSSI_Message_Acknowledge
 {
 private:
     bool status;
-    uint8 GetElementsSize();
+    static uint8 GetElementsSize();
 public:
-    RSSI_Message_Acknowledge(MessageStruct);
+    RSSI_Message_Acknowledge(Message*);
     RSSI_Message_Acknowledge(bool);
     ~RSSI_Message_Acknowledge();
     bool GetStatus();
-    void Send();
+    void Send(uint8*);
 };
 
 #endif // RSSI_MESSAGE_ACKNOWLEDGE_HPP_

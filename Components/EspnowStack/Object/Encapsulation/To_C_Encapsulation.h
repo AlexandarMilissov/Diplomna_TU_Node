@@ -7,10 +7,10 @@ extern "C"
 #endif //__cplusplus
 
 #include "Common.h"
-#include "EspnowDriver_Upper.h"
+#include "Espnow_Message_General.h"
 #include "TaskManager.h"
 
-void MessageSend(MessageType, uint8, void*);
+void MessageSend(uint8*, MessageType, Message*);
 void ManagerSubscribe();
 void ManagerUnsubscribe();
 

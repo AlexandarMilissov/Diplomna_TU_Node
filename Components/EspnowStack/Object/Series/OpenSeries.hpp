@@ -20,8 +20,6 @@ class OpenSeries
         OpenSeries(Series_Id);
         ~OpenSeries();
         SeriesError_Type AddValue(Message_Position_Id, RSSI_Type);
-        double GetAverage();
-        uint8 GetNumberOfMessagesPerSeries();
         bool IsCorrectId(Series_Id);
         ClosedSeries* CloseSeries();
 };

@@ -1,24 +1,23 @@
 #ifndef RSSI_MESSAGE_REQUEST_HPP
 #define RSSI_MESSAGE_REQUEST_HPP
 
-#include "EspnowDriver_Upper.h"
-#include "RSSI_Message_Interface.hpp"
 #include "OpenSeries.hpp"
+#include "Espnow_Message_General.h"
 
 #define SUBSCRIBE true
 #define UNSUBSCRIBE false
 
-class RSSI_Message_Request : public RSSI_Message_Interface
+class RSSI_Message_Request
 {
 private:
     bool subsricptionStatus = UNSUBSCRIBE;
-    uint8 GetElementsSize();
+    static uint8 GetElementsSize();
 public:
-    RSSI_Message_Request(MessageStruct);
+    RSSI_Message_Request(Message);
     RSSI_Message_Request(bool);
     ~RSSI_Message_Request();
     bool GetSubsricptionStatus();
-    void Send();
+    void Send(uint8*);
 };
 
 

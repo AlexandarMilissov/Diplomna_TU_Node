@@ -1,0 +1,99 @@
+menu "Wifi Project"
+    menu "ESP NOW Driver"
+        config ESPNOW_PMK
+            string "ESPNOW primary master key"
+            default "pmk1234567890123"
+            help
+                ESPNOW primary master for the example to use. The length of ESPNOW primary master must be 16 bytes.
+    
+        config ESPNOW_LMK
+            string "ESPNOW local master key"
+            default "lmk1234567890123"
+            help
+                ESPNOW local master for the example to use. The length of ESPNOW local master must be 16 bytes.
+                
+        config ESPNOW_ENABLE_POWER_SAVE
+            bool "Enable ESPNOW Power Save"
+            default "n"
+            select ESP_WIFI_STA_DISCONNECTED_PM_ENABLE
+            depends on ESPNOW_WIFI_MODE_STATION
+            help
+                With ESPNOW power save enabled, chip would be able to wakeup and sleep periodically
+                Notice ESP_WIFI_STA_DISCONNECTED_PM_ENABLE is essential at Wi-Fi disconnected
+
+        config ESPNOW_WAKE_WINDOW
+            int "ESPNOW wake window, unit in millisecond"
+            range 0 65535
+            default 50
+            depends on ESPNOW_ENABLE_POWER_SAVE
+            help
+                ESPNOW wake window
+
+        config ESPNOW_WAKE_INTERVAL
+            int "ESPNOW wake interval, unit in millisecond"
+            range 1 65535
+            default 100
+            depends on ESPNOW_ENABLE_POWER_SAVE
+            help
+                ESPNOW wake interval
+
+    endmenu
+
+    menu "Wifi Manager"
+
+        config WIFI_CHANNEL
+            int "Channel"
+            default 1
+            range 0 14
+            help
+                The channel on which sending and receiving ESPNOW data.
+    endmenu
+
+    menu "Distance calculation"
+        config DISTANCE_METHOD
+            prompt "Use RSSI(dBm) instead of meters?"
+            bool "Use dBm"
+            default f
+
+        config USE_RSSI
+            int
+            default 1 if DISTANCE_METHOD=y
+            default 0
+
+        config MINIMUM_CONFIDANCE_INTERVAL
+            int
+            range 1 100
+            prompt "Total of the confidance interval allowed."
+            default 1
+            
+        config MINIMUM_NUMBER_OF_VALUES
+            int
+            range 1 10000
+            prompt "Minimum number of values to make a calclulation."
+            default 200
+
+        config MAXIMUM_NUMBER_OF_VALUES
+            int
+            range MINIMUM_NUMBER_OF_VALUES 100000
+            prompt "Maximum number of values to make a calclulation."
+            default 2000
+
+        config DISTANCE_UNITS_IN_A_METER
+            int
+            range 1 1000
+            prompt "Distance units in a meter"
+            default 100
+            help
+                1 units = 1 m;
+                10 units = 1 dm;
+                100 units = 1 cm;
+                1000 units = 1 mm;
+
+        config RSSI_REF_AT_1_M
+            int
+            range -200 1
+            prompt "RSSI reference at 1 meter"
+            default -50
+
+    endmenu
+endmenu

@@ -1,22 +1,24 @@
 #include "To_CPP_Encapsulation.hpp"
+#include "EspnowManager.h"
+#include "Espnow_Message_General.h"
 
 #include "Peer.hpp"
 #include "RSSI_Message_Request.hpp"
 #include "RSSI_Message_Calculation.hpp"
 #include "RSSI_Message_Keep_Alive.hpp"
-#include "RSSI_Message_Interface.hpp"
 
 #include <list>
 #include <algorithm>
 #include <queue>
+#include <cstring>
+#include <stdexcept>
 
 using namespace std;
 
 typedef struct InteruptReceivedMessageStruct 
 {
     uint8 src_addr[6];
-    MessageStruct* messageStruct;
-    size_t size;
+    Message* message;
     sint16 rx_ctrl_rssi;
 }InteruptReceivedMessageStruct;
 
@@ -25,10 +27,12 @@ list<Peer> Peers;
 queue<InteruptReceivedMessageStruct*> InteruptReceivedMessages;
 Spinlock InteruptReceivedMessagesSpinlock = Spinlock_Init;
 
-void RSSI_MessageHandle(InteruptReceivedMessageStruct);
+void HandleReceivedMessage(InteruptReceivedMessageStruct*);
 
 void To_CPP_Encapsulation_Init(void* pvparrams)
 {
+    esp_log_level_set("To_CPP_Encapsulation", ESP_LOG_WARN);
+ 
     Peers = {};
     InteruptReceivedMessages = {};
 }
@@ -47,38 +51,39 @@ void Send_Cyclic_Msg()
 
 void SeriesSend()
 {
-    RSSI_Message_Calculation::StaticSend(NULL);
-    TaskSleepMiliSeconds(1);
+    RSSI_Message_Calculation::StaticSend();
 }
 
 void UpdateSeries()
 {
+
     for(auto& peer : Peers)
     {
         peer.UpdateSeries();
     }
 }
 
-esp_err_t RSSI_OnMessageReceive(uint8_t *src_addr, MessageStruct* messageStruct, size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
+void MessageReceive(uint8_t *src_addr, Message* message, RSSI_Type rssi)
 {
+    if(state != RUN)
+    {
+        return;
+    }
+
     InteruptReceivedMessageStruct* irms = (InteruptReceivedMessageStruct*)malloc(sizeof(InteruptReceivedMessageStruct));
 
     memcpy(irms->src_addr, src_addr, sizeof(uint8) * 6);
-    irms->messageStruct = messageStruct;
-    irms->size = size;
-    irms->rx_ctrl_rssi = rx_ctrl->rssi;
+    irms->message = MessageCopy(message);
+    irms->rx_ctrl_rssi = rssi;
 
     Enter_Critical_Spinlock_ISR(InteruptReceivedMessagesSpinlock);
     InteruptReceivedMessages.push(irms);
     Exit_Critical_Spinlock_ISR(InteruptReceivedMessagesSpinlock);
-
-    return ESP_OK;
 }
 
 void HandleReceivedMessages()
 {
-    static InteruptReceivedMessageStruct copy;
-    static InteruptReceivedMessageStruct* original;
+    static InteruptReceivedMessageStruct* message_handle;
 
     while (true) 
     {
@@ -90,31 +95,33 @@ void HandleReceivedMessages()
         }
         else
         {
-            original = InteruptReceivedMessages.front();
+            message_handle = InteruptReceivedMessages.front();
             InteruptReceivedMessages.pop();
             Exit_Critical_Spinlock(InteruptReceivedMessagesSpinlock);
         }
-
-
-        copy = *original;
         
-        RSSI_MessageHandle(copy);
+        HandleReceivedMessage(message_handle);
 
-        free(original->messageStruct->message);
-        free(original->messageStruct);
-        free(original);
+        MessageDeinit(message_handle->message);
+        free(message_handle);
     }
 }
 
-void RSSI_MessageHandle(InteruptReceivedMessageStruct irms)
+void HandleReceivedMessage(InteruptReceivedMessageStruct* irms)
 {
     Peer* sender = NULL;
+
+
+    Message* message_header = MessageInit(MessageTypeSize);
+    Message* message_data = MessageInit(0);
+    MessageDecompose(irms->message, message_header, message_data);
+
 
     // Indentify the sender
 
     for(auto& peer : Peers)
     {
-        if(peer.IsCorrectAdress(irms.src_addr))
+        if(peer.IsCorrectAdress(irms->src_addr))
         {
             sender = &peer;
             break;
@@ -123,36 +130,36 @@ void RSSI_MessageHandle(InteruptReceivedMessageStruct irms)
     
     if(NULL == sender)
     {
-        sender = new Peer(irms.src_addr);
+        sender = new Peer(irms->src_addr);
         Peers.push_back(*sender);
     }
     
     // Proccess the message
     try
     {
-        switch (irms.messageStruct->messageType)
+        switch (*(message_header->data))
         {
         case RSSI_REQUEST:
         {
-            RSSI_Message_Request RSSI_Message = RSSI_Message_Request(irms.messageStruct);
+            RSSI_Message_Request RSSI_Message = RSSI_Message_Request(*message_data);
             sender->RSSI_Msg_Received(RSSI_Message);
         }
         break;
         case RSSI_CALCULATION:
         {
-            RSSI_Message_Calculation RSSI_Message = RSSI_Message_Calculation(irms.rx_ctrl_rssi, *(irms.messageStruct));
+            RSSI_Message_Calculation RSSI_Message = RSSI_Message_Calculation(irms->rx_ctrl_rssi, *message_data);
             sender->RSSI_Msg_Received(RSSI_Message);
         }
         break;
         case RSSI_KEEP_ALIVE:
         {
-            RSSI_Message_Keep_Alive RSSI_Message = RSSI_Message_Keep_Alive(irms.rx_ctrl_rssi);
+            RSSI_Message_Keep_Alive RSSI_Message = RSSI_Message_Keep_Alive(irms->rx_ctrl_rssi);
             sender->RSSI_Msg_Received(RSSI_Message);
         }
         break;
         case RSSI_ACKNOWLEDGE:
         {
-            RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(*(irms.messageStruct));
+            RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(message_data);
             sender->RSSI_Msg_Received(RSSI_Message);
         }
         break;
@@ -160,8 +167,16 @@ void RSSI_MessageHandle(InteruptReceivedMessageStruct irms)
             break;
         }
     }
-    catch(const ValidationFailedException& e)
+    catch(const invalid_argument& e)
     {
-        //printf("ESP_ERR_INVALID_ARG\n");
+        ESP_LOGE("To_CPP_Encapsulation", "ESP_ERR_INVALID_ARG: %s\n", e.what());
     }
+
+    free(message_header);
+    free(message_data);
+}
+
+size_t GetSeriersRepetitions()
+{
+    return OpenSeries::numberOfMessagesPerSeries;
 }

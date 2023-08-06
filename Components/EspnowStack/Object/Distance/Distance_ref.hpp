@@ -5,7 +5,7 @@
 // Antenna gain -30
 // Tx power 20
 
-#define rssi_dbm_ref_at_1_m -50.0
+#define rssi_dbm_ref_at_1_m CONFIG_RSSI_REF_AT_1_M
 #define env_variable 2.0
 
 #define z95 1.96

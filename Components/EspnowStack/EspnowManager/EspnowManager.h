@@ -25,6 +25,8 @@ typedef enum State{
     RUN,        // Network is active
 }State;
 
+extern State state;
+
 void EspnowManager_Init(void*);
 void EspnowManager_MainFunction(void*);
 void EspnowManager_ActivateNetwork();

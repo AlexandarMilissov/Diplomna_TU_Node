@@ -11,8 +11,12 @@ OpenSeries::~OpenSeries()
 
 SeriesError_Type OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
 {
+#if CONFIG_USE_RSSI != FALSE
+    DistanceUnits value = rssi;
+#else
     DistanceUnits value = Distance::RSSI_To_DistanceUnits(rssi);
-    
+#endif
+
     if(isClosed)
     {
         return SERIES_CLOSED;
@@ -35,11 +39,6 @@ SeriesError_Type OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type r
     counter++;
 
     return NO_ERROR;
-}
-
-uint8 OpenSeries::GetNumberOfMessagesPerSeries()
-{
-    return numberOfMessagesPerSeries;
 }
 
 bool OpenSeries::IsCorrectId(Series_Id _id)
