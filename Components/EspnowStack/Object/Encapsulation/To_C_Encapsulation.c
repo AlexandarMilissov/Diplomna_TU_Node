@@ -3,10 +3,10 @@
 #include "EspnowDriver.h"
 
 
-void MessageSend(uint8* dst_addr, MessageType messageType, Message* data)
+void MessageSend(const uint8* dst_addr, MessageType messageType, const Message* data)
 {
     Message* header = MessageInit(MessageTypeSize);
-    *(header->data) = messageType;
+    *(header->data) = (uint8)messageType;
 
     Message* message = MessageCompose(header, data);
 
@@ -18,10 +18,10 @@ void MessageSend(uint8* dst_addr, MessageType messageType, Message* data)
 
 void ManagerSubscribe()
 {
-    AddCalculationSubsciber();
+    AddCalculationSubscriber();
 }
 
 void ManagerUnsubscribe()
 {
-    RemoveCalculationSubsciber();
+    RemoveCalculationSubscriber();
 }

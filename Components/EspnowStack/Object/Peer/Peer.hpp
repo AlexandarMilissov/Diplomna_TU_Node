@@ -19,23 +19,26 @@ typedef struct SeriesLife
 class Peer
 {
     private:
-        static const uint8 seriersBeginningLife = 5;
+        static const uint8 seriesBeginningLife = 5;
+        Spinlock selfProtection = Spinlock_Init;
         Distance distance;
         uint8 sourceAddress[6];
         std::vector<SeriesLife> openSeries;
-        bool isPeerSubscirbedToUs   = false;
-        bool areWeSubscirbedToPeer  = false;
+        Spinlock openSeriesProtection = Spinlock_Init;
+        bool isPeerSubscribedToUs   = false;
+        bool areWeSubscribedToPeer  = false;
         bool acknowledgeRequired    = false;
     public:
-        Peer(uint8_t*);
+        Peer(const uint8_t*);
         ~Peer();
-        bool IsCorrectAdress(uint8*);
+        bool IsCorrectAddress(const uint8*);
         void RSSI_Msg_Received(RSSI_Message_Request     message);
         void RSSI_Msg_Received(RSSI_Message_Calculation message);
         void RSSI_Msg_Received(RSSI_Message_Keep_Alive  message);
         void RSSI_Msg_Received(RSSI_Message_Acknowledge message);
         void UpdateSeries();
-        void SendSubsriptionRequest();
+        void SendSubscriptionRequest();
+        void Monitor();
 };
 
 #endif

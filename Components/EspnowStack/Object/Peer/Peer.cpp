@@ -4,17 +4,22 @@
 
 #include <cstring>
 
-void Peer::SendSubsriptionRequest()
+void Peer::SendSubscriptionRequest()
 {
     if(false == acknowledgeRequired)
     {
         return;
     }
-    RSSI_Message_Request RSSI_Message = RSSI_Message_Request(areWeSubscirbedToPeer);
+    RSSI_Message_Request RSSI_Message = RSSI_Message_Request(areWeSubscribedToPeer);
     RSSI_Message.Send(sourceAddress);
 }
 
-Peer::Peer(uint8_t *src_addr)
+void Peer::Monitor()
+{
+    distance.LogInfo();
+}
+
+Peer::Peer(const uint8_t *src_addr)
 {
     if(false) // TODO: Validate
     {
@@ -28,7 +33,7 @@ Peer::~Peer()
 {
 }
 
-bool Peer::IsCorrectAdress(uint8* src_addr)
+bool Peer::IsCorrectAddress(const uint8* src_addr)
 {
     if(0 == memcmp(sourceAddress, src_addr, 6))
     {
@@ -42,36 +47,41 @@ bool Peer::IsCorrectAdress(uint8* src_addr)
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
 {
-    if(SUBSCRIBE == message.GetSubsricptionStatus())
+    bool messageStatus;
+
+    Enter_Critical_Spinlock(selfProtection);
+
+    messageStatus = message.GetSubscriptionStatus();
+
+    if(SUBSCRIBE == messageStatus)
     {
-        if(!isPeerSubscirbedToUs)
+        if(!isPeerSubscribedToUs)
         {
-            isPeerSubscirbedToUs = true;
+            isPeerSubscribedToUs = true;
             ManagerSubscribe();
         }
         RSSI_Message_Acknowledge ackn = RSSI_Message_Acknowledge(SUBSCRIBE);
         ackn.Send(sourceAddress);
     }
-    else if(UNSUBSCRIBE == message.GetSubsricptionStatus())
+    else if(UNSUBSCRIBE == message.GetSubscriptionStatus())
     {
-        if(isPeerSubscirbedToUs)
+        if(isPeerSubscribedToUs)
         {
-            isPeerSubscirbedToUs = false;
+            isPeerSubscribedToUs = false;
             ManagerUnsubscribe();
         }
         RSSI_Message_Acknowledge ackn = RSSI_Message_Acknowledge(UNSUBSCRIBE);
         ackn.Send(sourceAddress);
     }
-    else
-    {
-        ESP_LOGE("To_CPP_Encapsulation","PEER ERROR MESSAGE REQUEST WITH WRONG VALUE:\n");
-        while(1);
-    }
+
+    Exit_Critical_Spinlock(selfProtection);
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
 {
     OpenSeries* series = NULL;
+    Enter_Critical_Spinlock(openSeriesProtection);
+
     for(auto& s : openSeries)
     {
         if(s.series->IsCorrectId(message.GetSeriesID()))
@@ -83,26 +93,22 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
     {
         series = new OpenSeries(message.GetSeriesID());
         SeriesLife sl;
-        sl.life = seriersBeginningLife;
+        sl.life = seriesBeginningLife;
         sl.series = series;
         openSeries.push_back(sl);
     }
-
-    if(NO_ERROR != series->AddValue(message.GetMessagePosition(), message.GetRSSI()))
-    {
-        ESP_LOGW("Peer", "Open Series[%lu] adding value failed", message.GetSeriesID());
-    }
+    series->AddValue(message.GetMessagePosition(), message.GetRSSI());
+    Exit_Critical_Spinlock(openSeriesProtection);
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
 {
-    if(areWeSubscirbedToPeer)
+    Enter_Critical_Spinlock(selfProtection);
+    if(areWeSubscribedToPeer)
     {
         if(!distance.IsCalculationRequired())
         {
-            ESP_LOGI("Peer","Calculation Ended");
-            distance.LogInfo();
-            areWeSubscirbedToPeer = false;
+            areWeSubscribedToPeer = false;
             acknowledgeRequired = true;
         }
     }
@@ -110,16 +116,16 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
     {
         if(distance.IsCalculationRequired())
         {
-            ESP_LOGI("Peer","Calculation Started");
-            areWeSubscirbedToPeer = true;
+            areWeSubscribedToPeer = true;
             acknowledgeRequired = true;
         }
     }
+    Exit_Critical_Spinlock(selfProtection);
 }
 
 void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
 {
-    if(message.GetStatus() == areWeSubscirbedToPeer)
+    if(message.GetStatus() == areWeSubscribedToPeer)
     {
         acknowledgeRequired = false;
     }
@@ -127,6 +133,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
 
 void Peer::UpdateSeries()
 {
+    Enter_Critical_Spinlock(openSeriesProtection);
     for(auto it = openSeries.begin(); it != openSeries.end();)
     {
         (*it).life--;
@@ -144,6 +151,6 @@ void Peer::UpdateSeries()
             ++it;
         }
     }
-
     distance.Recalculate();
+    Exit_Critical_Spinlock(openSeriesProtection);
 }

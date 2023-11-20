@@ -1,22 +1,23 @@
 #include "Espnow_Message_General.h"
 #include <string.h>
 
-Message* MessageInit(size_t data_size)
+Message* MessageInit(const size_t data_size)
 {
     Message* out = (Message*)malloc(sizeof(Message));
-    ByteArray data = (ByteArray)malloc(sizeof(uint8) * data_size);
+    uint8_t* data = (uint8_t*)malloc(sizeof(uint8) * data_size);
     out->data = data;
     out->data_size = data_size;
 
     return out;
 }
+
 void MessageDeinit(Message* in)
 {
     free(in->data);
     free(in);
 }
 
-void MessageDecompose(Message* in, Message* out_header, Message* out_data)
+void MessageDecompose(const Message* in, Message* out_header, Message* out_data)
 {
     // Check for input errors
     if(out_header->data_size > in->data_size)
@@ -36,7 +37,7 @@ void MessageDecompose(Message* in, Message* out_header, Message* out_data)
     }
 }
 
-Message* MessageCopy(Message* original)
+Message* MessageCopy(const Message* original)
 {
     if(original == NULL)
     {
@@ -49,7 +50,7 @@ Message* MessageCopy(Message* original)
     return copy;
 }
 
-Message* MessageCompose(Message* in_header, Message* in_data)
+Message* MessageCompose(const Message* in_header, const Message* in_data)
 {
     Message* out;
 
@@ -67,7 +68,7 @@ Message* MessageCompose(Message* in_header, Message* in_data)
     return out;
 }
 
-void MessagePrintf(Message* message)
+void MessagePrintf(const Message* message)
 {
     printf("Message: ");
     for (int i = 0; i < message->data_size; i++)

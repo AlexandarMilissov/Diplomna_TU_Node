@@ -19,16 +19,16 @@ typedef enum MessageType
 
 typedef struct Message
 {
-    ByteArray data;
+    uint8_t* data;
     size_t data_size;
 }Message;
 
-Message* MessageInit(size_t);
+Message* MessageInit(const size_t);
 void MessageDeinit(Message*);
-void MessageDecompose(Message*, Message*, Message*);
-Message* MessageCopy(Message*);
-Message* MessageCompose(Message*, Message*);
-void MessagePrintf(Message*);
+void MessageDecompose(const Message*, Message*, Message*);
+Message* MessageCopy(const Message*);
+Message* MessageCompose(const Message*,const Message*);
+void MessagePrintf(const Message*);
 
 #ifdef __cplusplus
 }

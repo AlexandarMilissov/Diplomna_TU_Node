@@ -10,13 +10,13 @@
 class RSSI_Message_Request
 {
 private:
-    bool subsricptionStatus = UNSUBSCRIBE;
+    bool subscriptionStatus = UNSUBSCRIBE;
     static uint8 GetElementsSize();
 public:
     RSSI_Message_Request(Message);
     RSSI_Message_Request(bool);
     ~RSSI_Message_Request();
-    bool GetSubsricptionStatus();
+    bool GetSubscriptionStatus();
     void Send(uint8*);
 };
 

@@ -3,6 +3,6 @@
 
 #include "Common.h"
 
-void WifiManager_Init(void*);
+void WifiManager_Init(const void*);
 
 #endif

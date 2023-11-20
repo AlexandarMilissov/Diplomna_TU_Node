@@ -7,9 +7,9 @@
 class ClosedSeries
 {
     public:
-        static const DistanceUnits defaltValue = 0;
+        static const DistanceUnits defaultValue = 0;
     private:
-        DistanceUnits value = defaltValue;
+        DistanceUnits value = defaultValue;
     public:
         operator DistanceUnits () const;
         ClosedSeries();

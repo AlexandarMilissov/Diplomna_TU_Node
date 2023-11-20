@@ -8,16 +8,10 @@ typedef RSSI_Type DistanceUnits;
 typedef uint16 DistanceUnits;
 #endif
 typedef uint32 Series_Id;
-typedef uint8  Message_Position_Id;
-
-typedef enum SeriesError_Type
-{
-    SERIES_FULL,
-    SERIES_CLOSED,
-    WRONG_SERIES_ID,
-    WRONG_MESSAGE_ID,
-    NO_ERROR,
-}SeriesError_Type;
-
+/**
+ * @typedef Message_Position_Id
+ * @brief Represents a unique identifier for the position of a message in a series.
+ */
+typedef uint8 Message_Position_Id;
 
 #endif // SERIESCOMMON_HPP_

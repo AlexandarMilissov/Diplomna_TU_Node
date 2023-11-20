@@ -25,12 +25,12 @@ class Distance
 
         ClosedSeries mostCommon;
         uint16 mostCommonCount = 0;
-        double confindenceInterval = 0;
+        double confidenceInterval = 0;
 
         void AddSeriesSafe(ClosedSeries*);
         void AssignMostCommon(ClosedSeries);
         void CalculateStandardDeviation();
-        void CalculateConfindenceInterval();
+        void CalculateConfidenceInterval();
     public:
         Distance();
         ~Distance();
@@ -39,7 +39,7 @@ class Distance
         uint32 GetSeriesCount();
         void Recalculate();
         void LogInfo();
-        static uint8 GetRequestedRepetiotions();
+        static uint8 GetRequestedRepetitions();
         static DistanceUnits RSSI_To_DistanceUnits(double);
 };
 

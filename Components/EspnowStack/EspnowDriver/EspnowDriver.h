@@ -5,8 +5,8 @@
 #include "Espnow_Message_General.h"
 #include "esp_now.h"
 
-void EspnowDriver_Init(void(*callback)(uint8_t*, Message*, RSSI_Type));
-void DataSend(uint8*, Message*);
-void DataReceive(const esp_now_recv_info_t*,const uint8_t*, int);
+void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSSI_Type));
+void DataSend(const uint8*, const Message*);
+void DataReceive(const esp_now_recv_info_t*, const uint8_t*, int);
 
 #endif // ESPNOWDRIVER_LOWER_H_

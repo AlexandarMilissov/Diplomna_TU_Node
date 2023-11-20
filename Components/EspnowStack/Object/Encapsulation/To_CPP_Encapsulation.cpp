@@ -15,26 +15,29 @@
 
 using namespace std;
 
-typedef struct InteruptReceivedMessageStruct 
+typedef struct InterruptReceivedMessageStruct 
 {
     uint8 src_addr[6];
     Message* message;
     sint16 rx_ctrl_rssi;
-}InteruptReceivedMessageStruct;
+}InterruptReceivedMessageStruct;
 
 list<Peer> Peers;
+Spinlock peerListProtection = Spinlock_Init;
 
-queue<InteruptReceivedMessageStruct*> InteruptReceivedMessages;
-Spinlock InteruptReceivedMessagesSpinlock = Spinlock_Init;
+queue<InterruptReceivedMessageStruct*> InterruptReceivedMessages;
+Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
+uint64 handledMessagesCounter = 0;
+uint64 receivedMessagesCounter = 0;
 
-void HandleReceivedMessage(InteruptReceivedMessageStruct*);
+void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
 
 void To_CPP_Encapsulation_Init(void* pvparrams)
 {
     esp_log_level_set("To_CPP_Encapsulation", ESP_LOG_WARN);
  
     Peers = {};
-    InteruptReceivedMessages = {};
+    InterruptReceivedMessages = {};
 }
 
 void Send_Cyclic_Msg()
@@ -42,10 +45,10 @@ void Send_Cyclic_Msg()
     // Send keep alive messages
     RSSI_Message_Keep_Alive::StaticSend();
 
-    // Send needed subsription requests
+    // Send needed subscription requests
     for(auto& peer : Peers)
     {
-        peer.SendSubsriptionRequest();
+        peer.SendSubscriptionRequest();
     }
 }
 
@@ -56,58 +59,87 @@ void SeriesSend()
 
 void UpdateSeries()
 {
-
     for(auto& peer : Peers)
     {
         peer.UpdateSeries();
     }
 }
 
-void MessageReceive(uint8_t *src_addr, Message* message, RSSI_Type rssi)
+void EncapsulationMonitor()
+{
+    size_t operations;
+    uint64 localHandledMessagesCounter;
+    uint64 localReceivedMessagesCounter;
+
+    Enter_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+    operations = InterruptReceivedMessages.size();
+    localHandledMessagesCounter = handledMessagesCounter;
+    localReceivedMessagesCounter = receivedMessagesCounter;
+    Exit_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+
+    ESP_LOGI("Monitor", "[%d] queued messages", operations);
+    ESP_LOGI("Monitor", "[%lld] handled messages", localHandledMessagesCounter);
+    ESP_LOGI("Monitor", "[%lld] received messages", localReceivedMessagesCounter);
+
+    for(auto& peer : Peers)
+    {
+        ESP_LOGI("Monitor", "----->");
+        peer.Monitor();
+    }
+}
+
+void MessageReceive(const uint8_t *src_addr, const Message* message, const RSSI_Type rssi)
 {
     if(state != RUN)
     {
         return;
     }
 
-    InteruptReceivedMessageStruct* irms = (InteruptReceivedMessageStruct*)malloc(sizeof(InteruptReceivedMessageStruct));
+    InterruptReceivedMessageStruct* irms = (InterruptReceivedMessageStruct*)malloc(sizeof(InterruptReceivedMessageStruct));
 
     memcpy(irms->src_addr, src_addr, sizeof(uint8) * 6);
     irms->message = MessageCopy(message);
     irms->rx_ctrl_rssi = rssi;
 
-    Enter_Critical_Spinlock_ISR(InteruptReceivedMessagesSpinlock);
-    InteruptReceivedMessages.push(irms);
-    Exit_Critical_Spinlock_ISR(InteruptReceivedMessagesSpinlock);
+    Enter_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
+    InterruptReceivedMessages.push(irms);
+    receivedMessagesCounter++;
+    Exit_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
 }
 
 void HandleReceivedMessages()
 {
-    static InteruptReceivedMessageStruct* message_handle;
+    InterruptReceivedMessageStruct* message_handle;
+    uint8 maximumOperationMainFunction = 0xFF;
 
-    while (true) 
+    while (maximumOperationMainFunction > 0) 
     {
-        Enter_Critical_Spinlock(InteruptReceivedMessagesSpinlock);
-        if(InteruptReceivedMessages.empty())
+        message_handle = NULL;
+
+        Enter_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+        if(!InterruptReceivedMessages.empty())
         {
-            Exit_Critical_Spinlock(InteruptReceivedMessagesSpinlock);
-            break;
+            handledMessagesCounter++;
+            message_handle = InterruptReceivedMessages.front();
+            InterruptReceivedMessages.pop();
         }
-        else
+        Exit_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+
+        if(NULL == message_handle)
         {
-            message_handle = InteruptReceivedMessages.front();
-            InteruptReceivedMessages.pop();
-            Exit_Critical_Spinlock(InteruptReceivedMessagesSpinlock);
+            break;
         }
         
         HandleReceivedMessage(message_handle);
 
         MessageDeinit(message_handle->message);
         free(message_handle);
+
+        maximumOperationMainFunction--;
     }
 }
 
-void HandleReceivedMessage(InteruptReceivedMessageStruct* irms)
+void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 {
     Peer* sender = NULL;
 
@@ -117,11 +149,11 @@ void HandleReceivedMessage(InteruptReceivedMessageStruct* irms)
     MessageDecompose(irms->message, message_header, message_data);
 
 
-    // Indentify the sender
-
+    // Identify the sender
+    Enter_Critical_Spinlock(peerListProtection);
     for(auto& peer : Peers)
     {
-        if(peer.IsCorrectAdress(irms->src_addr))
+        if(peer.IsCorrectAddress(irms->src_addr))
         {
             sender = &peer;
             break;
@@ -133,6 +165,7 @@ void HandleReceivedMessage(InteruptReceivedMessageStruct* irms)
         sender = new Peer(irms->src_addr);
         Peers.push_back(*sender);
     }
+    Exit_Critical_Spinlock(peerListProtection);  
     
     // Proccess the message
     try
@@ -172,11 +205,11 @@ void HandleReceivedMessage(InteruptReceivedMessageStruct* irms)
         ESP_LOGE("To_CPP_Encapsulation", "ESP_ERR_INVALID_ARG: %s\n", e.what());
     }
 
-    free(message_header);
-    free(message_data);
+    MessageDeinit(message_header);
+    MessageDeinit(message_data);
 }
 
-size_t GetSeriersRepetitions()
+size_t GetSeriesRepetitions()
 {
     return OpenSeries::numberOfMessagesPerSeries;
 }

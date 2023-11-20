@@ -1,6 +1,8 @@
 #ifndef TO_C_ENCAPSULATION_HPP
 #define TO_C_ENCAPSULATION_HPP
 
+#include "TaskManager.h"
+
 #ifdef __cplusplus
 extern "C" 
 {
@@ -8,9 +10,8 @@ extern "C"
 
 #include "Common.h"
 #include "Espnow_Message_General.h"
-#include "TaskManager.h"
 
-void MessageSend(uint8*, MessageType, Message*);
+void MessageSend(const uint8*, MessageType, const Message*);
 void ManagerSubscribe();
 void ManagerUnsubscribe();
 

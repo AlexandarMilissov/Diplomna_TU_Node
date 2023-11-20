@@ -40,7 +40,6 @@ menu "Wifi Project"
     endmenu
 
     menu "Wifi Manager"
-
         config WIFI_CHANNEL
             int "Channel"
             default 1
@@ -60,10 +59,10 @@ menu "Wifi Project"
             default 1 if DISTANCE_METHOD=y
             default 0
 
-        config MINIMUM_CONFIDANCE_INTERVAL
+        config MINIMUM_CONFIDENCE_INTERVAL
             int
             range 1 100
-            prompt "Total of the confidance interval allowed."
+            prompt "Total of the confidence interval allowed."
             default 1
             
         config MINIMUM_NUMBER_OF_VALUES
@@ -82,8 +81,10 @@ menu "Wifi Project"
             int
             range 1 1000
             prompt "Distance units in a meter"
-            default 100
+            default 10
             help
+                Define how many distance units (containers for statistic calculation) are there.
+                Number of units - size of a container:
                 1 units = 1 m;
                 10 units = 1 dm;
                 100 units = 1 cm;
@@ -94,6 +95,8 @@ menu "Wifi Project"
             range -200 1
             prompt "RSSI reference at 1 meter"
             default -50
+            help 
+                "RSSI reference at 1 meter"
 
     endmenu
 endmenu

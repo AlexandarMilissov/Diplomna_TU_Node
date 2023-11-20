@@ -9,19 +9,19 @@ RSSI_Message_Request::RSSI_Message_Request(Message message)
     {
         throw std::invalid_argument("Wrong message size");
     }
-    subsricptionStatus = *((uint8*)message.data);
+    subscriptionStatus = *((uint8*)message.data);
 }
 
 // Functions for sending messages
 RSSI_Message_Request::RSSI_Message_Request(bool value)
 {
-    subsricptionStatus = value;
+    subscriptionStatus = value;
 }
 
 void RSSI_Message_Request::Send(uint8* dst_addr)
 {
     Message* message = MessageInit(GetElementsSize());
-    *(message->data) = subsricptionStatus;
+    *(message->data) = subscriptionStatus;
 
     MessageSend(dst_addr, RSSI_REQUEST, message);
 
@@ -32,14 +32,14 @@ void RSSI_Message_Request::Send(uint8* dst_addr)
 
 uint8 RSSI_Message_Request::GetElementsSize()
 {
-    return sizeof(subsricptionStatus);
+    return sizeof(subscriptionStatus);
 }
 
 RSSI_Message_Request::~RSSI_Message_Request()
 {
 }
 
-bool RSSI_Message_Request::GetSubsricptionStatus()
+bool RSSI_Message_Request::GetSubscriptionStatus()
 {
-    return subsricptionStatus;
+    return subscriptionStatus;
 }

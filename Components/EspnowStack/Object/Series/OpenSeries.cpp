@@ -9,36 +9,51 @@ OpenSeries::~OpenSeries()
 {
 }
 
-SeriesError_Type OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
+/**
+ * @brief Add a value to the OpenSeries instance based on a message ID and RSSI.
+ *
+ * This function adds a distance value to the OpenSeries instance based on the provided
+ * message ID and RSSI (Received Signal Strength Indication). The RSSI value is either used
+ * directly or converted to a distance value, depending on the configuration.
+ *
+ * @param messageId A unique identifier for the message position.
+ * @param rssi The Received Signal Strength Indication (RSSI) associated with the message.
+ */
+void OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
 {
 #if CONFIG_USE_RSSI != FALSE
+    // Use RSSI directly as distance when CONFIG_USE_RSSI is enabled.
     DistanceUnits value = rssi;
 #else
+    // Convert RSSI to distance when CONFIG_USE_RSSI is disabled.
     DistanceUnits value = Distance::RSSI_To_DistanceUnits(rssi);
 #endif
 
+    // Check if the OpenSeries instance is already closed.
     if(isClosed)
     {
-        return SERIES_CLOSED;
+        return;
     }
+    // Check if the counter has reached the maximum number of messages per series.
     if(counter >= numberOfMessagesPerSeries)
     {
-        return SERIES_FULL;
+        return;
     }
+    // Check if the provided message ID is within the valid range.
     if(messageId >= numberOfMessagesPerSeries)
     {
-        return WRONG_MESSAGE_ID;
+        return;
     }
+    // Check if the message ID has not been used already.
     if(0 != messagesRSSI[messageId])
     {
-        return WRONG_MESSAGE_ID;
+        return;
     }
 
+    // Add the value to the messages array and update relevant counters.
     messagesRSSI[messageId] = value;
     totalRSSIOfMessages += value;
     counter++;
-
-    return NO_ERROR;
 }
 
 bool OpenSeries::IsCorrectId(Series_Id _id)
@@ -52,7 +67,7 @@ ClosedSeries* OpenSeries::CloseSeries()
     ClosedSeries* closedSeries;
     if(minimumNumberOfMessagesForCalculation >= counter)
     {
-        closedSeries = new ClosedSeries(0);
+        closedSeries = new ClosedSeries(ClosedSeries::defaultValue);
     }
     else
     {

@@ -3,21 +3,25 @@
 
 #include "Common.h"
 
+#define USING_MONITOR 1
+
 #define CORE_0 0
 #define CORE_1 1
 
 typedef struct Task_cfg_struct{
-    const char* name;
-    void (*MainFunction)(void*);
-    void *mainFunctionParams;
+    uint8 padding1[100];
+    const uint8 namePointer;
+    void (*MainFunction)(const void*);
+    void* mainFunctionParams;
     uint16 period;
-    uint32 core;
+    uint8 core;
     uint32 stack_size;
     UBaseType_t priority;
     bool finite;
     uint16 repetition;
-    void (*OnComplete)(void*);
+    void (*OnComplete)(const void*);
     void* onCompleteParams;
+    uint8 padding2[100];
 }Task_cfg_struct;
 
 void TaskManager_Init(void);

@@ -7,16 +7,20 @@
 #include "nvs_flash.h"
 #include "esp_task_wdt.h"
 #include <string.h>
+#include "esp_heap_caps.h"
+#include "EspnowManager.h"
+#include "Monitor.hpp"
 
 #define TWDT_TIMEOUT_MS 5000
 
-void Task(void*);
+void Task(const void*);
 bool IsTaskCfgValid(Task_cfg_struct);
 
 void TaskManager_Init(void)
 {
     esp_log_level_set("Peer", ESP_LOG_INFO);
     esp_log_level_set("TaskManager", ESP_LOG_WARN);
+
 
     nvs_flash_init();
 
@@ -41,12 +45,18 @@ void TaskManager_Init(void)
     ESP_LOGI("TaskManager", "init success\n");
 }
 
-void Task(void* config)
+void Task(const void* in_config_ptr)
 {
-    Task_cfg_struct cfg = *((Task_cfg_struct*)config);
     uint64 time = 0;
-    esp_task_wdt_add(NULL);
+    
+    Task_cfg_struct cfg;
+    memcpy(&cfg, in_config_ptr, sizeof(Task_cfg_struct));
 
+#if USING_MONITOR == 1
+    MonitorTaskInit(cfg.namePointer, cfg.period);
+#endif
+
+    esp_task_wdt_add(NULL);
     for(;;)
     {
         if(cfg.finite)
@@ -66,12 +76,12 @@ void Task(void* config)
         esp_task_wdt_reset();
         if((cfg.period * 1000) >= time)
         {
-            ESP_LOGV("TaskManager", "%s executed on time by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
+            ESP_LOGV("TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg.namePointer], time, (uint64)cfg.period * 1000);
             TaskSleepMiliSeconds(cfg.period - (time / 1000));
         }
         else
         {
-            ESP_LOGW("TaskManager", "%s took to long to execute by %lld/%lldus\n", cfg.name, time, (uint64)cfg.period * 1000);
+            ESP_LOGW("TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg.namePointer], time, (uint64)cfg.period * 1000);
         }
     }
 
@@ -99,10 +109,13 @@ TaskHandle_t* RequestTask(Task_cfg_struct config)
     default:
         config.core %= 2;
         break;
-    }
-    
+    }  
+
     TaskHandle_t* taskHandle = NULL;
-    xTaskCreatePinnedToCore(Task, config.name, config.stack_size, &config, config.priority, taskHandle, config.core);
+    if(pdPASS != xTaskCreatePinnedToCore((TaskFunction_t)Task, task_name_table[config.namePointer], config.stack_size, &config, config.priority, taskHandle, config.core))
+    {
+        ESP_LOGE("TaskManager", "Failed to create task: %s", task_name_table[config.namePointer]);
+    }
     return taskHandle;
 }
 

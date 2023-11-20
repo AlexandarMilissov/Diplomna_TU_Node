@@ -19,7 +19,7 @@ class OpenSeries
     public:
         OpenSeries(Series_Id);
         ~OpenSeries();
-        SeriesError_Type AddValue(Message_Position_Id, RSSI_Type);
+        void AddValue(Message_Position_Id, RSSI_Type);
         bool IsCorrectId(Series_Id);
         ClosedSeries* CloseSeries();
 };
