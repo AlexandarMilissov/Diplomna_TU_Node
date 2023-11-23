@@ -6,14 +6,14 @@
 
 class ClosedSeries
 {
-    public:
-        static const DistanceUnits defaultValue = 0;
     private:
+        static const DistanceUnits defaultValue = 0;
         DistanceUnits value = defaultValue;
     public:
         operator DistanceUnits () const;
         ClosedSeries();
         ClosedSeries(DistanceUnits);
+        bool IsDefault();
 };
 
 #endif // CLOSEDSERIES_HPP_

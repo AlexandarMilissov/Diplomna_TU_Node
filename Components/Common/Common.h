@@ -7,6 +7,7 @@
 #include "freertos/semphr.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
+#include "stdbool.h"
 
 typedef portMUX_TYPE Spinlock;
 #define Spinlock_Init portMUX_INITIALIZER_UNLOCKED
@@ -33,6 +34,7 @@ typedef signed int RSSI_Type;
 #define TaskSleepMiliSeconds(value) vTaskDelay(pdMS_TO_TICKS(value))
 
 #define Map(in, range_to_low, range_to_high, range_from_low, range_from_high) ((in-range_from_low)/(range_from_high-range_from_low) * (range_to_high - range_to_low) + range_to_low)
+#define Square(value) (value * value)
 #define DUMMY_STATEMENT(var) (void)var
 
 #ifndef LOW

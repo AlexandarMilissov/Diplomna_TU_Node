@@ -8,11 +8,11 @@
 class OpenSeries
 {
     public:
-        static const uint8 numberOfMessagesPerSeries = 10;
+        static const uint8 numberOfMessagesPerSeries = CONFIG_NUMBER_OF_MESSAGES_PER_SERIES;
     private:
-        static const uint8 minimumNumberOfMessagesForCalculation = 8;
-        DistanceUnits messagesRSSI[numberOfMessagesPerSeries] = {0};
-        DistanceUnits totalRSSIOfMessages = 0;
+        static const uint8 minimumNumberOfMessagesForCalculation = CONFIG_MINIMUM_NUMBER_OF_MESSAGES_PER_SERIES;
+        RSSI_Type messagesRSSI[numberOfMessagesPerSeries] = {0};
+        RSSI_Type totalRSSIOfMessages = 0;
         const Series_Id id;
         bool isClosed = false;
         uint8 counter = 0;

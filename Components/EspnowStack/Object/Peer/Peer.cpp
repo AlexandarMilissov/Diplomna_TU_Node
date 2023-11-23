@@ -143,6 +143,8 @@ void Peer::UpdateSeries()
 
             distance.AddSeries(cs);
 
+            delete (cs);
+            
             delete((*it).series);
             it = openSeries.erase(it);
         }

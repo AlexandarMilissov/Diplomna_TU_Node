@@ -10,4 +10,5 @@ idf_component_register(SRCS
                             EspnowStack
                             WifiManager
                             Monitor
+                            Hooks
                        )

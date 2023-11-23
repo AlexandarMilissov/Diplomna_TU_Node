@@ -5,6 +5,7 @@
 #include "WifiManager.h"
 #include "EspnowManager.h"
 #include "Monitor.hpp"
+#include "Hooks.h"
 
 typedef struct Init_cfg_struct{
     const char* name;
@@ -18,6 +19,7 @@ Init_cfg_struct init_cfg[] =
 #endif
     {"WifiManager", WifiManager_Init},
     {"EspnowManager", EspnowManager_Init},
+    {"Hooks", Hooks_Init},
 };
 
 #define Init_cfg_size sizeof(init_cfg)/sizeof(Init_cfg_struct)

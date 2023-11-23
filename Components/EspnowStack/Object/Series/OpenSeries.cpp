@@ -21,14 +21,6 @@ OpenSeries::~OpenSeries()
  */
 void OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
 {
-#if CONFIG_USE_RSSI != FALSE
-    // Use RSSI directly as distance when CONFIG_USE_RSSI is enabled.
-    DistanceUnits value = rssi;
-#else
-    // Convert RSSI to distance when CONFIG_USE_RSSI is disabled.
-    DistanceUnits value = Distance::RSSI_To_DistanceUnits(rssi);
-#endif
-
     // Check if the OpenSeries instance is already closed.
     if(isClosed)
     {
@@ -51,8 +43,8 @@ void OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
     }
 
     // Add the value to the messages array and update relevant counters.
-    messagesRSSI[messageId] = value;
-    totalRSSIOfMessages += value;
+    messagesRSSI[messageId] = rssi;
+    totalRSSIOfMessages += rssi;
     counter++;
 }
 
@@ -67,11 +59,13 @@ ClosedSeries* OpenSeries::CloseSeries()
     ClosedSeries* closedSeries;
     if(minimumNumberOfMessagesForCalculation >= counter)
     {
-        closedSeries = new ClosedSeries(ClosedSeries::defaultValue);
+        closedSeries = new ClosedSeries();
     }
     else
     {
-        closedSeries = new ClosedSeries(((float)totalRSSIOfMessages) / counter);
+        float average = ((float)totalRSSIOfMessages) / counter;
+        DistanceUnits value = Distance::RSSI_To_DistanceUnits<float>(average);
+        closedSeries = new ClosedSeries(value);
     }
 
     return closedSeries;

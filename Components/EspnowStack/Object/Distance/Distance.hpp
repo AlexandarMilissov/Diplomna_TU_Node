@@ -20,12 +20,14 @@ class Distance
         uint16 valuesCount = 0;
         uint16 valuesCountOld = 0;
         sint64 sumOfAll = 0;
-        double mean = 0; // Average
-        double standardDeviation = 0;
+        float mean = 0; // Average
+        float standardDeviation = 0;
 
         ClosedSeries mostCommon;
         uint16 mostCommonCount = 0;
-        double confidenceInterval = 0;
+        float confidenceInterval = 0;
+
+        uint16 failedSeries = 0;
 
         void AddSeriesSafe(ClosedSeries*);
         void AssignMostCommon(ClosedSeries);
@@ -40,7 +42,8 @@ class Distance
         void Recalculate();
         void LogInfo();
         static uint8 GetRequestedRepetitions();
-        static DistanceUnits RSSI_To_DistanceUnits(double);
+        template <typename valueType>
+        static DistanceUnits RSSI_To_DistanceUnits(valueType);
 };
 
 #endif // DISTANCE_HPP_

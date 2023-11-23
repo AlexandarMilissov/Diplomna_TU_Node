@@ -5,9 +5,15 @@
 #if CONFIG_USE_RSSI != FALSE
 typedef RSSI_Type DistanceUnits;
 #else
-typedef uint16 DistanceUnits;
+typedef sint16 DistanceUnits;
 #endif
+
+/**
+ * @typedef Series_Id
+ * @brief Represents a unique identifier for the series that a given node is sending.
+ */
 typedef uint32 Series_Id;
+
 /**
  * @typedef Message_Position_Id
  * @brief Represents a unique identifier for the position of a message in a series.

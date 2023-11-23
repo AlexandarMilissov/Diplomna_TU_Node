@@ -7,8 +7,14 @@ ClosedSeries::operator DistanceUnits() const
 
 ClosedSeries::ClosedSeries()
 {
+    value = defaultValue;
 }
 
 ClosedSeries::ClosedSeries(DistanceUnits _value) : value(_value)
 {
+}
+
+bool ClosedSeries::IsDefault()
+{
+    return value == defaultValue;
 }

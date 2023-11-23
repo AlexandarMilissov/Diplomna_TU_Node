@@ -98,5 +98,40 @@ menu "Wifi Project"
             help 
                 "RSSI reference at 1 meter"
 
+        config NUMBER_OF_MESSAGES_PER_SERIES
+            int
+            range 1 100
+            prompt "Prefered number of messages per series"
+            default 10
+            help
+                "Number of messages per series"
+
+        config MINIMUM_NUMBER_OF_MESSAGES_PER_SERIES
+            int
+            range 1 100
+            prompt "Minimum number of messages per series"
+            default 8
+            help
+                "The minimum mumber of messages that a series needs to have to be considered valid"
+
+            menu "Tasks"
+                
+                config SERIES_INITIATION_INTERVAL
+                    int 
+                    range 10 1000
+                    prompt "Period of the cyclic function"
+                    default 50
+                    help
+                        "The cooldown period between the starts of 2 calculation message cycles"
+
+                config SERIES_CYCLIC_SEND_INTERVAL
+                    int 
+                    range 1 10
+                    prompt "Period of the cyclic function"
+                    default 3
+                    help
+                        "The cooldown period between the sending of 2 messages of a series"
+            endmenu
+
     endmenu
 endmenu

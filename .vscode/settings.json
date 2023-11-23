@@ -58,7 +58,11 @@
         "map": "cpp",
         "monitor.hpp": "c",
         "tasknametable.h": "c",
-        "espnowdriver.h": "c"
+        "espnowdriver.h": "c",
+        "cmath": "cpp",
+        "fstream": "cpp",
+        "xlocmes": "cpp",
+        "espnowmanager_config_validation.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",
