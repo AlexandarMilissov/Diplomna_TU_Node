@@ -5,7 +5,8 @@
 #include "EspnowManager_Task_Config.h"
 #include "Common.h"
 
-typedef enum State{
+typedef enum State
+{
     NO_INIT,    // Before any values are initialized
     INIT,       // After everything has been initialized, Network is not active
     RUN,        // Network is active

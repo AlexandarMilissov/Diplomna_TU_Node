@@ -4,12 +4,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
-#include "nvs_flash.h"
 #include "esp_task_wdt.h"
 #include <string.h>
 #include "esp_heap_caps.h"
 #include "EspnowManager.h"
 #include "Monitor.hpp"
+#include "NvsManager.h"
 
 #define TWDT_TIMEOUT_MS 5000
 
@@ -22,7 +22,7 @@ void TaskManager_Init(void)
     esp_log_level_set("TaskManager", ESP_LOG_WARN);
 
 
-    nvs_flash_init();
+    NvsManager_Init(NULL);
 
     // From https://docs.espressif.com/projects/esp-idf/en/v3.3.3/api-reference/system/wdts.html :
     // "This is called in the init code if the interrupt watchdog is enabled in menuconfig."
@@ -42,7 +42,8 @@ void TaskManager_Init(void)
     {
         RequestTask(task_cfg[i]);
     }
-    ESP_LOGI("TaskManager", "init success\n");
+
+    ESP_LOGE("TaskManager", " This is %s. Init success.\n", NvsGetName());
 }
 
 void Task(const void* in_config_ptr)

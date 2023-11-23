@@ -6,9 +6,9 @@ idf_component_register(SRCS
                        REQUIRES 
                             Common
                             esp_timer
-                            nvs_flash
                             EspnowStack
                             WifiManager
                             Monitor
                             Hooks
+                            NvsManager
                        )
