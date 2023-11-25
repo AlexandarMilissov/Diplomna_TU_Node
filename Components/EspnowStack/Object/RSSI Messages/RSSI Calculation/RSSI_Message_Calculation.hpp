@@ -2,7 +2,7 @@
 #define RSSI_MESSAGE_CALCULATION_HPP_
 
 #include "SeriesCommon.hpp"
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 class RSSI_Message_Calculation
 {

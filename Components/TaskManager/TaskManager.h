@@ -3,8 +3,6 @@
 
 #include "Common.h"
 
-#define USING_MONITOR 1
-
 #define CORE_0 0
 #define CORE_1 1
 

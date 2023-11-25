@@ -49,13 +49,9 @@ void TaskManager_Init(void)
 void Task(const void* in_config_ptr)
 {
     uint64 time = 0;
-    
+
     Task_cfg_struct cfg;
     memcpy(&cfg, in_config_ptr, sizeof(Task_cfg_struct));
-
-#if USING_MONITOR == 1
-    MonitorTaskInit(cfg.namePointer, cfg.period);
-#endif
 
     esp_task_wdt_add(NULL);
     for(;;)
@@ -110,7 +106,7 @@ TaskHandle_t* RequestTask(Task_cfg_struct config)
     default:
         config.core %= 2;
         break;
-    }  
+    }
 
     TaskHandle_t* taskHandle = NULL;
     if(pdPASS != xTaskCreatePinnedToCore((TaskFunction_t)Task, task_name_table[config.namePointer], config.stack_size, &config, config.priority, taskHandle, config.core))

@@ -1,7 +1,7 @@
 #ifndef RSSI_MESSAGE_KEEP_ALIVE_HPP_
 #define RSSI_MESSAGE_KEEP_ALIVE_HPP_
 
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 class RSSI_Message_Keep_Alive
 {

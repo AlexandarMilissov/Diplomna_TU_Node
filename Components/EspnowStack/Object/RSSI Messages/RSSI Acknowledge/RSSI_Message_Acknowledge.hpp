@@ -1,7 +1,7 @@
 #ifndef RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 #define RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 class RSSI_Message_Acknowledge
 {

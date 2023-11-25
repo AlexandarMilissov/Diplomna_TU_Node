@@ -13,8 +13,8 @@ typedef struct Init_cfg_struct{
 }Init_cfg_struct;
 
 Init_cfg_struct init_cfg[] =
-{ 
-#if USING_MONITOR == 1
+{
+#if CONFIG_ENABLE_MONITOR == 1
     {"Monitor", Monitor_Init},
 #endif
     {"WifiManager", WifiManager_Init},
@@ -31,7 +31,7 @@ Task_cfg_struct task_cfg[] =
     EspnowManager_MainFunction_HandleReceivedMessages_Core0_Config,
     EspnowManager_MainFunction_HandleReceivedMessages_Core1_Config,
 
-#if USING_MONITOR == 1
+#if CONFIG_ENABLE_MONITOR == 1
     Monitor_MainFunction_Config
 #endif
 };

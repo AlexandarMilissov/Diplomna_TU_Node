@@ -3,6 +3,7 @@
 #include "To_C_Encapsulation.h"
 
 #include <cstring>
+#include <string>
 
 void Peer::SendSubscriptionRequest()
 {
@@ -14,10 +15,24 @@ void Peer::SendSubscriptionRequest()
     RSSI_Message.Send(sourceAddress);
 }
 
-void Peer::Monitor()
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
+const char* Peer::Log()
 {
-    distance.LogInfo();
+    static std::string peerLog;
+    peerLog = "";
+    peerLog += std::to_string(sourceAddress[0]) + ":";
+    peerLog += std::to_string(sourceAddress[1]) + ":";
+    peerLog += std::to_string(sourceAddress[2]) + ":";
+    peerLog += std::to_string(sourceAddress[3]) + ":";
+    peerLog += std::to_string(sourceAddress[4]) + ":";
+    peerLog += std::to_string(sourceAddress[5]) + "\n";
+
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
+    peerLog += distance.Log();
+#endif
+    return peerLog.c_str();
 }
+#endif
 
 Peer::Peer(const uint8_t *src_addr)
 {
@@ -144,7 +159,7 @@ void Peer::UpdateSeries()
             distance.AddSeries(cs);
 
             delete (cs);
-            
+
             delete((*it).series);
             it = openSeries.erase(it);
         }

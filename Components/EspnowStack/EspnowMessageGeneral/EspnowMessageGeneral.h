@@ -1,8 +1,8 @@
-#ifndef ESPNOW_MESSAGE_GENERAL_H_
-#define ESPNOW_MESSAGE_GENERAL_H_
+#ifndef ESPNOWMESSAGEGENERAL_H_
+#define ESPNOWMESSAGEGENERAL_H_
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif
 
@@ -34,4 +34,4 @@ void MessagePrintf(const Message*);
 }
 #endif //__cplusplus
 
-#endif // ESPNOW_MESSAGE_GENERAL_H_
+#endif // ESPNOWMESSAGEGENERAL_H_

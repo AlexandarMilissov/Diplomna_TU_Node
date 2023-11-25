@@ -2,7 +2,7 @@
 #define ESPNOWDRIVER_LOWER_H_
 
 #include "Common.h"
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 #include "esp_now.h"
 
 void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSSI_Type));

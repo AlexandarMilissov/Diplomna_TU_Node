@@ -12,14 +12,16 @@ void EspnowManager_Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     esp_log_level_set("EspnowManager", ESP_LOG_INFO);
-    
+
     EspnowDriver_Init(MessageReceive);
 
     To_CPP_Encapsulation_Init(NULL);
 
     state = INIT;
 
+#if 1
     EspnowManager_ActivateNetwork();
+#endif
 }
 
 void EspnowManager_MainFunctionUpdateSeries(const void* pvParameters)

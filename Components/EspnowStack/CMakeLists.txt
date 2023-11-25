@@ -1,5 +1,5 @@
-idf_component_register(SRCS 
-                        "Espnow_Message_General/Espnow_Message_General.c"
+idf_component_register(SRCS
+                        "EspnowMessageGeneral/EspnowMessageGeneral.c"
                         "EspnowManager/EspnowManager.c"
                         "EspnowDriver/EspnowDriver.c"
                         "Object/Encapsulation/To_C_Encapsulation.c"
@@ -12,8 +12,8 @@ idf_component_register(SRCS
                         "Object/RSSI Messages/RSSI Calculation/RSSI_Message_Calculation.cpp"
                         "Object/RSSI Messages/RSSI Keep Alive/RSSI_Message_Keep_Alive.cpp"
                         "Object/RSSI Messages/RSSI Acknowledge/RSSI_Message_Acknowledge.cpp"
-                       INCLUDE_DIRS 
-                        "./Espnow_Message_General"
+                       INCLUDE_DIRS
+                        "./EspnowMessageGeneral"
                         "./EspnowManager"
                         "./EspnowDriver"
                         "./Object/Encapsulation"
@@ -25,7 +25,7 @@ idf_component_register(SRCS
                         "./Object/RSSI Messages/RSSI Calculation"
                         "./Object/RSSI Messages/RSSI Keep Alive"
                         "./Object/RSSI Messages/RSSI Acknowledge"
-                       REQUIRES 
+                       REQUIRES
                         "Common"
                         "TaskManager"
                         "esp_wifi"

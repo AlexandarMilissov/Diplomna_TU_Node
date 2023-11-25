@@ -2,7 +2,7 @@
 #define RSSI_MESSAGE_REQUEST_HPP
 
 #include "OpenSeries.hpp"
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 #define SUBSCRIBE true
 #define UNSUBSCRIBE false

@@ -5,9 +5,9 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/build/config/",
-                "C:\\Espressif\\frameworks\\esp-idf-v5.1\\components/**",
-                "C:/Espressif/frameworks/esp-idf-v5.1/components/linux/include",
-                "C:/Espressif/frameworks/esp-idf-v5.1/components/mqtt/esp-mqtt/host_test/mocks/include"
+                "C:\\Espressif\\frameworks\\esp-idf\\components/**",
+                "C:/Espressif/frameworks/esp-idf/components/linux/include",
+                "C:/Espressif/frameworks/esp-idf/components/mqtt/esp-mqtt/host_test/mocks/include"
             ],
             "defines": [
                 "_DEBUG",

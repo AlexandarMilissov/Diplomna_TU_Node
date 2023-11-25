@@ -1,47 +1,70 @@
 #include "Monitor.hpp"
 #include "To_CPP_Encapsulation.hpp"
-#include <map>
+
+#include <vector>
 #include <string>
+#include <functional>
 
-using namespace std;
-
-typedef struct TaskMonitor
-{
-    const uint16 period;
-    uint16 entries;
-    uint64 avrg_time;
-    uint64 last_time;
-}TaskMonitor;
+std::vector<LogFunctionSignature> logDelegate;
 
 size_t maximum_heap_regions;
 size_t free_heap_regions;
-map<uint8, TaskMonitor*> taskAnalysis;
+
+const char* MonitorMemory();
 
 void Monitor_Init(const void*)
 {
     maximum_heap_regions = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MEMORY_MONITOR
+    Monitor_SubscribeLog(&MonitorMemory);
+#endif
 }
 
 void Monitor_MainFunction(const void*)
 {
-    free_heap_regions = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
-    ESP_LOGI("Monitor", "=====================");
+    static uint16 counter = 0;
+    static std::string monitorLog = "";
 
-    ESP_LOGI("Monitor", "Used memory %dB out of %dB maximum (%f%% free)",
-            maximum_heap_regions - free_heap_regions ,maximum_heap_regions , (double)free_heap_regions*100/(double)maximum_heap_regions);
+    monitorLog += "\n=========BEGIN=========\n";
+    monitorLog += "Counter: "+ std::to_string(counter) + "\n";
 
-    EncapsulationMonitor();
-    ESP_LOGI("Monitor", "=====================");
+    for (const auto& func : logDelegate) {
+        monitorLog += func();
+    }
+
+    monitorLog += "\n==========END==========\n";
+
+
+    ESP_LOGI("Monitor", "%s", monitorLog.c_str());
+
+    monitorLog = "";
+    counter++;
 }
 
-void MonitorTaskInit(uint8 name_id, const uint16 period)
+void Monitor_SubscribeLog(LogFunctionSignature logger)
 {
-    if (taskAnalysis.count(name_id))
-    {
-        taskAnalysis[name_id]->entries++;
+    logDelegate.push_back(logger);
+}
+
+void Monitor_UnsubscribeLog(LogFunctionSignature logger)
+{
+    auto it = std::find(logDelegate.begin(), logDelegate.end(), logger);
+    if (it != logDelegate.end()) {
+        logDelegate.erase(it);
     }
-    else 
-    {
-        
-    }
+}
+
+const char* MonitorMemory()
+{
+    static std::string memoryLog;
+    free_heap_regions = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+
+    memoryLog = "";
+    memoryLog += "Used memory " + std::to_string(maximum_heap_regions - free_heap_regions);
+    memoryLog += "B out of "    + std::to_string(maximum_heap_regions);
+    memoryLog += "B maximum ("  + std::to_string((double)free_heap_regions*100/(double)maximum_heap_regions);
+    memoryLog += " free)";
+    memoryLog += "\n\0";
+
+    return memoryLog.c_str();
 }

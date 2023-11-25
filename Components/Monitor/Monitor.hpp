@@ -2,7 +2,7 @@
 #define MONITOR_HPP_
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif //__cplusplus
 
@@ -17,16 +17,20 @@ extern "C"
     2000,                           /* Period of the cyclic function           */      \
     CORE_1,                         /* Id of the core                           */      \
     8192,                           /* Task stack size                          */      \
-    210,                            /* Task priority                            */      \
+    21,                            /* Task priority                            */      \
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
     NULL,{0}                            /* Parameters for the onComplete function   */      \
 }
+
+// Define the log function signature
+typedef const char* (*LogFunctionSignature)(void);
+
 void Monitor_Init(const void*);
 void Monitor_MainFunction(const void*);
-
-void MonitorTaskInit(uint8, const uint16);
+void Monitor_SubscribeLog(LogFunctionSignature);
+void Monitor_UnsubscribeLog(LogFunctionSignature);
 
 #ifdef __cplusplus
 }

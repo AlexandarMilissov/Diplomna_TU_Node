@@ -1,6 +1,6 @@
 #include "To_CPP_Encapsulation.hpp"
 #include "EspnowManager.h"
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 #include "Peer.hpp"
 #include "RSSI_Message_Request.hpp"
@@ -13,9 +13,13 @@
 #include <cstring>
 #include <stdexcept>
 
+#if CONFIG_ENABLE_MONITOR
+    #include "Monitor.hpp"
+#endif
+
 using namespace std;
 
-typedef struct InterruptReceivedMessageStruct 
+typedef struct InterruptReceivedMessageStruct
 {
     uint8 src_addr[6];
     Message* message;
@@ -30,14 +34,19 @@ Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
 uint64 handledMessagesCounter = 0;
 uint64 receivedMessagesCounter = 0;
 
+const char* Encapsulation_Log();
 void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
 
 void To_CPP_Encapsulation_Init(void* pvparrams)
 {
     esp_log_level_set("To_CPP_Encapsulation", ESP_LOG_WARN);
- 
+
     Peers = {};
     InterruptReceivedMessages = {};
+
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
+    Monitor_SubscribeLog(&Encapsulation_Log);
+#endif
 }
 
 void Send_Cyclic_Msg()
@@ -65,8 +74,10 @@ void UpdateSeries()
     }
 }
 
-void EncapsulationMonitor()
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
+const char* Encapsulation_Log()
 {
+    static std::string messagesLog;
     size_t operations;
     uint64 localHandledMessagesCounter;
     uint64 localReceivedMessagesCounter;
@@ -77,16 +88,21 @@ void EncapsulationMonitor()
     localReceivedMessagesCounter = receivedMessagesCounter;
     Exit_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
 
-    ESP_LOGI("Monitor", "[%d] queued messages", operations);
-    ESP_LOGI("Monitor", "[%lld] handled messages", localHandledMessagesCounter);
-    ESP_LOGI("Monitor", "[%lld] received messages", localReceivedMessagesCounter);
+    messagesLog = "\n";
+    messagesLog += "[" + std::to_string(operations                  ) + "] queued messages\n"   ;
+    messagesLog += "[" + std::to_string(localHandledMessagesCounter ) + "] handled messages\n"  ;
+    messagesLog += "[" + std::to_string(localReceivedMessagesCounter) + "] received messages\n" ;
 
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
     for(auto& peer : Peers)
     {
-        ESP_LOGI("Monitor", "----->");
-        peer.Monitor();
+        messagesLog += peer.Log();
     }
+#endif
+
+    return messagesLog.c_str();
 }
+#endif
 
 void MessageReceive(const uint8_t *src_addr, const Message* message, const RSSI_Type rssi)
 {
@@ -112,7 +128,7 @@ void HandleReceivedMessages()
     InterruptReceivedMessageStruct* message_handle;
     uint8 maximumOperationMainFunction = 0xFF;
 
-    while (maximumOperationMainFunction > 0) 
+    while (maximumOperationMainFunction > 0)
     {
         message_handle = NULL;
 
@@ -129,7 +145,7 @@ void HandleReceivedMessages()
         {
             break;
         }
-        
+
         HandleReceivedMessage(message_handle);
 
         MessageDeinit(message_handle->message);
@@ -159,14 +175,14 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
             break;
         }
     }
-    
+
     if(NULL == sender)
     {
         sender = new Peer(irms->src_addr);
         Peers.push_back(*sender);
     }
-    Exit_Critical_Spinlock(peerListProtection);  
-    
+    Exit_Critical_Spinlock(peerListProtection);
+
     // Proccess the message
     try
     {

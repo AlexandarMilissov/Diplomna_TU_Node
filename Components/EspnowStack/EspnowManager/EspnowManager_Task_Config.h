@@ -10,7 +10,7 @@
     300,                            /* Period of the cyclic function           */      \
     CORE_0,                         /* Id of the core                           */      \
     8192,                           /* Task stack size                          */      \
-    200,                            /* Task priority                            */      \
+    20,                            /* Task priority                            */      \
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
@@ -26,7 +26,7 @@
     250,                            /* Period of the cyclic function           */      \
     CORE_0,                         /* Id of the core                           */      \
     8192,                           /* Task stack size                          */      \
-    200,                            /* Task priority                            */      \
+    20,                            /* Task priority                            */      \
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
@@ -42,7 +42,7 @@
     CONFIG_SERIES_INITIATION_INTERVAL,  /* Period of the cyclic function           */      \
     CORE_0,                             /* Id of the core                           */      \
     8192,                               /* Task stack size                          */      \
-    200,                                /* Task priority                            */      \
+    20,                                /* Task priority                            */      \
     false,                              /* Is the task finite                       */      \
     0,                                  /* Number of repetitions for finite task    */      \
     NULL,                               /* Function to call when tasks finishes     */      \
@@ -59,7 +59,7 @@
     50,                             /* Period of the cyclic function           */      \
     CORE_0,                         /* Id of the core                           */      \
     8192,                           /* Task stack size                          */      \
-    200,                            /* Task priority                            */      \
+    20,                            /* Task priority                            */      \
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
@@ -76,7 +76,7 @@
     50,                             /* Period of the cyclic function           */      \
     CORE_0,                         /* Id of the core                           */      \
     8192,                           /* Task stack size                          */      \
-    200,                            /* Task priority                            */      \
+    20,                            /* Task priority                            */      \
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
@@ -91,7 +91,7 @@
     CONFIG_SERIES_CYCLIC_SEND_INTERVAL, /* Period of the cyclic function            */      \
     CORE_1,                             /* Id of the core                           */      \
     8192,                               /* Task stack size                          */      \
-    100,                                /* Task priority                            */      \
+    10,                                /* Task priority                            */      \
     true,                               /* Is the task finite                       */      \
     GetSeriesRepetitions(),             /* Number of repetitions for finite task    */      \
     NULL,                               /* Function to call when tasks finishes     */      \

@@ -1,17 +1,72 @@
 menu "Wifi Project"
+    menu "Monitoring"
+        config ENABLE_MONITOR_CHECKBOX
+            bool "Enable monitoring"
+            default t
+
+        config ENABLE_MONITOR
+            int
+            default 1 if ENABLE_MONITOR_CHECKBOX
+            default 0
+
+        if ENABLE_MONITOR_CHECKBOX
+
+            config ENABLE_MEMORY_MONITOR_CHECKBOX
+                bool "Enable memory monitoring"
+                default t
+
+            config ENABLE_MEMORY_MONITOR
+                int
+                default 1 if ENABLE_MEMORY_MONITOR_CHECKBOX
+                default 0
+
+            config ENABLE_MESSAGE_MONITOR_CHECKBOX
+                bool "Enable message monitoring"
+                default t
+
+            config ENABLE_MESSAGE_MONITOR
+                int
+                default 1 if ENABLE_MESSAGE_MONITOR_CHECKBOX
+                default 0
+
+            if ENABLE_MESSAGE_MONITOR_CHECKBOX
+
+                config ENABLE_PEER_MONITOR_CHECKBOX
+                    bool "Enable peer monitoring"
+                    default t
+
+                config ENABLE_PEER_MONITOR
+                    int
+                    default 1 if ENABLE_PEER_MONITOR_CHECKBOX
+                    default 0
+
+                    if ENABLE_PEER_MONITOR_CHECKBOX
+                        config ENABLE_DISTANCE_MONITOR_CHECKBOX
+                            bool "Enable distance monitoring"
+                            default t
+
+                        config ENABLE_DISTANCE_MONITOR
+                            int
+                            default 1 if ENABLE_DISTANCE_MONITOR_CHECKBOX
+                            default 0
+                    endif
+            endif
+        endif
+    endmenu
+
     menu "ESP NOW Driver"
         config ESPNOW_PMK
             string "ESPNOW primary master key"
             default "pmk1234567890123"
             help
                 ESPNOW primary master for the example to use. The length of ESPNOW primary master must be 16 bytes.
-    
+
         config ESPNOW_LMK
             string "ESPNOW local master key"
             default "lmk1234567890123"
             help
                 ESPNOW local master for the example to use. The length of ESPNOW local master must be 16 bytes.
-                
+
         config ESPNOW_ENABLE_POWER_SAVE
             bool "Enable ESPNOW Power Save"
             default "n"
@@ -50,13 +105,12 @@ menu "Wifi Project"
 
     menu "Distance calculation"
         config DISTANCE_METHOD
-            prompt "Use RSSI(dBm) instead of meters?"
-            bool "Use dBm"
+            bool "Use RSSI(dBm) instead of meters?"
             default f
 
         config USE_RSSI
             int
-            default 1 if DISTANCE_METHOD=y
+            default 1 if DISTANCE_METHOD
             default 0
 
         config MINIMUM_CONFIDENCE_INTERVAL
@@ -64,7 +118,7 @@ menu "Wifi Project"
             range 1 100
             prompt "Total of the confidence interval allowed."
             default 1
-            
+
         config MINIMUM_NUMBER_OF_VALUES
             int
             range 1 10000
@@ -95,7 +149,7 @@ menu "Wifi Project"
             range -200 1
             prompt "RSSI reference at 1 meter"
             default -50
-            help 
+            help
                 "RSSI reference at 1 meter"
 
         config NUMBER_OF_MESSAGES_PER_SERIES
@@ -115,9 +169,9 @@ menu "Wifi Project"
                 "The minimum mumber of messages that a series needs to have to be considered valid"
 
             menu "Tasks"
-                
+
                 config SERIES_INITIATION_INTERVAL
-                    int 
+                    int
                     range 10 1000
                     prompt "Period of the cyclic function"
                     default 50
@@ -125,7 +179,7 @@ menu "Wifi Project"
                         "The cooldown period between the starts of 2 calculation message cycles"
 
                 config SERIES_CYCLIC_SEND_INTERVAL
-                    int 
+                    int
                     range 1 10
                     prompt "Period of the cyclic function"
                     default 3

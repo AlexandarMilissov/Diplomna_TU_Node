@@ -13,7 +13,7 @@ Eps now:
     ☐ make state diagram
     ☐ add serial read
     ☐ Device disconnect
-    ☐ menu config optimization
+    ✔ menu config optimization @done (11/25/2023, 8:41:24 PM)
     ☐ load analysys
     ☐ the buffer works; something is shit
     ☐ Remove the c/cpp encapsulation files

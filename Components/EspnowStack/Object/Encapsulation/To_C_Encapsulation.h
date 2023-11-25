@@ -4,12 +4,12 @@
 #include "TaskManager.h"
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif //__cplusplus
 
 #include "Common.h"
-#include "Espnow_Message_General.h"
+#include "EspnowMessageGeneral.h"
 
 void MessageSend(const uint8*, MessageType, const Message*);
 void ManagerSubscribe();

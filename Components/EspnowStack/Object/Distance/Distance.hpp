@@ -40,10 +40,12 @@ class Distance
         void AddSeries(ClosedSeries*);
         uint32 GetSeriesCount();
         void Recalculate();
-        void LogInfo();
         static uint8 GetRequestedRepetitions();
         template <typename valueType>
         static DistanceUnits RSSI_To_DistanceUnits(valueType);
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
+        const char* Log();
+#endif
 };
 
 #endif // DISTANCE_HPP_

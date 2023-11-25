@@ -1,9 +1,11 @@
 #include "Distance.hpp"
 #include "Distance_ref.hpp"
 
+#include <string>
+
 #define LOG_SCALE_BASE 10
 #define FORMULA_CONSTANT 10
-const float maximumConfidenceInterval = (float)CONFIG_MINIMUM_CONFIDENCE_INTERVAL / 2.0;
+const float minimumConfidenceInterval = (float)CONFIG_MINIMUM_CONFIDENCE_INTERVAL / 2.0;
 
 void Distance::AddSeriesSafe(ClosedSeries *cs)
 {
@@ -98,7 +100,7 @@ bool Distance::IsCalculationRequired()
     {
         ret = false;
     }
-    else if (confidenceInterval > maximumConfidenceInterval)
+    else if (confidenceInterval > minimumConfidenceInterval)
     {
         ret = true;
     }
@@ -191,25 +193,39 @@ template DistanceUnits Distance::RSSI_To_DistanceUnits<sint32>(sint32 value);
 template DistanceUnits Distance::RSSI_To_DistanceUnits<float>(float value);
 
 
-void Distance::LogInfo()
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
+const char* Distance::Log()
 {
-    ESP_LOGI("Distance", "Calculation is [%d]; [%d]/[%d]; most common is %d with standard deviation %f",
-             IsCalculationRequired(), mostCommonCount, valuesCount, (int)mostCommon, standardDeviation);
-    ESP_LOGI("Distance", "With 95%% certainty, distance is %f ± %f units (minumum confidence: %f)",
-             mean, confidenceInterval, maximumConfidenceInterval);
-    ESP_LOGI("Distance", "%d failed series.", failedSeries);
+    static std::string distanceLog;
+    distanceLog = "";
+    distanceLog += "Calculation is ";
+    if(!IsCalculationRequired())
+    {
+        distanceLog += "not";
+    }
+    distanceLog += "required. ";
+    distanceLog += "[" + std::to_string(mostCommonCount) + "]/[" + std::to_string(valuesCount) + "]. ";
+    distanceLog += "The most common is [" + std::to_string(mostCommon) + "] with a standard deviation of " + std::to_string(standardDeviation);
+    distanceLog += "\nWith 95%% certainty, distance is " + std::to_string(mean) + " ± " + std::to_string(confidenceInterval) + " units. ";
+    distanceLog += "Minumum confidence: " + std::to_string(minimumConfidenceInterval) + "\n";
+
+    distanceLog += std::to_string(failedSeries)+ " failed series.\n";
+
+    distanceLog += "A unit is defined as";
 
 #if CONFIG_USE_RSSI != FALSE
-    ESP_LOGI("Distance", "A unit is defined as -dBm");
+    distanceLog += "-dBm.\n";
 #else
-    ESP_LOGI("Distance", "A unit is defined (1/%d) meters.", distanceUnitsInAMeter);
+    distanceLog += "(1/ " + std::to_string(distanceUnitsInAMeter) + ") meters.\n";
 #endif
 
     if (IsCalculationRequired() != 0)
     {
         for (auto value : values)
         {
-            ESP_LOGI("Distance", "Value[%d], count: %d", (int)value.first, value.second);
+            distanceLog += "    Value[" + std::to_string((int)value.first) + "], count: " + std::to_string(value.second) + "\n";
         }
     }
+    return distanceLog.c_str();
 }
+#endif

@@ -38,7 +38,10 @@ class Peer
         void RSSI_Msg_Received(RSSI_Message_Acknowledge message);
         void UpdateSeries();
         void SendSubscriptionRequest();
-        void Monitor();
+
+#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
+        const char* Log();
+#endif
 };
 
 #endif
