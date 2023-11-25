@@ -4,8 +4,9 @@
 # CMakeLists in this exact order for cmake to work correctly
 cmake_minimum_required(VERSION 3.5)
 
-# include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-include(C:/Espressif/frameworks/esp-idf-v5.1/tools/cmake/project.cmake)
+# set($ENV{IDF_PATH} C:/Espressif/frameworks/esp-idf)
+include(C:/Espressif/frameworks/esp-idf/tools/cmake/project.cmake)
+
 project(Node)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

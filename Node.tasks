@@ -1,0 +1,19 @@
+Eps now:
+    ☐ fix send error
+    ✔ main function managment @done (11/25/2023, 11:51:31 AM)
+    ✔ ram monitor @done (11/25/2023, 11:51:45 AM)
+    ✔ move monitor to another component @done (11/25/2023, 11:51:48 AM)
+    ✔ memory leak @done (11/25/2023, 11:51:51 AM)
+    ✔ const function params @done (11/25/2023, 11:51:53 AM)
+    ☐ something is iffy about the calculation mechanic
+    ☐ test with multiple devices
+    ☐ send your data to peer
+    ☐ make L3 addressing
+    ☐ update drwaio
+    ☐ make state diagram
+    ☐ add serial read
+    ☐ Device disconnect
+    ☐ menu config optimization
+    ☐ load analysys
+    ☐ the buffer works; something is shit
+    ☐ Remove the c/cpp encapsulation files
