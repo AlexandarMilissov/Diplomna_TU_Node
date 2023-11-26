@@ -3,10 +3,10 @@
 #include "EspnowDriver.h"
 #include "TaskManager.h"
 #include "To_CPP_Encapsulation.hpp"
-// TODO: make atomic
-State state = NO_INIT;
-uint8 myID = 2;
-uint16 calculationSubscribers = 0;
+#include <stdatomic.h>
+
+_Atomic State state = NO_INIT;
+_Atomic uint16 calculationSubscribers = 0;
 
 void EspnowManager_Init(const void* pvParameters)
 {
@@ -24,10 +24,10 @@ void EspnowManager_Init(const void* pvParameters)
 #endif
 }
 
-void EspnowManager_MainFunctionUpdateSeries(const void* pvParameters)
+void EspnowManager_MainFunctionUpdatePeers(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
-    UpdateSeries();
+    UpdatePeers();
 }
 
 void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
@@ -40,6 +40,8 @@ void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
     Send_Cyclic_Msg();
 }
 
+uint16 pre_em_mf_s_c_c_counter = 0;
+uint16 post_em_mf_s_c_c_counter = 0;
 void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
@@ -49,8 +51,11 @@ void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters
     }
     if(0 < calculationSubscribers)
     {
-        Task_cfg_struct task_cfg = EspnowManager_SendCalculationFunction_Config;
-        RequestTask(task_cfg);
+        pre_em_mf_s_c_c_counter++;
+        static Task_cfg_struct task_cfg = EspnowManager_SendCalculationFunction_Config;
+        task_cfg.repetition = (uint16)GetSeriesRepetitions();
+        RequestTask(&task_cfg);
+        post_em_mf_s_c_c_counter++;
     }
 }
 

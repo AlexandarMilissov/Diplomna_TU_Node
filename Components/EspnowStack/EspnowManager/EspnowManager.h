@@ -4,19 +4,18 @@
 #include <esp_now.h>
 #include "EspnowManager_Task_Config.h"
 #include "Common.h"
+#include <stdatomic.h>
 
-typedef enum State
+typedef enum
 {
     NO_INIT,    // Before any values are initialized
     INIT,       // After everything has been initialized, Network is not active
     RUN,        // Network is active
 }State;
 
-extern State state;
-
 void EspnowManager_Init(const void*);
 
-void EspnowManager_MainFunctionUpdateSeries             (const void* pvParameters);
+void EspnowManager_MainFunctionUpdatePeers              (const void* pvParameters);
 void EspnowManager_MainFunction_Send_Cyclic_KeepAlive   (const void* pvParameters);
 void EspnowManager_MainFunction_Send_Cyclic_Calculation (const void* pvParameters);
 void EspnowManager_MainFunction_HandleReceivedMessages  (const void* pvParameters);

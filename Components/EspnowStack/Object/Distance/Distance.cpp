@@ -221,10 +221,19 @@ const char* Distance::Log()
 
     if (IsCalculationRequired() != 0)
     {
+        uint16 truncated_counter = 0;
         for (auto value : values)
         {
-            distanceLog += "    Value[" + std::to_string((int)value.first) + "], count: " + std::to_string(value.second) + "\n";
+            if(value.second * 8 < mostCommonCount)
+            {
+                truncated_counter++;
+            }
+            else
+            {
+                distanceLog += "    Value[" + std::to_string((int)value.first) + "], count: " + std::to_string(value.second) + "\n";
+            }
         }
+        distanceLog += std::to_string(truncated_counter) + " truncated(hidden) values.\n";
     }
     return distanceLog.c_str();
 }

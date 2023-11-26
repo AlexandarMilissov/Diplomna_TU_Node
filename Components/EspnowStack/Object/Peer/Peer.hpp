@@ -9,6 +9,7 @@
 #include "RSSI_Message_Acknowledge.hpp"
 
 #include <list>
+#include <atomic>
 
 typedef struct SeriesLife
 {
@@ -20,14 +21,16 @@ class Peer
 {
     private:
         static const uint8 seriesBeginningLife = 5;
-        Spinlock selfProtection = Spinlock_Init;
+        static const uint8 peerBeginningLife = 5;
+        std::atomic<uint8> peerLife;
         Distance distance;
         uint8 sourceAddress[6];
         std::vector<SeriesLife> openSeries;
-        Spinlock openSeriesProtection = Spinlock_Init;
-        bool isPeerSubscribedToUs   = false;
-        bool areWeSubscribedToPeer  = false;
-        bool acknowledgeRequired    = false;
+        Spinlock subscriptionStateProtection = Spinlock_Init;
+        Spinlock calculationDataProtection = Spinlock_Init;
+        std::atomic<bool> isPeerSubscribedToUs   = false;
+        std::atomic<bool> areWeSubscribedToPeer  = false;
+        std::atomic<bool> acknowledgeRequired    = false;
     public:
         Peer(const uint8_t*);
         ~Peer();
@@ -36,7 +39,8 @@ class Peer
         void RSSI_Msg_Received(RSSI_Message_Calculation message);
         void RSSI_Msg_Received(RSSI_Message_Keep_Alive  message);
         void RSSI_Msg_Received(RSSI_Message_Acknowledge message);
-        void UpdateSeries();
+        bool IsAlive();
+        void Refresh();
         void SendSubscriptionRequest();
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR

@@ -10,7 +10,7 @@ extern "C"
 #include "TaskNameTable.h"
 
 #define Monitor_MainFunction_Config                                                     \
-{   {0},                                                                                    \
+{                                                                                       \
     MonitorName,                    /* The name of task                         */      \
     Monitor_MainFunction,           /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
@@ -21,7 +21,7 @@ extern "C"
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
-    NULL,{0}                            /* Parameters for the onComplete function   */      \
+    NULL                            /* Parameters for the onComplete function   */      \
 }
 
 // Define the log function signature

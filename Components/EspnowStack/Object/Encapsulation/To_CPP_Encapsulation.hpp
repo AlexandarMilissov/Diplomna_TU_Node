@@ -12,7 +12,7 @@ extern "C"
 
 void Send_Cyclic_Msg();
 void SeriesSend();
-void UpdateSeries();
+void UpdatePeers();
 void MessageReceive(const uint8_t*, const Message*, const RSSI_Type);
 void HandleReceivedMessages();
 size_t GetSeriesRepetitions();

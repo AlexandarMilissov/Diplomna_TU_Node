@@ -1,6 +1,7 @@
 #include "To_CPP_Encapsulation.hpp"
 #include "EspnowManager.h"
 #include "EspnowMessageGeneral.h"
+#include "To_C_Encapsulation.h"
 
 #include "Peer.hpp"
 #include "RSSI_Message_Request.hpp"
@@ -26,13 +27,15 @@ typedef struct InterruptReceivedMessageStruct
     sint16 rx_ctrl_rssi;
 }InterruptReceivedMessageStruct;
 
-list<Peer> Peers;
+vector<Peer*> Peers;
 Spinlock peerListProtection = Spinlock_Init;
 
 queue<InterruptReceivedMessageStruct*> InterruptReceivedMessages;
 Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
 uint64 handledMessagesCounter = 0;
 uint64 receivedMessagesCounter = 0;
+
+extern State state;
 
 const char* Encapsulation_Log();
 void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
@@ -57,7 +60,7 @@ void Send_Cyclic_Msg()
     // Send needed subscription requests
     for(auto& peer : Peers)
     {
-        peer.SendSubscriptionRequest();
+        peer->SendSubscriptionRequest();
     }
 }
 
@@ -66,11 +69,28 @@ void SeriesSend()
     RSSI_Message_Calculation::StaticSend();
 }
 
-void UpdateSeries()
+void UpdatePeers()
 {
-    for(auto& peer : Peers)
+    size_t count = 0;
+    vector<size_t> toRemove;
+
+    for(auto peer:Peers)
     {
-        peer.UpdateSeries();
+        if(peer->IsAlive())
+        {
+            peer->Refresh();
+        }
+        else
+        {
+            ESP_LOGW("To_CPP_Encapsulation", "Peer has disconnected.");
+            delete peer;
+            toRemove.push_back(count);
+        }
+        count++;
+    }
+    for(size_t i = 0; i < toRemove.size(); i++)
+    {
+        Peers.erase(Peers.begin() + toRemove.at(i));
     }
 }
 
@@ -96,7 +116,7 @@ const char* Encapsulation_Log()
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
     for(auto& peer : Peers)
     {
-        messagesLog += peer.Log();
+        messagesLog += peer->Log();
     }
 #endif
 
@@ -159,7 +179,6 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 {
     Peer* sender = NULL;
 
-
     Message* message_header = MessageInit(MessageTypeSize);
     Message* message_data = MessageInit(0);
     MessageDecompose(irms->message, message_header, message_data);
@@ -167,11 +186,11 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 
     // Identify the sender
     Enter_Critical_Spinlock(peerListProtection);
-    for(auto& peer : Peers)
+    for(Peer* peer : Peers)
     {
-        if(peer.IsCorrectAddress(irms->src_addr))
+        if(peer->IsCorrectAddress(irms->src_addr))
         {
-            sender = &peer;
+            sender = peer;
             break;
         }
     }
@@ -179,7 +198,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
     if(NULL == sender)
     {
         sender = new Peer(irms->src_addr);
-        Peers.push_back(*sender);
+        Peers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListProtection);
 

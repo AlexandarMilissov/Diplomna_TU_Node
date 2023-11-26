@@ -1,10 +1,10 @@
 #include "TaskNameTable.h"
 #include "EspnowManager_Config_Validation.h"
 
-#define EspnowManager_MainFunctionUpdateSeries_Config                                   \
-{       {0},                                                                                \
+#define EspnowManager_MainFunctionUpdatePeers_Config                                   \
+{                                                                                       \
     UpdateSeriesName,               /* The name of task                         */      \
-    EspnowManager_MainFunctionUpdateSeries,                                             \
+    EspnowManager_MainFunctionUpdatePeers,                                             \
                                     /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     300,                            /* Period of the cyclic function           */      \
@@ -14,11 +14,11 @@
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
-    NULL  ,{0}                          /* Parameters for the onComplete function   */      \
+    NULL                           /* Parameters for the onComplete function   */      \
 }
 
 #define EspnowManager_MainFunction_Send_Cyclic_KeepAlive_Config                         \
-{     {0},                                                                                  \
+{                                                                                      \
     SendCyclicKeepAliveName,        /* The name of task                         */      \
     EspnowManager_MainFunction_Send_Cyclic_KeepAlive,                                   \
                                     /* The cyclic function the task calls       */      \
@@ -30,11 +30,11 @@
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
-    NULL,{0}                            /* Parameters for the onComplete function   */      \
+    NULL                            /* Parameters for the onComplete function   */      \
 }
 
 #define EspnowManager_MainFunction_Send_Cyclic_Calculation_Config                       \
-{    {0},                                                                                 \
+{                                                                                     \
     SendCyclicCalculationName,          /* The name of task                         */      \
     EspnowManager_MainFunction_Send_Cyclic_Calculation,                                 \
                                         /* The cyclic function the task calls       */      \
@@ -46,11 +46,11 @@
     false,                              /* Is the task finite                       */      \
     0,                                  /* Number of repetitions for finite task    */      \
     NULL,                               /* Function to call when tasks finishes     */      \
-    NULL   ,{0}                         /* Parameters for the onComplete function   */      \
+    NULL                            /* Parameters for the onComplete function   */      \
 }
 
 #define EspnowManager_MainFunction_HandleReceivedMessages_Core0_Config                  \
-{       {0},                                                                                \
+{                                                                                       \
     HandleReceivedMessagesOnCore0Name,                                                  \
                                     /* The name of task                         */      \
     EspnowManager_MainFunction_HandleReceivedMessages,                                  \
@@ -63,11 +63,11 @@
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
-    NULL ,{0}                           /* Parameters for the onComplete function   */      \
+    NULL                           /* Parameters for the onComplete function   */      \
 }
 
 #define EspnowManager_MainFunction_HandleReceivedMessages_Core1_Config                  \
-{  {0},                                                                                     \
+{                                                                                       \
     HandleReceivedMessagesOnCore1Name,                                                  \
                                     /* The name of task                         */      \
     EspnowManager_MainFunction_HandleReceivedMessages,                                  \
@@ -80,11 +80,11 @@
     false,                          /* Is the task finite                       */      \
     0,                              /* Number of repetitions for finite task    */      \
     NULL,                           /* Function to call when tasks finishes     */      \
-    NULL,{0}                            /* Parameters for the onComplete function   */      \
+    NULL                           /* Parameters for the onComplete function   */      \
 }
 
 #define EspnowManager_SendCalculationFunction_Config                                    \
-{   {0},                                                                                    \
+{                                                                                       \
     SendCalculationSeriesName,          /* The name of task                         */      \
     SeriesSend,                         /* The cyclic function the task calls       */      \
     NULL,                               /* Parameters for the cyclic function       */      \
@@ -93,7 +93,7 @@
     8192,                               /* Task stack size                          */      \
     10,                                /* Task priority                            */      \
     true,                               /* Is the task finite                       */      \
-    GetSeriesRepetitions(),             /* Number of repetitions for finite task    */      \
+    0,             /* Number of repetitions for finite task    */      \
     NULL,                               /* Function to call when tasks finishes     */      \
-    NULL,{0}                            /* Parameters for the onComplete function   */      \
+    NULL                           /* Parameters for the onComplete function   */      \
 }

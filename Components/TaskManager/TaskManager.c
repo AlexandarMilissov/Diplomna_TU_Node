@@ -13,16 +13,13 @@
 
 #define TWDT_TIMEOUT_MS 5000
 
-void Task(const void*);
+void Task(void*);
 bool IsTaskCfgValid(Task_cfg_struct);
 
 void TaskManager_Init(void)
 {
     esp_log_level_set("Peer", ESP_LOG_INFO);
     esp_log_level_set("TaskManager", ESP_LOG_WARN);
-
-
-    NvsManager_Init(NULL);
 
     // From https://docs.espressif.com/projects/esp-idf/en/v3.3.3/api-reference/system/wdts.html :
     // "This is called in the init code if the interrupt watchdog is enabled in menuconfig."
@@ -40,78 +37,99 @@ void TaskManager_Init(void)
 
     for (size_t i = 0; i < Task_cfg_size; i++)
     {
-        RequestTask(task_cfg[i]);
+        RequestTask(task_cfg + i);
     }
 
     ESP_LOGE("TaskManager", " This is %s. Init success.\n", NvsGetName());
 }
 
-void Task(const void* in_config_ptr)
+void Task(void* in_config_ptr)
 {
     uint64 time = 0;
 
-    Task_cfg_struct cfg;
-    memcpy(&cfg, in_config_ptr, sizeof(Task_cfg_struct));
+    Task_cfg_struct* cfg = (Task_cfg_struct*)in_config_ptr;
+    bool shouldExit = false;
 
     esp_task_wdt_add(NULL);
     for(;;)
     {
-        if(cfg.finite)
+        if(shouldExit)
         {
-            if (0 == cfg.repetition)
+            break;
+        }
+
+        if(cfg->finite)
+        {
+            if (0 == cfg->repetition)
             {
                 esp_task_wdt_reset();
-                break;
+                shouldExit = true;
+                continue;
             }
-            cfg.repetition--;
+            cfg->repetition--;
         }
 
         time = esp_timer_get_time();
-        cfg.MainFunction(cfg.mainFunctionParams);
+        if(cfg->MainFunction == NULL)
+        {
+            esp_task_wdt_delete(NULL);
+
+            ESP_LOGE("TaskManager", "Task '%s' failed. Main function has become NULL. Terminating.", pcTaskGetName(xTaskGetCurrentTaskHandle() ));
+            shouldExit = true;
+            continue;
+        }
+        cfg->MainFunction(cfg->mainFunctionParams);
         time = esp_timer_get_time() - time;
 
         esp_task_wdt_reset();
-        if((cfg.period * 1000) >= time)
+        if((cfg->period * 1000) >= time)
         {
-            ESP_LOGV("TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg.namePointer], time, (uint64)cfg.period * 1000);
-            TaskSleepMiliSeconds(cfg.period - (time / 1000));
+            ESP_LOGV("TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
+            TaskSleepMiliSeconds(cfg->period - (time / 1000));
         }
         else
         {
-            ESP_LOGW("TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg.namePointer], time, (uint64)cfg.period * 1000);
+            ESP_LOGW("TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
         }
     }
 
-    if(NULL != cfg.OnComplete)
+    if(NULL != cfg->OnComplete)
     {
-        cfg.OnComplete(cfg.onCompleteParams);
+        cfg->OnComplete(cfg->onCompleteParams);
     }
 
     esp_task_wdt_delete(NULL);
     vTaskDelete(NULL);
 }
 
-TaskHandle_t* RequestTask(Task_cfg_struct config)
+TaskHandle_t* RequestTask(Task_cfg_struct* config)
 {
-    if(!IsTaskCfgValid(config))
+    if(!IsTaskCfgValid(*config))
     {
         return NULL;
     }
 
-    switch (config.core)
+    switch (config->core)
     {
     case CORE_0:
     case CORE_1:
         break;
     default:
-        config.core %= 2;
+        config->core %= 2;
         break;
     }
 
     TaskHandle_t* taskHandle = NULL;
-    if(pdPASS != xTaskCreatePinnedToCore((TaskFunction_t)Task, task_name_table[config.namePointer], config.stack_size, &config, config.priority, taskHandle, config.core))
+    if(pdPASS != xTaskCreatePinnedToCore(
+        (TaskFunction_t)Task,
+        task_name_table[config->namePointer],
+        config->stack_size,
+        config,
+        config->priority,
+        taskHandle,
+        config->core))
     {
-        ESP_LOGE("TaskManager", "Failed to create task: %s", task_name_table[config.namePointer]);
+        ESP_LOGE("TaskManager", "Failed to create task: %s", task_name_table[config->namePointer]);
     }
     return taskHandle;
 }

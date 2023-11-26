@@ -118,6 +118,7 @@
         "APSTA",
         "argtable",
         "avrg",
+        "Begguger",
         "CLOSEDSERIES",
         "Espnow",
         "ESPNOWDRIVER",
@@ -145,5 +146,8 @@
         "TWDT",
         "WIFIMANAGER"
     ],
-    "sonarlint.pathToCompileCommands": "${workspaceFolder}\\build\\compile_commands.json"
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}\\build\\compile_commands.json",
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ]
 }

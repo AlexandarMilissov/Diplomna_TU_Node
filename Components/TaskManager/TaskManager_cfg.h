@@ -6,6 +6,7 @@
 #include "EspnowManager.h"
 #include "Monitor.hpp"
 #include "Hooks.h"
+#include "NvsManager.h"
 
 typedef struct Init_cfg_struct{
     const char* name;
@@ -14,6 +15,7 @@ typedef struct Init_cfg_struct{
 
 Init_cfg_struct init_cfg[] =
 {
+    {"NvsManager", NvsManager_Init},
 #if CONFIG_ENABLE_MONITOR == 1
     {"Monitor", Monitor_Init},
 #endif
@@ -25,7 +27,7 @@ Init_cfg_struct init_cfg[] =
 #define Init_cfg_size sizeof(init_cfg)/sizeof(Init_cfg_struct)
 Task_cfg_struct task_cfg[] =
 {
-    EspnowManager_MainFunctionUpdateSeries_Config,
+    EspnowManager_MainFunctionUpdatePeers_Config,
     EspnowManager_MainFunction_Send_Cyclic_KeepAlive_Config,
     EspnowManager_MainFunction_Send_Cyclic_Calculation_Config,
     EspnowManager_MainFunction_HandleReceivedMessages_Core0_Config,
