@@ -64,7 +64,8 @@ ClosedSeries* OpenSeries::CloseSeries()
     else
     {
         float average = ((float)totalRSSIOfMessages) / counter;
-        DistanceUnits value = Distance::RSSI_To_DistanceUnits<float>(average);
+        DistanceUnits value = Distance::Float_To_DistanceUnits(average);
+
         closedSeries = new ClosedSeries(value);
     }
 

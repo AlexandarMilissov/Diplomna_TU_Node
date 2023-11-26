@@ -104,13 +104,13 @@ menu "Wifi Project"
     endmenu
 
     menu "Distance calculation"
-        config DISTANCE_METHOD
-            bool "Use RSSI(dBm) instead of meters?"
+        config USE_RSSI_CHECKBOX
+            bool "Use RSSI(dBm) instead of meters"
             default f
 
         config USE_RSSI
             int
-            default 1 if DISTANCE_METHOD
+            default 1 if USE_RSSI_CHECKBOX
             default 0
 
         config MINIMUM_CONFIDENCE_INTERVAL
@@ -121,36 +121,44 @@ menu "Wifi Project"
 
         config MINIMUM_NUMBER_OF_VALUES
             int
-            range 1 10000
+            range 1 65535
             prompt "Minimum number of values to make a calclulation."
             default 200
 
         config MAXIMUM_NUMBER_OF_VALUES
             int
-            range MINIMUM_NUMBER_OF_VALUES 100000
+            range MINIMUM_NUMBER_OF_VALUES 4294967295
             prompt "Maximum number of values to make a calclulation."
             default 2000
 
-        config DISTANCE_UNITS_IN_A_METER
+        config RESOLUTION
             int
             range 1 1000
-            prompt "Distance units in a meter"
+            prompt "Resolution"
             default 10
             help
-                Define how many distance units (containers for statistic calculation) are there.
-                Number of units - size of a container:
+                Define the resolution of the calculations.
+                Higher resolution -> more data containers per meter.
                 1 units = 1 m;
                 10 units = 1 dm;
                 100 units = 1 cm;
                 1000 units = 1 mm;
 
-        config RSSI_REF_AT_1_M
+        config RSSI_REF_AT_1_M_NOM
             int
-            range -200 1
-            prompt "RSSI reference at 1 meter"
-            default -50
+            range -2000 1
+            prompt "RSSI reference at 1 meter nominator"
+            default -500
             help
-                "RSSI reference at 1 meter"
+                "RSSI reference at 1 meter nominator"
+
+        config RSSI_REF_AT_1_M_DOM
+            int
+            range 1 1000
+            prompt "RSSI reference at 1 meter denominator"
+            default 10
+            help
+                "RSSI reference at 1 meter denominator"
 
         config NUMBER_OF_MESSAGES_PER_SERIES
             int
@@ -162,7 +170,7 @@ menu "Wifi Project"
 
         config MINIMUM_NUMBER_OF_MESSAGES_PER_SERIES
             int
-            range 1 100
+            range 1 NUMBER_OF_MESSAGES_PER_SERIES
             prompt "Minimum number of messages per series"
             default 8
             help
@@ -173,7 +181,7 @@ menu "Wifi Project"
                 config SERIES_INITIATION_INTERVAL
                     int
                     range 10 1000
-                    prompt "Period of the cyclic function"
+                    prompt "Period of the cyclic send begin function"
                     default 50
                     help
                         "The cooldown period between the starts of 2 calculation message cycles"
@@ -181,7 +189,7 @@ menu "Wifi Project"
                 config SERIES_CYCLIC_SEND_INTERVAL
                     int
                     range 1 10
-                    prompt "Period of the cyclic function"
+                    prompt "Period of the cyclic send function"
                     default 3
                     help
                         "The cooldown period between the sending of 2 messages of a series"

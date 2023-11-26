@@ -106,6 +106,7 @@ TaskHandle_t* RequestTask(Task_cfg_struct* config)
 {
     if(!IsTaskCfgValid(*config))
     {
+        ESP_LOGE("TaskManager", "Invalidly configured task: %s", task_name_table[config->namePointer]);
         return NULL;
     }
 

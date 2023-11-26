@@ -40,8 +40,6 @@ void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
     Send_Cyclic_Msg();
 }
 
-uint16 pre_em_mf_s_c_c_counter = 0;
-uint16 post_em_mf_s_c_c_counter = 0;
 void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
@@ -51,11 +49,9 @@ void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters
     }
     if(0 < calculationSubscribers)
     {
-        pre_em_mf_s_c_c_counter++;
         static Task_cfg_struct task_cfg = EspnowManager_SendCalculationFunction_Config;
         task_cfg.repetition = (uint16)GetSeriesRepetitions();
         RequestTask(&task_cfg);
-        post_em_mf_s_c_c_counter++;
     }
 }
 

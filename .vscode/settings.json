@@ -108,7 +108,15 @@
         "xlocnum": "cpp",
         "xloctime": "cpp",
         "xmemory": "cpp",
-        "xstddef": "cpp"
+        "xstddef": "cpp",
+        "*.tcc": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "memory_resource": "cpp",
+        "netfwd": "cpp",
+        "string_view": "cpp",
+        "numbers": "cpp",
+        "cinttypes": "cpp"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",

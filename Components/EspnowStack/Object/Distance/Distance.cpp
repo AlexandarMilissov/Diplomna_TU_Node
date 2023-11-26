@@ -2,6 +2,7 @@
 #include "Distance_ref.hpp"
 
 #include <string>
+#include <cmath>
 
 #define LOG_SCALE_BASE 10
 #define FORMULA_CONSTANT 10
@@ -151,73 +152,63 @@ void Distance::Recalculate()
 }
 
 /**
- * @brief Convert RSSI (Received Signal Strength Indication) to distance in specified units.
- *
- * This function uses a logarithmic signal propagation model to estimate the distance
- * based on the RSSI value and environmental factors.
- *
- * @example If we have -30dBm as reference at 1 meter and 1 distance units in a meter
- * and we receive -30dBm we will return 1m because that is the distance to the target.
- *
- * @example If we have -30dBm as reference at 1 meter and 100 distance units in a meter (100 cm)
- * and we receive -30dBm we will return 100cm because that is the distance to the target.
- *
- * @example If we have -30dBm as reference at 1 meter and 1 distance units in a meter
- * and we receive -25dBm we will return 0.5m because that is the distance to the target.
- * Since this DistanceUnits are whole numbers, the result will be rounded to either 0m or 1m.
- *
- * @example If we have -30dBm as reference at 1 meter and 100 distance units in a meter (100 cm)
- * and we receive -25dBm we will return 50cm because that is the distance to the target.
- *
- * @param value The RSSI value to be converted.
- * @return The distance in the specified units.
+ * @brief Convert RSSI (Received Signal Strength Indication) to distance scaled by the resolution.
  */
-template <typename valueType>
-DistanceUnits Distance::RSSI_To_DistanceUnits(valueType value)
+DistanceUnits Distance::Float_To_DistanceUnits(float value)
 {
 #if CONFIG_USE_RSSI != FALSE
-    // Use RSSI directly as distance when CONFIG_USE_RSSI is enabled.
-    return static_cast<DistanceUnits>(value);
+    return (DistanceUnits)round(value * resolution);
 #else
     // Convert RSSI to distance if using meters
     // Calculate the power using the logarithmic signal propagation model:
     float power = (RSSI_DBM_REF_AT_1_M - static_cast<float>(value)) / (FORMULA_CONSTANT * ENV_VARIABLE);
 
     // Convert the power back to linear scale and scale by distance units in one meter:
-    return round(pow(LOG_SCALE_BASE, power) * distanceUnitsInAMeter);
+    return round(pow(LOG_SCALE_BASE, power) * resolution);
 #endif
 }
-
-// Explicit instantiation for the types you want to support
-template DistanceUnits Distance::RSSI_To_DistanceUnits<sint32>(sint32 value);
-template DistanceUnits Distance::RSSI_To_DistanceUnits<float>(float value);
-
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
 const char* Distance::Log()
 {
+    // Init
     static std::string distanceLog;
     distanceLog = "";
+
+
+#if CONFIG_USE_RSSI != FALSE
+    const char units[] = "dBm";
+#else
+    const char units[] = "meters";
+#endif
+
+    // Is calculation required?
     distanceLog += "Calculation is ";
     if(!IsCalculationRequired())
     {
         distanceLog += "not";
     }
     distanceLog += "required. ";
+
+    // Summarized data
     distanceLog += "[" + std::to_string(mostCommonCount) + "]/[" + std::to_string(valuesCount) + "]. ";
     distanceLog += "The most common is [" + std::to_string(mostCommon) + "] with a standard deviation of " + std::to_string(standardDeviation);
-    distanceLog += "\nWith 95%% certainty, distance is " + std::to_string(mean) + " ± " + std::to_string(confidenceInterval) + " units. ";
-    distanceLog += "Minumum confidence: " + std::to_string(minimumConfidenceInterval) + "\n";
+    distanceLog += " Minumum confidence: " + std::to_string(minimumConfidenceInterval) + "\n";
 
-    distanceLog += std::to_string(failedSeries)+ " failed series.\n";
+    // Result in raw form
+    distanceLog += "\nWith 95% certainty, distance is " + std::to_string(mean) + " ± " + std::to_string(confidenceInterval) + " units. ";
+    distanceLog += "Units are (1/" + std::to_string(resolution) + ")" + units + ".\n";
 
-    distanceLog += "A unit is defined as";
+    // Results in formatted form
+    distanceLog += "This is equal to " + std::to_string(mean/resolution);;
+    distanceLog += " ± " + std::to_string(confidenceInterval/resolution) + units + "\n";
 
-#if CONFIG_USE_RSSI != FALSE
-    distanceLog += "-dBm.\n";
-#else
-    distanceLog += "(1/ " + std::to_string(distanceUnitsInAMeter) + ") meters.\n";
-#endif
+
+    // Additional information
+    float failure_rate = ((float)(failedSeries * 100)) / ((float)(failedSeries + valuesCount));
+    distanceLog += std::to_string(failedSeries) + " failed series.\n";
+    distanceLog += std::to_string(valuesCount ) + " successful series.\n";
+    distanceLog += std::to_string(failure_rate) + "% failure rate.\n";
 
     if (IsCalculationRequired() != 0)
     {
@@ -235,6 +226,7 @@ const char* Distance::Log()
         }
         distanceLog += std::to_string(truncated_counter) + " truncated(hidden) values.\n";
     }
+
     return distanceLog.c_str();
 }
 #endif

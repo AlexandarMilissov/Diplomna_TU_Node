@@ -2,11 +2,7 @@
 #define SERIESCOMMON_HPP_
 
 #include "Common.h"
-#if CONFIG_USE_RSSI != FALSE
-typedef RSSI_Type DistanceUnits;
-#else
-typedef sint16 DistanceUnits;
-#endif
+typedef sint32 DistanceUnits;
 
 /**
  * @typedef Series_Id

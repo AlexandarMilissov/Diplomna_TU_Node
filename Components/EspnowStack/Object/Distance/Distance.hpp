@@ -13,8 +13,8 @@ class Distance
 {
     private:
         static const uint16 minNumberOfValues = CONFIG_MINIMUM_NUMBER_OF_VALUES;
-        static const uint16 maxNumberOfValues = CONFIG_MAXIMUM_NUMBER_OF_VALUES;
-        static const uint16 distanceUnitsInAMeter = CONFIG_DISTANCE_UNITS_IN_A_METER;
+        static const uint32 maxNumberOfValues = CONFIG_MAXIMUM_NUMBER_OF_VALUES;
+        static const uint16 resolution = CONFIG_RESOLUTION;
 
         std::map<ClosedSeries, int> values;
         uint16 valuesCount = 0;
@@ -41,8 +41,7 @@ class Distance
         uint32 GetSeriesCount();
         void Recalculate();
         static uint8 GetRequestedRepetitions();
-        template <typename valueType>
-        static DistanceUnits RSSI_To_DistanceUnits(valueType);
+        static DistanceUnits Float_To_DistanceUnits(float);
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
         const char* Log();
 #endif

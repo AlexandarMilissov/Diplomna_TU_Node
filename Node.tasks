@@ -6,7 +6,7 @@ Eps now:
     ✔ memory leak @done (11/25/2023, 11:51:51 AM)
     ✔ const function params @done (11/25/2023, 11:51:53 AM)
     ✔ something is iffy about the calculation mechanic @done (11/26/2023, 7:43:03 AM)
-    ☐ test with multiple devices
+    ✔ test with multiple devices @done (11/26/2023, 8:12:22 PM)
     ☐ send your data to peer
     ☐ make L3 addressing
     ☐ update drwaio
@@ -17,3 +17,6 @@ Eps now:
     ☐ load analysys
     ✔ the buffer works; something is shit @done (11/26/2023, 11:50:07 AM)
     ☐ Remove the c/cpp encapsulation files
+    ☐ create an abstraction for the logger
+    ☐ add a starting frame
+    ☐ send the name somewhere

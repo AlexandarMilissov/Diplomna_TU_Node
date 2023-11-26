@@ -63,7 +63,7 @@ const char* MonitorMemory()
     memoryLog += "Used memory " + std::to_string(maximum_heap_regions - free_heap_regions);
     memoryLog += "B out of "    + std::to_string(maximum_heap_regions);
     memoryLog += "B maximum ("  + std::to_string((double)free_heap_regions*100/(double)maximum_heap_regions);
-    memoryLog += " free)";
+    memoryLog += "% free)";
     memoryLog += "\n\0";
 
     return memoryLog.c_str();
