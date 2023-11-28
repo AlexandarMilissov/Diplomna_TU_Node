@@ -7,9 +7,8 @@
 
 class OpenSeries
 {
-    public:
-        static const uint8 numberOfMessagesPerSeries = CONFIG_NUMBER_OF_MESSAGES_PER_SERIES;
     private:
+        static const uint8 numberOfMessagesPerSeries = CONFIG_NUMBER_OF_MESSAGES_PER_SERIES;
         static const uint8 minimumNumberOfMessagesForCalculation = CONFIG_MINIMUM_NUMBER_OF_MESSAGES_PER_SERIES;
         RSSI_Type messagesRSSI[numberOfMessagesPerSeries] = {0};
         RSSI_Type totalRSSIOfMessages = 0;
@@ -19,6 +18,7 @@ class OpenSeries
     public:
         OpenSeries(Series_Id);
         ~OpenSeries();
+        static uint8 GetNumberOfMessagesPerSeries();
         void AddValue(Message_Position_Id, RSSI_Type);
         bool IsCorrectId(Series_Id);
         ClosedSeries* CloseSeries();

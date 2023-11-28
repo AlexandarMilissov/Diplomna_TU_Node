@@ -1,5 +1,5 @@
 #include "RSSI_Message_Acknowledge.hpp"
-#include "To_C_Encapsulation.h"
+#include "EspnowManager_Communication.hpp"
 #include <stdexcept>
 
 uint8 RSSI_Message_Acknowledge::GetElementsSize()
@@ -36,5 +36,5 @@ void RSSI_Message_Acknowledge::Send(uint8* dst_addr)
 
     *(message->data) = status;
 
-    MessageSend(dst_addr, RSSI_ACKNOWLEDGE, message);
+    SendMessage(dst_addr, RSSI_ACKNOWLEDGE, message);
 }

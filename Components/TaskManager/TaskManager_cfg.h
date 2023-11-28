@@ -1,9 +1,14 @@
 #ifndef TaskManager_CFG_H
 #define TaskManager_CFG_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif //__cplusplus
+
 #include "TaskManager.h"
 #include "WifiManager.h"
-#include "EspnowManager.h"
+#include "EspnowManager_Tasks.hpp"
 #include "Monitor.hpp"
 #include "Hooks.h"
 #include "NvsManager.h"
@@ -15,13 +20,13 @@ typedef struct Init_cfg_struct{
 
 Init_cfg_struct init_cfg[] =
 {
-    {"NvsManager", NvsManager_Init},
+    {"NvsManager",          NvsManager_Init},
 #if CONFIG_ENABLE_MONITOR == 1
-    {"Monitor", Monitor_Init},
+    {"Monitor",             Monitor_Init},
 #endif
-    {"WifiManager", WifiManager_Init},
-    {"EspnowManager", EspnowManager_Init},
-    {"Hooks", Hooks_Init},
+    {"WifiManager",         WifiManager_Init},
+    {"EspnowManager",       EspnowManager_Init},
+    {"Hooks",               Hooks_Init},
 };
 
 #define Init_cfg_size sizeof(init_cfg)/sizeof(Init_cfg_struct)
@@ -39,5 +44,9 @@ Task_cfg_struct task_cfg[] =
 };
 
 #define Task_cfg_size sizeof(task_cfg)/sizeof(Task_cfg_struct)
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif

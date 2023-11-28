@@ -116,7 +116,12 @@
         "netfwd": "cpp",
         "string_view": "cpp",
         "numbers": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "espnowmessagegeneral.h": "c",
+        "espnowmanager_communication.hpp": "c",
+        "espnowmanager_tasks.hpp": "c",
+        "espnowmanager_task_config.h": "c",
+        "semaphore": "cpp"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",

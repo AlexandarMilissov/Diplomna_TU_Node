@@ -1,5 +1,4 @@
 #include "Monitor.hpp"
-#include "To_CPP_Encapsulation.hpp"
 
 #include <vector>
 #include <string>

@@ -87,7 +87,7 @@ Distance::~Distance()
 
 uint8 Distance::GetRequestedRepetitions()
 {
-    return OpenSeries::numberOfMessagesPerSeries;
+    return OpenSeries::GetNumberOfMessagesPerSeries();
 }
 
 bool Distance::IsCalculationRequired()

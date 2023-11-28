@@ -1,6 +1,5 @@
 #include "Peer.hpp"
-#include "EspnowManager.h"
-#include "To_C_Encapsulation.h"
+#include "EspnowManager_Interface.hpp"
 
 #include <cstring>
 #include <string>
@@ -48,7 +47,7 @@ Peer::~Peer()
 {
     if(isPeerSubscribedToUs)
     {
-        ManagerUnsubscribe();
+        EspnowManager_Unsubscribe();
     }
 
 }
@@ -79,7 +78,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
         if(!isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = true;
-            ManagerSubscribe();
+            EspnowManager_Subscribe();
         }
         ackn = new RSSI_Message_Acknowledge(SUBSCRIBE);
     }
@@ -88,7 +87,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
         if(isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = false;
-            ManagerUnsubscribe();
+            EspnowManager_Unsubscribe();
         }
         ackn = new RSSI_Message_Acknowledge(UNSUBSCRIBE);
     }

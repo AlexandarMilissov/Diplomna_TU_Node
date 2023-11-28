@@ -9,6 +9,11 @@ OpenSeries::~OpenSeries()
 {
 }
 
+uint8 OpenSeries::GetNumberOfMessagesPerSeries()
+{
+    return numberOfMessagesPerSeries;
+}
+
 /**
  * @brief Add a value to the OpenSeries instance based on a message ID and RSSI.
  *

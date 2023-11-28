@@ -1,5 +1,5 @@
 Eps now:
-    ☐ fix send error
+    ✔ fix send error @done (11/27/2023, 10:28:45 PM)
     ✔ main function managment @done (11/25/2023, 11:51:31 AM)
     ✔ ram monitor @done (11/25/2023, 11:51:45 AM)
     ✔ move monitor to another component @done (11/25/2023, 11:51:48 AM)
@@ -16,7 +16,6 @@ Eps now:
     ✔ menu config optimization @done (11/25/2023, 8:41:24 PM)
     ☐ load analysys
     ✔ the buffer works; something is shit @done (11/26/2023, 11:50:07 AM)
-    ☐ Remove the c/cpp encapsulation files
+    ✔ Remove the c/cpp encapsulation files @done (11/28/2023, 9:36:45 AM)
     ☐ create an abstraction for the logger
-    ☐ add a starting frame
     ☐ send the name somewhere

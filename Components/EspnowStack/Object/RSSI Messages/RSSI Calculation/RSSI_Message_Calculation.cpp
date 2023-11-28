@@ -1,6 +1,6 @@
 #include "RSSI_Message_Calculation.hpp"
 #include "OpenSeries.hpp"
-#include "To_C_Encapsulation.h"
+#include "EspnowManager_Communication.hpp"
 #include <stdexcept>
 
 static Series_Id send_series_Id = 0;
@@ -63,9 +63,9 @@ void RSSI_Message_Calculation::StaticSend()
     ((struct RSSI_Message_Calculation_Struct*)(message->data))->series_Id           = send_series_Id;
     ((struct RSSI_Message_Calculation_Struct*)(message->data))->message_Position_Id = send_message_Position_Id;
 
-    MessageSend(broadcast_mac, RSSI_CALCULATION, message);
+    SendMessage(broadcast_mac, RSSI_CALCULATION, message);
 
-    if((OpenSeries::numberOfMessagesPerSeries - 1) > send_message_Position_Id)
+    if((OpenSeries::GetNumberOfMessagesPerSeries() - 1) > send_message_Position_Id)
     {
         send_message_Position_Id++;
     }

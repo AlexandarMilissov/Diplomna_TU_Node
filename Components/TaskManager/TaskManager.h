@@ -1,6 +1,10 @@
 #ifndef CMC_H
 #define CMC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "Common.h"
 
 #define CORE_0 0
@@ -22,5 +26,9 @@ typedef struct Task_cfg_struct{
 
 void TaskManager_Init(void);
 TaskHandle_t* RequestTask(Task_cfg_struct* config);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

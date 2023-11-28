@@ -1,5 +1,5 @@
 #include "RSSI_Message_Request.hpp"
-#include "To_C_Encapsulation.h"
+#include "EspnowManager_Communication.hpp"
 #include <stdexcept>
 
 // Functions for receiving messages
@@ -23,7 +23,7 @@ void RSSI_Message_Request::Send(uint8* dst_addr)
     Message* message = MessageInit(GetElementsSize());
     *(message->data) = subscriptionStatus;
 
-    MessageSend(dst_addr, RSSI_REQUEST, message);
+    SendMessage(dst_addr, RSSI_REQUEST, message);
 
     MessageDeinit(message);
 }

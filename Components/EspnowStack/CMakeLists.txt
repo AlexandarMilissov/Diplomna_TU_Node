@@ -1,9 +1,9 @@
 idf_component_register(SRCS
                         "EspnowMessageGeneral/EspnowMessageGeneral.c"
-                        "EspnowManager/EspnowManager.c"
+                        "EspnowManager/src/EspnowManager_Tasks.cpp"
+                        "EspnowManager/src/EspnowManager_Interface.cpp"
+                        "EspnowManager/src/EspnowManager_Communication.cpp"
                         "EspnowDriver/EspnowDriver.c"
-                        "Object/Encapsulation/To_C_Encapsulation.c"
-                        "Object/Encapsulation/To_CPP_Encapsulation.cpp"
                         "Object/Peer/Peer.cpp"
                         "Object/Series/OpenSeries.cpp"
                         "Object/Series/ClosedSeries.cpp"
@@ -14,9 +14,8 @@ idf_component_register(SRCS
                         "Object/RSSI Messages/RSSI Acknowledge/RSSI_Message_Acknowledge.cpp"
                        INCLUDE_DIRS
                         "./EspnowMessageGeneral"
-                        "./EspnowManager"
+                        "./EspnowManager/include"
                         "./EspnowDriver"
-                        "./Object/Encapsulation"
                         "./Object/Peer"
                         "./Object/Series"
                         "./Object/Distance"
@@ -25,6 +24,8 @@ idf_component_register(SRCS
                         "./Object/RSSI Messages/RSSI Calculation"
                         "./Object/RSSI Messages/RSSI Keep Alive"
                         "./Object/RSSI Messages/RSSI Acknowledge"
+                        PRIV_INCLUDE_DIRS
+                        "./EspnowManager/utils"
                        REQUIRES
                         "Common"
                         "TaskManager"
