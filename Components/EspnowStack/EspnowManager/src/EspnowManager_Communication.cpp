@@ -143,7 +143,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
     }
     catch(const std::invalid_argument& e)
     {
-        ESP_LOGE("EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
+        LogWrapper_Log(E, "EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
     }
 
     MessageDeinit(message_header);

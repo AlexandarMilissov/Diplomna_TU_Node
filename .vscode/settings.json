@@ -121,7 +121,12 @@
         "espnowmanager_communication.hpp": "c",
         "espnowmanager_tasks.hpp": "c",
         "espnowmanager_task_config.h": "c",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "esp_log.h": "c",
+        "espnowmanager_interface.hpp": "c",
+        "esp_logwrapper.h": "c",
+        "logwrapper.h": "c",
+        "stdarg.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",
@@ -145,6 +150,7 @@
         "LOGI",
         "LOGV",
         "LOGW",
+        "LOGWRAPPER",
         "MACSTR",
         "nchan",
         "netif",

@@ -17,5 +17,5 @@ Eps now:
     ☐ load analysys
     ✔ the buffer works; something is shit @done (11/26/2023, 11:50:07 AM)
     ✔ Remove the c/cpp encapsulation files @done (11/28/2023, 9:36:45 AM)
-    ☐ create an abstraction for the logger
+    ✔ create an abstraction for the logger @done (11/29/2023, 8:26:00 PM)
     ☐ send the name somewhere

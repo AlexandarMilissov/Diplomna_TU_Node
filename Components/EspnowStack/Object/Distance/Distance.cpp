@@ -116,7 +116,6 @@ void Distance::AddSeries(ClosedSeries *cs)
     if (cs->IsDefault())
     {
         failedSeries++;
-        // ESP_LOGW("Distance", "Series with default value received");
     }
     else
     {
@@ -144,7 +143,6 @@ void Distance::Recalculate()
     if (valuesCount < minNumberOfValues)
     {
         return;
-        // ESP_LOGI("Distance", "Not enough values for calculation");
     }
 
     CalculateStandardDeviation();

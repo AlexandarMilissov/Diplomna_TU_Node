@@ -19,7 +19,7 @@ void EspnowManager_Init(const void* pvParameters)
     Peers = {};
     interruptReceivedMessages = {};
 
-    esp_log_level_set("EspnowManager", ESP_LOG_INFO);
+    LogWrapper_SetMinimalLevel("EspnowManager", I);
 
     EspnowDriver_Init(ReceiveMessage);
 
@@ -49,7 +49,7 @@ void EspnowManager_MainFunctionUpdatePeers(const void* pvParameters)
         }
         else
         {
-            ESP_LOGW("EspnowManager", "Peer has disconnected.");
+            LogWrapper_Log(W, "EspnowManager", "Peer has disconnected.");
             delete peer;
             toRemove.push_back(count);
         }

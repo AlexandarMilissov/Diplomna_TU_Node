@@ -34,20 +34,20 @@ void Monitor_MainFunction(const void*)
     monitorLog += "\n==========END==========\n";
 
 
-    ESP_LOGI("Monitor", "%s", monitorLog.c_str());
+    LogWrapper_Log(I, "Monitor", "%s", monitorLog.c_str());
 
     monitorLog = "";
     counter++;
 }
 
-void Monitor_SubscribeLog(LogFunctionSignature logger)
+void Monitor_SubscribeLog(LogFunctionSignature logFunction)
 {
-    logDelegate.push_back(logger);
+    logDelegate.push_back(logFunction);
 }
 
-void Monitor_UnsubscribeLog(LogFunctionSignature logger)
+void Monitor_UnsubscribeLog(LogFunctionSignature logFunction)
 {
-    auto it = std::find(logDelegate.begin(), logDelegate.end(), logger);
+    auto it = std::find(logDelegate.begin(), logDelegate.end(), logFunction);
     if (it != logDelegate.end()) {
         logDelegate.erase(it);
     }

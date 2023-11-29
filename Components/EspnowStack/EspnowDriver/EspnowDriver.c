@@ -7,7 +7,7 @@
 #define ESPNOW_WIFI_MODE WIFI_MODE_AP
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
 #define ESPNOW_MAC       ESP_MAC_WIFI_SOFTAP
-#else 
+#else
 #define ESPNOW_WIFI_MODE WIFI_MODE_STA
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
 #define ESPNOW_MAC       ESP_MAC_WIFI_STA
@@ -18,7 +18,7 @@ void (*ul_callback)(const uint8_t*, const Message*, const RSSI_Type);
 
 void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSSI_Type))
 {
-    esp_log_level_set("EspnowDriver", ESP_LOG_WARN);
+    LogWrapper_SetMinimalLevel("EspnowDriver", W);
 
     ul_callback = callback;
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
@@ -27,7 +27,7 @@ void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSS
 
     ESP_ERROR_CHECK( esp_now_register_recv_cb(DataReceive) );
     ESP_ERROR_CHECK( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
-    
+
     /* Add broadcast peer information to peer list. */
     esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
 
@@ -60,7 +60,7 @@ void DataSend(const uint8* dst_addr, const Message* message)
     {
         if(ESP_ERR_ESPNOW_NO_MEM == err)
         {
-            ESP_LOGE("EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
+            LogWrapper_Log(E, "EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
         }
         else
         {
@@ -87,7 +87,7 @@ void DataReceive(const esp_now_recv_info_t *recv_info, const uint8_t *data, int 
 
     const uint8* dst_address = message_header->data;
 
-    if( memcmp(dst_address, broadcast_mac,  ESP_NOW_ETH_ALEN) == 0 
+    if( memcmp(dst_address, broadcast_mac,  ESP_NOW_ETH_ALEN) == 0
     ||  memcmp(dst_address, my_esp_now_mac, ESP_NOW_ETH_ALEN) == 0)
     {
         ul_callback(recv_info->src_addr, message_data, recv_info->rx_ctrl->rssi);
