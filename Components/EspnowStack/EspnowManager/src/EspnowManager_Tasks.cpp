@@ -102,7 +102,7 @@ void EspnowManager_MainFunction_HandleReceivedMessages(const void* pvParameters)
         return;
     }
 
-
+    HandleReceivedMessages();
 }
 
 void EspnowManager_SendCalculationSeries(const void* pvParameters)
