@@ -184,7 +184,7 @@ const char* Distance::Log()
     distanceLog += "Calculation is ";
     if(!IsCalculationRequired())
     {
-        distanceLog += "not";
+        distanceLog += "not ";
     }
     distanceLog += "required. ";
 

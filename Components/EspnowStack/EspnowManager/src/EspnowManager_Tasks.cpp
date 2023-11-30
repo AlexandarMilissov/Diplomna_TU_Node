@@ -24,7 +24,7 @@ void EspnowManager_Init(const void* pvParameters)
     EspnowDriver_Init(ReceiveMessage);
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-    Monitor_SubscribeLog(&Encapsulation_Log);
+    Monitor_SubscribeFunction(&Encapsulation_Log);
 #endif
 
     espnowManagerInternalState = INIT;

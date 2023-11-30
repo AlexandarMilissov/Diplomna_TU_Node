@@ -1,6 +1,7 @@
 idf_component_register(SRCS "Monitor.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES 
+                       REQUIRES
                        Common
                        EspnowStack
+                       TaskManager
                        )

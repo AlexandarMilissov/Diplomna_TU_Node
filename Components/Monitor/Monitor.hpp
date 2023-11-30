@@ -29,8 +29,8 @@ typedef const char* (*LogFunctionSignature)(void);
 
 void Monitor_Init(const void*);
 void Monitor_MainFunction(const void*);
-void Monitor_SubscribeLog(LogFunctionSignature);
-void Monitor_UnsubscribeLog(LogFunctionSignature);
+void Monitor_SubscribeFunction(LogFunctionSignature);
+void Monitor_UnsubscribeFunction(LogFunctionSignature);
 
 #ifdef __cplusplus
 }

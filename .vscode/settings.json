@@ -168,5 +168,9 @@
     "sonarlint.pathToCompileCommands": "${workspaceFolder}\\build\\compile_commands.json",
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
-    ]
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "http-localhost-9000",
+        "projectKey": "Diplomna"
+    }
 }
