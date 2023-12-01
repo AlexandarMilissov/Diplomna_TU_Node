@@ -1,4 +1,4 @@
-#include "EspnowDriver.h"
+#include "EspnowDriver.hpp"
 #include <string.h>
 #include "esp_mac.h"
 
@@ -14,9 +14,9 @@
 #endif
 
 Spinlock sendProtection = Spinlock_Init;
-void (*ul_callback)(const uint8_t*, const Message*, const RSSI_Type);
+void (*ul_callback)(const uint8_t*, const Payload*, const RSSI_Type);
 
-void EspnowDriver_Init(void(*callback)(const uint8*, const Message*, const RSSI_Type))
+void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_Type))
 {
     LogManager_SetMinimalLevel("EspnowDriver", W);
 
@@ -29,7 +29,7 @@ void EspnowDriver_Init(void(*callback)(const uint8*, const Message*, const RSSI_
     ESP_ERROR_CHECK( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
 
     /* Add broadcast peer information to peer list. */
-    esp_now_peer_info_t *peer = malloc(sizeof(esp_now_peer_info_t));
+    esp_now_peer_info_t *peer = (esp_now_peer_info_t*)malloc(sizeof(esp_now_peer_info_t));
 
     memset(peer, 0, sizeof(esp_now_peer_info_t));
     peer->channel = CONFIG_WIFI_CHANNEL;
@@ -42,14 +42,14 @@ void EspnowDriver_Init(void(*callback)(const uint8*, const Message*, const RSSI_
     free(peer);
 }
 
-void DataSend(const uint8* dst_addr, const Message* message)
+void DataSend(const uint8* dst_addr, const Payload* message)
 {
     DUMMY_STATEMENT(dst_addr);
     static esp_err_t err;
-    uint8 package_size = (uint8)(message->data_size) + ESP_NOW_ETH_ALEN;
+    uint8 package_size = (uint8)(message->GetSize()) + ESP_NOW_ETH_ALEN;
     uint8* package = (uint8*)malloc(package_size);
     memcpy(package, broadcast_mac, ESP_NOW_ETH_ALEN);
-    memcpy(package + ESP_NOW_ETH_ALEN, message->data, message->data_size);
+    memcpy(package + ESP_NOW_ETH_ALEN, message->data, message->GetSize());
 
     // Forums said locking the send should help reduce errors
     Enter_Critical_Spinlock(sendProtection);
@@ -72,18 +72,21 @@ void DataSend(const uint8* dst_addr, const Message* message)
 
 void DataReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
 {
+    if(ESP_NOW_ETH_ALEN >= len)
+    {
+        // Received a message with a broken size
+        return;
+    }
     if( memcmp(recv_info->des_addr, broadcast_mac, ESP_NOW_ETH_ALEN) != 0)
     {
         // Received non broadcast mac
         return;
     }
 
-    Message* message_original = MessageInit(len);
-    memcpy(message_original->data, data, len);
+    Payload* message_data = new Payload(data, len);
 
-    Message* message_header = MessageInit(ESP_NOW_ETH_ALEN);
-    Message* message_data = MessageInit(0);
-    MessageDecompose(message_original, message_header, message_data);
+    Payload* message_header = new Payload(ESP_NOW_ETH_ALEN);
+    *message_data >>= *message_header;
 
     const uint8* dst_address = message_header->data;
 
@@ -93,7 +96,6 @@ void DataReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int le
         ul_callback(recv_info->src_addr, message_data, recv_info->rx_ctrl->rssi);
     }
 
-    MessageDeinit(message_original);
-    MessageDeinit(message_header);
-    MessageDeinit(message_data);
+    delete message_header;
+    delete message_data;
 }

@@ -3,7 +3,7 @@
 
 #include <atomic>
 #include <queue>
-#include "Peer.hpp"
+#include "EspnowPeer.hpp"
 
 #ifdef __cplusplus
 extern "C"
@@ -22,7 +22,7 @@ typedef enum
 typedef struct InterruptReceivedMessageStruct
 {
     uint8 src_addr[6];
-    Message* message;
+    Payload* message;
     sint16 rx_ctrl_rssi;
 }InterruptReceivedMessageStruct;
 
@@ -34,7 +34,7 @@ extern uint64 receivedMessagesCounter;
 extern std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
 extern Spinlock InterruptReceivedMessagesSpinlock;
 
-extern std::vector<Peer*> Peers;
+extern std::vector<EspnowPeer*> Peers;
 extern Spinlock peerListProtection;
 
 

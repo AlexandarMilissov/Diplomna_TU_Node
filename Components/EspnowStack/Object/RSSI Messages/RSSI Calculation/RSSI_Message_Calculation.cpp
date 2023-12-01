@@ -17,9 +17,9 @@ uint8 RSSI_Message_Calculation::GetElementsSize()
 }
 
 // On received
-RSSI_Message_Calculation::RSSI_Message_Calculation(RSSI_Type rssi, Message message) : RSSI(rssi)
+RSSI_Message_Calculation::RSSI_Message_Calculation(RSSI_Type rssi, Payload message) : RSSI(rssi)
 {
-    if(message.data_size != GetElementsSize())
+    if(message.GetSize() != GetElementsSize())
     {
         throw std::invalid_argument("Wrong message size");
     }
@@ -58,7 +58,7 @@ void RSSI_Message_Calculation::Send(uint8* dst_addr)
 
 void RSSI_Message_Calculation::StaticSend()
 {
-    Message* message = MessageInit(GetElementsSize());
+    Payload* message = new Payload(GetElementsSize());
 
     ((struct RSSI_Message_Calculation_Struct*)(message->data))->series_Id           = send_series_Id;
     ((struct RSSI_Message_Calculation_Struct*)(message->data))->message_Position_Id = send_message_Position_Id;
@@ -75,5 +75,5 @@ void RSSI_Message_Calculation::StaticSend()
         send_message_Position_Id = 0;
     }
 
-    MessageDeinit(message);
+    delete message;
 }

@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "EspnowDriver.h"
+#include "EspnowDriver.hpp"
 #include "EspnowManager_Interface.hpp"
 #include "EspnowManager_Internal.hpp"
 #include "EspnowManager_Communication.hpp"
@@ -14,23 +14,25 @@ uint64 receivedMessagesCounter = 0;
 std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
 Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
 
-std::vector<Peer*> Peers;
+std::vector<EspnowPeer*> Peers;
 Spinlock peerListProtection = Spinlock_Init;
 
-void SendMessage(const uint8* dst_addr, MessageType messageType, const Message* data)
+void SendMessage(const uint8* dst_addr, MessageType messageType, const Payload* data)
 {
-    Message* header = MessageInit(MessageTypeSize);
-    *(header->data) = (uint8)messageType;
+    Payload* message = new Payload(MessageTypeSize);
+    *(message->data) = messageType;
 
-    Message* message = MessageCompose(header, data);
+    if(NULL != data)
+    {
+        *message += *data;
+    }
 
     DataSend(dst_addr, message);
 
-    MessageDeinit(message);
-    MessageDeinit(header);
+    delete message;
 }
 
-void ReceiveMessage(const uint8_t *src_addr, const Message* message, const RSSI_Type rssi)
+void ReceiveMessage(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
 {
     if(espnowManagerInternalState != RUN)
     {
@@ -40,7 +42,7 @@ void ReceiveMessage(const uint8_t *src_addr, const Message* message, const RSSI_
     InterruptReceivedMessageStruct* irms = (InterruptReceivedMessageStruct*)malloc(sizeof(InterruptReceivedMessageStruct));
 
     memcpy(irms->src_addr, src_addr, sizeof(uint8) * 6);
-    irms->message = MessageCopy(message);
+    irms->message = new Payload(*message);
     irms->rx_ctrl_rssi = rssi;
 
     Enter_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
@@ -74,7 +76,7 @@ void HandleReceivedMessages()
 
         HandleReceivedMessage(message_handle);
 
-        MessageDeinit(message_handle->message);
+        delete message_handle->message;
         free(message_handle);
 
         maximumOperationMainFunction--;
@@ -83,16 +85,16 @@ void HandleReceivedMessages()
 
 void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 {
-    Peer* sender = NULL;
+    EspnowPeer* sender = NULL;
 
-    Message* message_header = MessageInit(MessageTypeSize);
-    Message* message_data = MessageInit(0);
-    MessageDecompose(irms->message, message_header, message_data);
+    Payload* message_header = new Payload(MessageTypeSize);
+    Payload* message_data = new Payload(*(irms->message));
 
+    *message_data >>= *message_header;
 
     // Identify the sender
     Enter_Critical_Spinlock(peerListProtection);
-    for(Peer* peer : Peers)
+    for(EspnowPeer* peer : Peers)
     {
         if(peer->IsCorrectAddress(irms->src_addr))
         {
@@ -103,7 +105,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 
     if(NULL == sender)
     {
-        sender = new Peer(irms->src_addr);
+        sender = new EspnowPeer(irms->src_addr);
         Peers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListProtection);
@@ -116,25 +118,25 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
         case RSSI_REQUEST:
         {
             RSSI_Message_Request RSSI_Message = RSSI_Message_Request(*message_data);
-            sender->RSSI_Msg_Received(RSSI_Message);
+            sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_CALCULATION:
         {
             RSSI_Message_Calculation RSSI_Message = RSSI_Message_Calculation(irms->rx_ctrl_rssi, *message_data);
-            sender->RSSI_Msg_Received(RSSI_Message);
+            sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_KEEP_ALIVE:
         {
             RSSI_Message_Keep_Alive RSSI_Message = RSSI_Message_Keep_Alive(irms->rx_ctrl_rssi);
-            sender->RSSI_Msg_Received(RSSI_Message);
+            sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_ACKNOWLEDGE:
         {
             RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(message_data);
-            sender->RSSI_Msg_Received(RSSI_Message);
+            sender->ReceiveMessage(RSSI_Message);
         }
         break;
         default:
@@ -146,6 +148,6 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
         LogManager_Log(E, "EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
     }
 
-    MessageDeinit(message_header);
-    MessageDeinit(message_data);
+    delete message_header;
+    delete message_data;
 }

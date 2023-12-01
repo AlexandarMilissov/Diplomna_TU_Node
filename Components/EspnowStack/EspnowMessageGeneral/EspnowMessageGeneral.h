@@ -17,18 +17,6 @@ typedef enum MessageType
 }MessageType;
 #define MessageTypeSize 1
 
-typedef struct Message
-{
-    uint8_t* data;
-    size_t data_size;
-}Message;
-
-Message* MessageInit(const size_t);
-void MessageDeinit(Message*);
-Message* MessageCompose(const Message*,const Message*);
-void MessageDecompose(const Message*, Message*, Message*);
-Message* MessageCopy(const Message*);
-
 #ifdef __cplusplus
 }
 #endif //__cplusplus

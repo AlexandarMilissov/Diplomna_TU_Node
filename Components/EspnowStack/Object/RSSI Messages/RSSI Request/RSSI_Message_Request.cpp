@@ -3,9 +3,9 @@
 #include <stdexcept>
 
 // Functions for receiving messages
-RSSI_Message_Request::RSSI_Message_Request(Message message)
+RSSI_Message_Request::RSSI_Message_Request(Payload message)
 {
-    if(message.data_size != GetElementsSize())
+    if(message.GetSize() != GetElementsSize())
     {
         throw std::invalid_argument("Wrong message size");
     }
@@ -20,12 +20,12 @@ RSSI_Message_Request::RSSI_Message_Request(bool value)
 
 void RSSI_Message_Request::Send(uint8* dst_addr)
 {
-    Message* message = MessageInit(GetElementsSize());
+    Payload* message = new Payload(GetElementsSize());
     *(message->data) = subscriptionStatus;
 
     SendMessage(dst_addr, RSSI_REQUEST, message);
 
-    MessageDeinit(message);
+    delete message;
 }
 
 // Other functions

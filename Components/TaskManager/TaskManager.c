@@ -20,7 +20,7 @@ void TaskManager_Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
 
-    LogManager_SetMinimalLevel("Peer", I);
+    LogManager_SetMinimalLevel("EspnowPeer", I);
     LogManager_SetMinimalLevel("TaskManager", W);
 
     for (size_t i = 0; i < Init_cfg_size; i++)

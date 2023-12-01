@@ -3,6 +3,7 @@
 
 #include "OpenSeries.hpp"
 #include "EspnowMessageGeneral.h"
+#include "Payload.hpp"
 #include "EspnowMessageInteface.hpp"
 
 #define SUBSCRIBE true
@@ -14,7 +15,7 @@ private:
     bool subscriptionStatus = UNSUBSCRIBE;
     static uint8 GetElementsSize();
 public:
-    RSSI_Message_Request(Message);
+    RSSI_Message_Request(Payload);
     RSSI_Message_Request(bool);
     ~RSSI_Message_Request();
     bool GetSubscriptionStatus();

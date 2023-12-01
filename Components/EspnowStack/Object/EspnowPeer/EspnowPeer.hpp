@@ -17,7 +17,7 @@ typedef struct SeriesLife
     uint8 life;
 }SeriesLife;
 
-class Peer
+class EspnowPeer
 {
     private:
         static const uint8 seriesBeginningLife = 5;
@@ -32,13 +32,13 @@ class Peer
         std::atomic<bool> areWeSubscribedToPeer  = false;
         std::atomic<bool> acknowledgeRequired    = false;
     public:
-        Peer(const uint8_t*);
-        ~Peer();
+        EspnowPeer(const uint8_t*);
+        ~EspnowPeer();
         bool IsCorrectAddress(const uint8*);
-        void RSSI_Msg_Received(RSSI_Message_Request     message);
-        void RSSI_Msg_Received(RSSI_Message_Calculation message);
-        void RSSI_Msg_Received(RSSI_Message_Keep_Alive  message);
-        void RSSI_Msg_Received(RSSI_Message_Acknowledge message);
+        void ReceiveMessage(RSSI_Message_Request     message);
+        void ReceiveMessage(RSSI_Message_Calculation message);
+        void ReceiveMessage(RSSI_Message_Keep_Alive  message);
+        void ReceiveMessage(RSSI_Message_Acknowledge message);
         bool IsAlive();
         void Refresh();
         void SendSubscriptionRequest();

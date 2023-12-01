@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "EspnowDriver.h"
+#include "EspnowDriver.hpp"
 #include "TaskManager.h"
 #include "EspnowManager_Internal.hpp"
 #include "EspnowManager_Tasks.hpp"
@@ -49,7 +49,7 @@ void EspnowManager_MainFunctionUpdatePeers(const void* pvParameters)
         }
         else
         {
-            LogManager_Log(W, "EspnowManager", "Peer has disconnected.");
+            LogManager_Log(W, "EspnowManager", "EspnowPeer has disconnected.");
             delete peer;
             toRemove.push_back(count);
         }

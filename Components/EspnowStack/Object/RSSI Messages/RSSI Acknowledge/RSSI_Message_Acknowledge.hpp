@@ -3,6 +3,7 @@
 
 #include "EspnowMessageGeneral.h"
 #include "EspnowMessageInteface.hpp"
+#include "Payload.hpp"
 
 class RSSI_Message_Acknowledge: EspnowMessageInteface
 {
@@ -10,7 +11,7 @@ private:
     bool status;
     static uint8 GetElementsSize();
 public:
-    RSSI_Message_Acknowledge(Message*);
+    RSSI_Message_Acknowledge(Payload*);
     RSSI_Message_Acknowledge(bool);
     ~RSSI_Message_Acknowledge();
     bool GetStatus();

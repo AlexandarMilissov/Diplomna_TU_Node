@@ -1,7 +1,7 @@
 #include "Common.h"
 #include "EspnowManager_Interface.hpp"
 #include "EspnowManager_Internal.hpp"
-#include "EspnowDriver.h"
+#include "EspnowDriver.hpp"
 #include <stdatomic.h>
 
 std::atomic<EspnowManagerInternalState> espnowManagerInternalState = NO_INIT;

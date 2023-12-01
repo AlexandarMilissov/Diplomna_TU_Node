@@ -4,6 +4,7 @@
 #include "SeriesCommon.hpp"
 #include "EspnowMessageGeneral.h"
 #include "EspnowMessageInteface.hpp"
+#include "Payload.hpp"
 
 class RSSI_Message_Calculation: EspnowMessageInteface
 {
@@ -13,7 +14,7 @@ private:
     Message_Position_Id message_Position_Id;
     static uint8 GetElementsSize();
 public:
-    RSSI_Message_Calculation(RSSI_Type, Message);
+    RSSI_Message_Calculation(RSSI_Type, Payload);
     RSSI_Message_Calculation();
     ~RSSI_Message_Calculation();
     Series_Id GetSeriesID();

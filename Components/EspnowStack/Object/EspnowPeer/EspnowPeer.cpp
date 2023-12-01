@@ -1,10 +1,10 @@
-#include "Peer.hpp"
+#include "EspnowPeer.hpp"
 #include "EspnowManager_Interface.hpp"
 
 #include <cstring>
 #include <string>
 
-void Peer::SendSubscriptionRequest()
+void EspnowPeer::SendSubscriptionRequest()
 {
     if(false == acknowledgeRequired)
     {
@@ -15,7 +15,7 @@ void Peer::SendSubscriptionRequest()
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
-const char* Peer::Log()
+const char* EspnowPeer::Log()
 {
     static std::string peerLog;
     peerLog = "";
@@ -33,7 +33,7 @@ const char* Peer::Log()
 }
 #endif
 
-Peer::Peer(const uint8_t *src_addr) : peerLife(peerBeginningLife)
+EspnowPeer::EspnowPeer(const uint8_t *src_addr) : peerLife(peerBeginningLife)
 {
     if(false) // TODO: Validate
     {
@@ -43,7 +43,7 @@ Peer::Peer(const uint8_t *src_addr) : peerLife(peerBeginningLife)
     distance = Distance();
 }
 
-Peer::~Peer()
+EspnowPeer::~EspnowPeer()
 {
     if(isPeerSubscribedToUs)
     {
@@ -52,7 +52,7 @@ Peer::~Peer()
 
 }
 
-bool Peer::IsCorrectAddress(const uint8* src_addr)
+bool EspnowPeer::IsCorrectAddress(const uint8* src_addr)
 {
     if(0 == memcmp(sourceAddress, src_addr, 6))
     {
@@ -64,7 +64,7 @@ bool Peer::IsCorrectAddress(const uint8* src_addr)
     }
 }
 
-void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
+void EspnowPeer::ReceiveMessage(RSSI_Message_Request       message)
 {
     bool messageStatus;
     RSSI_Message_Acknowledge* ackn = NULL;
@@ -101,7 +101,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Request       message)
 
 }
 
-void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
+void EspnowPeer::ReceiveMessage(RSSI_Message_Calculation   message)
 {
     OpenSeries* series = NULL;
 
@@ -127,12 +127,12 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Calculation   message)
     Exit_Critical_Spinlock(calculationDataProtection);
 }
 
-void Peer::RSSI_Msg_Received(RSSI_Message_Keep_Alive    message)
+void EspnowPeer::ReceiveMessage(RSSI_Message_Keep_Alive    message)
 {
     peerLife = peerBeginningLife;
 }
 
-void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
+void EspnowPeer::ReceiveMessage(RSSI_Message_Acknowledge   message)
 {
     if(message.GetStatus() == areWeSubscribedToPeer)
     {
@@ -140,7 +140,7 @@ void Peer::RSSI_Msg_Received(RSSI_Message_Acknowledge   message)
     }
 }
 
-bool Peer::IsAlive()
+bool EspnowPeer::IsAlive()
 {
     if(peerLife <= 0)
     {
@@ -151,7 +151,7 @@ bool Peer::IsAlive()
     return true;
 }
 
-void Peer::Refresh()
+void EspnowPeer::Refresh()
 {
     Enter_Critical_Spinlock(subscriptionStateProtection);
     if(areWeSubscribedToPeer)

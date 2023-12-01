@@ -7,10 +7,11 @@ extern "C" {
 
 #include "Common.h"
 #include "EspnowMessageGeneral.h"
+#include "Payload.hpp"
 #include "esp_now.h"
 
-void EspnowDriver_Init(void(*callback)(const uint8*, const Message*, const RSSI_Type));
-void DataSend(const uint8*, const Message*);
+void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_Type));
+void DataSend(const uint8*, const Payload*);
 void DataReceive(const esp_now_recv_info_t*, const uint8*, int);
 
 #ifdef __cplusplus

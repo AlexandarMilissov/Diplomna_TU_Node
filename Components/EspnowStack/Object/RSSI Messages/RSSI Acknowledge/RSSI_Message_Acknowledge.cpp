@@ -7,13 +7,13 @@ uint8 RSSI_Message_Acknowledge::GetElementsSize()
     return sizeof(status);
 }
 
-RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(Message* message)
+RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(Payload* message)
 {
-    if(message->data_size != GetElementsSize())
+    if(message->GetSize() != GetElementsSize())
     {
         throw std::invalid_argument("Wrong message size");
     }
-    status = (bool)message->data;
+    status = (bool)(message->data);
 }
 
 RSSI_Message_Acknowledge::RSSI_Message_Acknowledge(bool _status)
@@ -32,9 +32,11 @@ bool RSSI_Message_Acknowledge::GetStatus()
 
 void RSSI_Message_Acknowledge::Send(uint8* dst_addr)
 {
-    Message* message = MessageInit(GetElementsSize());
+    Payload* message = new Payload(GetElementsSize());
 
     *(message->data) = status;
 
     SendMessage(dst_addr, RSSI_ACKNOWLEDGE, message);
+
+    delete message;
 }
