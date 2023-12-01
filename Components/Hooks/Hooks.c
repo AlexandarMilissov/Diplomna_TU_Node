@@ -6,7 +6,7 @@ void Hooks_Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
 
-    LogWrapper_SetMinimalLevel("Hooks", W);
+    LogManager_SetMinimalLevel("Hooks", W);
 
     esp_register_freertos_idle_hook_for_cpu(&Idle_Hook_0, CORE_0);
     esp_register_freertos_idle_hook_for_cpu(&Idle_Hook_1, CORE_1);

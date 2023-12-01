@@ -3,7 +3,7 @@
 
 void app_main(void)
 {
-    TaskManager_Init();
+    TaskManager_Init(NULL);
 }
 
 // Esp Wifi Mesh

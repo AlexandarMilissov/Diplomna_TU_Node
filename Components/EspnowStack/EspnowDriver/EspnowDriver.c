@@ -18,7 +18,7 @@ void (*ul_callback)(const uint8_t*, const Message*, const RSSI_Type);
 
 void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSSI_Type))
 {
-    LogWrapper_SetMinimalLevel("EspnowDriver", W);
+    LogManager_SetMinimalLevel("EspnowDriver", W);
 
     ul_callback = callback;
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
@@ -60,7 +60,7 @@ void DataSend(const uint8* dst_addr, const Message* message)
     {
         if(ESP_ERR_ESPNOW_NO_MEM == err)
         {
-            LogWrapper_Log(E, "EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
+            LogManager_Log(E, "EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
         }
         else
         {

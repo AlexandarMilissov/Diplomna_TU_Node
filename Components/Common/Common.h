@@ -1,13 +1,16 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "LogWrapper.h"
+#include "LogManager.h"
 #include "esp_task_wdt.h"
 #include <stdint.h>
 #include "freertos/semphr.h"
 #include "sdkconfig.h"
 #include "stdbool.h"
 #include "esp_now.h"
+
+#define CORE_0 0
+#define CORE_1 1
 
 typedef portMUX_TYPE Spinlock;
 #define Spinlock_Init portMUX_INITIALIZER_UNLOCKED

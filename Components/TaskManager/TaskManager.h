@@ -7,9 +7,6 @@ extern "C" {
 
 #include "Common.h"
 
-#define CORE_0 0
-#define CORE_1 1
-
 typedef struct Task_cfg_struct{
     const uint8 namePointer;
     void (*MainFunction)(const void*);
@@ -24,7 +21,7 @@ typedef struct Task_cfg_struct{
     void* onCompleteParams;
 }Task_cfg_struct;
 
-void TaskManager_Init(void);
+void TaskManager_Init(const void*);
 TaskHandle_t* RequestTask(Task_cfg_struct* config);
 
 #ifdef __cplusplus

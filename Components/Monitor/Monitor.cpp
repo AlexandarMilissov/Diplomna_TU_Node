@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <algorithm>
 #include "TaskManager.h"
 
 std::vector<LogFunctionSignature> logDelegate;
@@ -37,7 +38,7 @@ void Monitor_MainFunction(const void *)
 
     monitorLog += "\n==========END==========\n";
 
-    LogWrapper_Log(I, "Monitor", "%s", monitorLog.c_str());
+    LogManager_Log(I, "Monitor", "%s", monitorLog.c_str());
 
     monitorLog = "";
     counter++;
@@ -65,7 +66,7 @@ const char *MonitorMemory()
     memoryLog = "";
     memoryLog += "Used memory " + std::to_string(maximum_heap_regions - free_heap_regions);
     memoryLog += "B out of " + std::to_string(maximum_heap_regions);
-    memoryLog += "B maximum (" + std::to_string((double)free_heap_regions * 100 / (double)maximum_heap_regions);
+    memoryLog += "B maximum (" + std::to_string((float)free_heap_regions * 100 / (float)maximum_heap_regions);
     memoryLog += "% free)";
     memoryLog += "\n\0";
 
@@ -105,6 +106,15 @@ const char *MonitorCPU()
         // Avoid divide by zero errors.
         if (ulTotalRunTime > 0)
         {
+
+            // Using std::sort to sort the array of pointers
+            std::sort(pxTaskStatusArray, pxTaskStatusArray + uxArraySize,
+                [](const TaskStatus_t& a, const TaskStatus_t& b)
+                {
+                    return (a.ulRunTimeCounter < b.ulRunTimeCounter);
+                }
+            );
+
             // For each populated position in the pxTaskStatusArray array
             for (UBaseType_t i = 0; i < uxArraySize; i++)
             {
@@ -112,6 +122,10 @@ const char *MonitorCPU()
                 {
                     ulStatsAsPercentage = ((float)(pxTaskStatusArray[i].ulRunTimeCounter)) / ((float)ulTotalRunTime);
                     cpuLogCore0 += "    ";
+                    if(ulStatsAsPercentage < 10)
+                    {
+                        cpuLogCore0 += "0";
+                    }
                     cpuLogCore0 += std::to_string(ulStatsAsPercentage);
                     cpuLogCore0 += "% : ";
                     cpuLogCore0 += pxTaskStatusArray[i].pcTaskName;
@@ -121,6 +135,10 @@ const char *MonitorCPU()
                 {
                     ulStatsAsPercentage = ((float)(pxTaskStatusArray[i].ulRunTimeCounter)) / ((float)ulTotalRunTime);
                     cpuLogCore1 += "    ";
+                    if(ulStatsAsPercentage < 10)
+                    {
+                        cpuLogCore1 += "0";
+                    }
                     cpuLogCore1 += std::to_string(ulStatsAsPercentage);
                     cpuLogCore1 += "% : ";
                     cpuLogCore1 += pxTaskStatusArray[i].pcTaskName;

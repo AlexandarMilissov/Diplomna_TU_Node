@@ -22,7 +22,7 @@ void MessageDecompose(const Message* in, Message* out_header, Message* out_data)
     // Check for input errors
     if(out_header->data_size > in->data_size)
     {
-        LogWrapper_Log(E, "MessageDecompose","Invalid data size");
+        LogManager_Log(E, "MessageDecompose","Invalid data size");
     }
 
     // Fill header info

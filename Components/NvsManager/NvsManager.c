@@ -11,7 +11,7 @@ void ReadName();
 
 void NvsManager_Init(const void *pvParameters)
 {
-    LogWrapper_SetMinimalLevel("NvsManager", W);
+    LogManager_SetMinimalLevel("NvsManager", W);
     DUMMY_STATEMENT(pvParameters);
 
     // Initialize NVS
@@ -42,7 +42,7 @@ void ReadName()
     {
         nvs_set_str(my_handle, "name", "Default");
         nvs_commit(my_handle);
-        LogWrapper_Log(W, "NvsManager", "Setting name.\n");
+        LogManager_Log(W, "NvsManager", "Setting name.\n");
     }
 
     nvs_close(my_handle);

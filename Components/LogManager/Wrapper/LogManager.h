@@ -14,8 +14,9 @@ typedef enum{
     E
 }Log_Severity;
 
-void LogWrapper_SetMinimalLevel(const char*, const Log_Severity);
-void LogWrapper_Log(const Log_Severity, const char*, const char*, ...);
+void LogManager_Init(const void*);
+void LogManager_SetMinimalLevel(const char*, const Log_Severity);
+void LogManager_Log(const Log_Severity, const char*, const char*, ...);
 
 #ifdef __cplusplus
 }

@@ -16,10 +16,12 @@
 void Task(void*);
 bool IsTaskCfgValid(Task_cfg_struct);
 
-void TaskManager_Init(void)
+void TaskManager_Init(const void* pvParameters)
 {
-    LogWrapper_SetMinimalLevel("Peer", I);
-    LogWrapper_SetMinimalLevel("TaskManager", W);
+    DUMMY_STATEMENT(pvParameters);
+
+    LogManager_SetMinimalLevel("Peer", I);
+    LogManager_SetMinimalLevel("TaskManager", W);
 
     for (size_t i = 0; i < Init_cfg_size; i++)
     {
@@ -31,7 +33,7 @@ void TaskManager_Init(void)
         RequestTask(task_cfg + i);
     }
 
-    LogWrapper_Log(E, "TaskManager", " This is %s. Init success.\n", NvsGetName());
+    LogManager_Log(E, "TaskManager", " This is %s. Init success.\n", NvsGetName());
 }
 
 void Task(void* in_config_ptr)
@@ -65,7 +67,7 @@ void Task(void* in_config_ptr)
         {
             esp_task_wdt_delete(NULL);
 
-            LogWrapper_Log(E, "TaskManager", "Task '%s' failed. Main function has become NULL. Terminating.", pcTaskGetName(xTaskGetCurrentTaskHandle() ));
+            LogManager_Log(E, "TaskManager", "Task '%s' failed. Main function has become NULL. Terminating.", pcTaskGetName(xTaskGetCurrentTaskHandle() ));
             shouldExit = true;
             continue;
         }
@@ -75,12 +77,12 @@ void Task(void* in_config_ptr)
         esp_task_wdt_reset();
         if((cfg->period * 1000) >= time)
         {
-            LogWrapper_Log(V, "TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
+            LogManager_Log(V, "TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
             TaskSleepMiliSeconds(cfg->period - (time / 1000));
         }
         else
         {
-            LogWrapper_Log(W, "TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
+            LogManager_Log(W, "TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
         }
     }
 
@@ -97,7 +99,7 @@ TaskHandle_t* RequestTask(Task_cfg_struct* config)
 {
     if(!IsTaskCfgValid(*config))
     {
-        LogWrapper_Log(E, "TaskManager", "Invalidly configured task: %s", task_name_table[config->namePointer]);
+        LogManager_Log(E, "TaskManager", "Invalidly configured task: %s", task_name_table[config->namePointer]);
         return NULL;
     }
 
@@ -121,7 +123,7 @@ TaskHandle_t* RequestTask(Task_cfg_struct* config)
         taskHandle,
         config->core))
     {
-        LogWrapper_Log(E, "TaskManager", "Failed to create task: %s", task_name_table[config->namePointer]);
+        LogManager_Log(E, "TaskManager", "Failed to create task: %s", task_name_table[config->namePointer]);
     }
     return taskHandle;
 }

@@ -9,6 +9,7 @@ extern "C"
 #include "TaskManager.h"
 #include "WifiManager.h"
 #include "EspnowManager_Tasks.hpp"
+#include "LogManager.h"
 #include "Monitor.hpp"
 #include "Hooks.h"
 #include "NvsManager.h"
@@ -20,6 +21,7 @@ typedef struct Init_cfg_struct{
 
 Init_cfg_struct init_cfg[] =
 {
+    {"LogManager",          LogManager_Init},
     {"NvsManager",          NvsManager_Init},
 #if CONFIG_ENABLE_MONITOR == 1
     {"Monitor",             Monitor_Init},

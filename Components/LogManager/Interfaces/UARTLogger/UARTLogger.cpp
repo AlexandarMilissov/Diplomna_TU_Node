@@ -1,9 +1,8 @@
-#include "Esp_LogWrapper.h"
+#include "UARTLogger.hpp"
 #include <esp_log.h>
-#include <stdio.h>
 #include "Common.h"
 
-void Esp_LogWrapper_SetMinimalLevel(const char* source, const Log_Severity severity)
+void UARTLogger::SetMinimalLevel(const char* source, const Log_Severity severity)
 {
     switch (severity)
     {
@@ -27,7 +26,7 @@ void Esp_LogWrapper_SetMinimalLevel(const char* source, const Log_Severity sever
     }
 }
 
-void Esp_LogWrapper_Log(const Log_Severity severity, const char* source, const char* log)
+void UARTLogger::Log(const Log_Severity severity, const char * source, const char * log)
 {
     switch (severity)
     {

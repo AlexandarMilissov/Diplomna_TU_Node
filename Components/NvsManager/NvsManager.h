@@ -15,7 +15,6 @@ typedef enum NvsLargeCode
     BLOB
 }NvsLargeCode;
 
-void Hooks_Init(const void*);
 void NvsManager_Init(const void*);
 const char* NvsGetName();
 

@@ -1,28 +1,32 @@
-#include "LogWrapper.h"
+#include "LogManager.h"
+#include "LogManager.hpp"
 #include <stdarg.h>
 
 #include "Common.h"
 
-#include "Esp_LogWrapper.h"
+char* Logger_FormatString(const char* format, va_list args);
 
-char* LogWrapper_FormatString(const char* format, va_list args);
-
-void LogWrapper_SetMinimalLevel(const char* source, const Log_Severity severity)
+void LogManager_Init(const void* pvParameters)
 {
-    Esp_LogWrapper_SetMinimalLevel(source, severity);
+    LogManager::Init(pvParameters);
+}
+
+void LogManager_SetMinimalLevel(const char* source, const Log_Severity severity)
+{
+    LogManager::SetMinimalLevel(source, severity);
 }
 
 // Wrapper function
-void LogWrapper_Log(const Log_Severity severity, const char* source, const char* format, ...)
+void LogManager_Log(const Log_Severity severity, const char* source, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
     // Format the log message
-    char* message = LogWrapper_FormatString(format, args);
+    char* message = Logger_FormatString(format, args);
 
     // Call the actual logging function
-    Esp_LogWrapper_Log(severity, source, message);
+    LogManager::Log(severity, source, message);
 
     free(message);
 
@@ -30,7 +34,7 @@ void LogWrapper_Log(const Log_Severity severity, const char* source, const char*
 }
 
 // Function to format the log message
-char* LogWrapper_FormatString(const char* format, va_list args)
+char* Logger_FormatString(const char* format, va_list args)
 {
     va_list args_copy;
     va_copy(args_copy, args);
