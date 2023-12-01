@@ -3,11 +3,12 @@
 
 #include "OpenSeries.hpp"
 #include "EspnowMessageGeneral.h"
+#include "EspnowMessageInteface.hpp"
 
 #define SUBSCRIBE true
 #define UNSUBSCRIBE false
 
-class RSSI_Message_Request
+class RSSI_Message_Request : EspnowMessageInteface
 {
 private:
     bool subscriptionStatus = UNSUBSCRIBE;

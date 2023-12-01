@@ -126,7 +126,8 @@
         "espnowmanager_interface.hpp": "c",
         "esp_logwrapper.h": "c",
         "logwrapper.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "*.inc": "cpp"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",

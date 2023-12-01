@@ -25,10 +25,9 @@ typedef struct Message
 
 Message* MessageInit(const size_t);
 void MessageDeinit(Message*);
+Message* MessageCompose(const Message*,const Message*);
 void MessageDecompose(const Message*, Message*, Message*);
 Message* MessageCopy(const Message*);
-Message* MessageCompose(const Message*,const Message*);
-void MessagePrintf(const Message*);
 
 #ifdef __cplusplus
 }

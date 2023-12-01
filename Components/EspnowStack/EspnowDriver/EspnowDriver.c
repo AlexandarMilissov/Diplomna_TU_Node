@@ -16,7 +16,7 @@
 Spinlock sendProtection = Spinlock_Init;
 void (*ul_callback)(const uint8_t*, const Message*, const RSSI_Type);
 
-void EspnowDriver_Init(void(*callback)(const uint8_t*, const Message*, const RSSI_Type))
+void EspnowDriver_Init(void(*callback)(const uint8*, const Message*, const RSSI_Type))
 {
     LogManager_SetMinimalLevel("EspnowDriver", W);
 
@@ -70,7 +70,7 @@ void DataSend(const uint8* dst_addr, const Message* message)
     free(package);
 }
 
-void DataReceive(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len)
+void DataReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
 {
     if( memcmp(recv_info->des_addr, broadcast_mac, ESP_NOW_ETH_ALEN) != 0)
     {

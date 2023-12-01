@@ -2,8 +2,9 @@
 #define RSSI_MESSAGE_KEEP_ALIVE_HPP_
 
 #include "EspnowMessageGeneral.h"
+#include "EspnowMessageInteface.hpp"
 
-class RSSI_Message_Keep_Alive
+class RSSI_Message_Keep_Alive: EspnowMessageInteface
 {
 private:
     RSSI_Type RSSI;

@@ -3,8 +3,9 @@
 
 #include "SeriesCommon.hpp"
 #include "EspnowMessageGeneral.h"
+#include "EspnowMessageInteface.hpp"
 
-class RSSI_Message_Calculation
+class RSSI_Message_Calculation: EspnowMessageInteface
 {
 private:
     RSSI_Type RSSI;

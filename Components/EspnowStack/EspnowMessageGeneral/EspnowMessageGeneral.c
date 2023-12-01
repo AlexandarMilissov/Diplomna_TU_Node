@@ -67,13 +67,3 @@ Message* MessageCompose(const Message* in_header, const Message* in_data)
 
     return out;
 }
-
-void MessagePrintf(const Message* message)
-{
-    printf("Message: ");
-    for (int i = 0; i < message->data_size; i++)
-    {
-        printf("%d ",message->data[i]);
-    }
-    printf("\n");
-}

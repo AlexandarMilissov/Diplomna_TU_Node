@@ -2,8 +2,9 @@
 #define RSSI_MESSAGE_ACKNOWLEDGE_HPP_
 
 #include "EspnowMessageGeneral.h"
+#include "EspnowMessageInteface.hpp"
 
-class RSSI_Message_Acknowledge
+class RSSI_Message_Acknowledge: EspnowMessageInteface
 {
 private:
     bool status;
