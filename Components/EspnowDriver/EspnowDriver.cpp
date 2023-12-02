@@ -1,6 +1,8 @@
 #include "EspnowDriver.hpp"
 #include <string.h>
 #include "esp_mac.h"
+#include "WifiManager.h"
+#include "Common.h"
 
 /* ESPNOW can work in both station and softap mode. It is configured in menuconfig. */
 #if CONFIG_WIFI_AP_ENABLED
@@ -18,6 +20,11 @@ void (*ul_callback)(const uint8_t*, const Payload*, const RSSI_Type);
 
 void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_Type))
 {
+    while(!WifiManager_IsInit())
+    {
+        TaskSleepMiliSeconds(100);
+    }
+
     LogManager_SetMinimalLevel("EspnowDriver", W);
 
     ul_callback = callback;

@@ -2,6 +2,7 @@
 #define RSSI_MESSAGE_KEEP_ALIVE_HPP_
 
 #include "Common.h"
+#include "Payload.hpp"
 #include "IEspnowMessage.hpp"
 
 class EspnowMessageKeepAlive: public IEspnowMessage

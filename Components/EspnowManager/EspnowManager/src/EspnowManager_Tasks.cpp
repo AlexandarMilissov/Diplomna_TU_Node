@@ -11,7 +11,7 @@
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
 #include "Monitor.hpp"
-const char* Encapsulation_Log();
+const char* EspnowManager_Log();
 #endif
 
 void EspnowManager_Init(const void* pvParameters)
@@ -25,7 +25,7 @@ void EspnowManager_Init(const void* pvParameters)
     EspnowDriver_Init(ReceiveMessage);
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-    Monitor_SubscribeFunction(&Encapsulation_Log);
+    Monitor_SubscribeFunction(&EspnowManager_Log);
 #endif
 
     espnowManagerInternalState = INIT;
@@ -115,7 +115,7 @@ void EspnowManager_SendCalculationSeries(const void* pvParameters)
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-const char* Encapsulation_Log()
+const char* EspnowManager_Log()
 {
     static std::string messagesLog;
     size_t operations;

@@ -1,7 +1,8 @@
 #include "WifiManager.h"
 #include "Common.h"
 #include "esp_wifi.h"
-#include "esp_now.h"
+
+bool isInit = false;
 
 void WifiManager_Init(const void* pvParameters)
 {
@@ -24,20 +25,29 @@ void WifiManager_Init(const void* pvParameters)
 
     #define MAX_TX_POWER 80
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(MAX_TX_POWER));
+
+    isInit = true;
 }
+
+bool WifiManager_IsInit()
+{
+    return isInit;
+}
+
+
 #if 0
-Mapping Table 
+Mapping Table
 {Power, max_tx_power} = {
-    {8, 2}, 
-    {20, 5}, 
-    {28, 7}, 
-    {34, 8}, 
-    {44, 11}, 
-    {52, 13}, 
-    {56, 14}, 
-    {60, 15}, 
-    {66, 16}, 
-    {72, 18}, 
+    {8, 2},
+    {20, 5},
+    {28, 7},
+    {34, 8},
+    {44, 11},
+    {52, 13},
+    {56, 14},
+    {60, 15},
+    {66, 16},
+    {72, 18},
     {80, 20}
 }
 #endif
