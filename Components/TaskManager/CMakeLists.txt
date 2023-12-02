@@ -1,12 +1,12 @@
-idf_component_register(SRCS 
+idf_component_register(SRCS
                             "TaskNameTable.c"
                             "TaskManager.c"
-                       INCLUDE_DIRS 
+                       INCLUDE_DIRS
                             "."
-                       REQUIRES 
+                       REQUIRES
                             Common
                             esp_timer
-                            EspnowStack
+                            EspnowManager
                             WifiManager
                             Monitor
                             Hooks

@@ -2,7 +2,7 @@
 #define LOGGER_HPP_
 
 #include <vector>
-#include "LoggerInterface.hpp"
+#include "ILogger.hpp"
 
 #ifdef __cplusplus
 extern "C"
@@ -12,7 +12,7 @@ extern "C"
 class LogManager
 {
     private:
-        static std::vector<LoggerInterface*> loggers;
+        static std::vector<ILogger*> loggers;
     public:
         static void SetMinimalLevel(const char*, const Log_Severity);
         static void Log(const Log_Severity, const char*, const char*);

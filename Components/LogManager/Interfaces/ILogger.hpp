@@ -8,7 +8,7 @@ extern "C"
 {
 #endif //__cplusplus
 
-class LoggerInterface
+class ILogger
 {
     public:
         virtual void SetMinimalLevel(const char*, const Log_Severity) = 0;

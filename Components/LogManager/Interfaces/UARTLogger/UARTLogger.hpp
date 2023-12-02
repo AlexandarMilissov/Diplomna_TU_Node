@@ -1,9 +1,9 @@
 #ifndef CONSOLELOGGER_HPP_
 #define CONSOLELOGGER_HPP_
 
-#include "LoggerInterface.hpp"
+#include "ILogger.hpp"
 
-class UARTLogger : public LoggerInterface
+class UARTLogger : public ILogger
 {
     public:
         void SetMinimalLevel(const char*, const Log_Severity);

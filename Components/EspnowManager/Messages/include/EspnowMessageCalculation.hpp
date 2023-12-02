@@ -2,26 +2,26 @@
 #define RSSI_MESSAGE_CALCULATION_HPP_
 
 #include "SeriesCommon.hpp"
-#include "EspnowMessageGeneral.h"
-#include "EspnowMessageInteface.hpp"
+#include "IEspnowMessage.hpp"
 #include "Payload.hpp"
 
-class RSSI_Message_Calculation: EspnowMessageInteface
+class EspnowMessageCalculation: public IEspnowMessage
 {
 private:
     RSSI_Type RSSI;
     Series_Id series_Id;
     Message_Position_Id message_Position_Id;
     static uint8 GetElementsSize();
+    static Series_Id send_series_Id;
+    static Message_Position_Id send_message_Position_Id;
 public:
-    RSSI_Message_Calculation(RSSI_Type, Payload);
-    RSSI_Message_Calculation();
-    ~RSSI_Message_Calculation();
+    EspnowMessageCalculation(RSSI_Type, Payload);
+    EspnowMessageCalculation();
     Series_Id GetSeriesID();
     Message_Position_Id GetMessagePosition();
     RSSI_Type GetRSSI();
-    void Send(uint8*);
-    static void StaticSend();
+
+    Payload GetPayload() const;
 };
 
 

@@ -1,0 +1,9 @@
+idf_component_register(SRCS
+                        "EspnowDriver.cpp"
+                       INCLUDE_DIRS
+                        "."
+                       REQUIRES
+                        "Common"
+                        "Payload"
+                        "esp_wifi"
+                       )

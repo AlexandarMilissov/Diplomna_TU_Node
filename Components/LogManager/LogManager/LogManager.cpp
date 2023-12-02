@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "UARTLogger.hpp"
 
-std::vector<LoggerInterface*> LogManager::loggers;
+std::vector<ILogger*> LogManager::loggers;
 
 void LogManager::Init(const void *pvParameters)
 {

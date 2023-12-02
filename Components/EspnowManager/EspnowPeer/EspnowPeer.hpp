@@ -3,10 +3,10 @@
 
 #include "Common.h"
 #include "Distance.hpp"
-#include "RSSI_Message_Request.hpp"
-#include "RSSI_Message_Calculation.hpp"
-#include "RSSI_Message_Keep_Alive.hpp"
-#include "RSSI_Message_Acknowledge.hpp"
+#include "EspnowMessageRequest.hpp"
+#include "EspnowMessageCalculation.hpp"
+#include "EspnowMessageKeepAlive.hpp"
+#include "EspnowMessageAcknowledge.hpp"
 
 #include <list>
 #include <atomic>
@@ -35,10 +35,10 @@ class EspnowPeer
         EspnowPeer(const uint8_t*);
         ~EspnowPeer();
         bool IsCorrectAddress(const uint8*);
-        void ReceiveMessage(RSSI_Message_Request     message);
-        void ReceiveMessage(RSSI_Message_Calculation message);
-        void ReceiveMessage(RSSI_Message_Keep_Alive  message);
-        void ReceiveMessage(RSSI_Message_Acknowledge message);
+        void ReceiveMessage(EspnowMessageRequest     message);
+        void ReceiveMessage(EspnowMessageCalculation message);
+        void ReceiveMessage(EspnowMessageKeepAlive  message);
+        void ReceiveMessage(EspnowMessageAcknowledge message);
         bool IsAlive();
         void Refresh();
         void SendSubscriptionRequest();

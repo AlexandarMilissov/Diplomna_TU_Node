@@ -127,7 +127,8 @@
         "esp_logwrapper.h": "c",
         "logwrapper.h": "c",
         "stdarg.h": "c",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "variant": "cpp"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",

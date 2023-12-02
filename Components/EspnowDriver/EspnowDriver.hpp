@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include "Common.h"
-#include "EspnowMessageGeneral.h"
 #include "Payload.hpp"
 #include "esp_now.h"
 

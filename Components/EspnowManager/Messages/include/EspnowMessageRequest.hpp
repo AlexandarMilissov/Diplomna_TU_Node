@@ -2,24 +2,24 @@
 #define RSSI_MESSAGE_REQUEST_HPP
 
 #include "OpenSeries.hpp"
-#include "EspnowMessageGeneral.h"
 #include "Payload.hpp"
-#include "EspnowMessageInteface.hpp"
+#include "IEspnowMessage.hpp"
 
 #define SUBSCRIBE true
 #define UNSUBSCRIBE false
 
-class RSSI_Message_Request : EspnowMessageInteface
+class EspnowMessageRequest : public IEspnowMessage
 {
 private:
     bool subscriptionStatus = UNSUBSCRIBE;
     static uint8 GetElementsSize();
 public:
-    RSSI_Message_Request(Payload);
-    RSSI_Message_Request(bool);
-    ~RSSI_Message_Request();
+    EspnowMessageRequest(Payload);
+    EspnowMessageRequest(bool);
+    ~EspnowMessageRequest();
     bool GetSubscriptionStatus();
-    void Send(uint8*);
+
+    Payload GetPayload() const;
 };
 
 

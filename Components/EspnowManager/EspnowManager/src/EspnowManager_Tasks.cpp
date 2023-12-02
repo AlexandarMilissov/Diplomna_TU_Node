@@ -5,6 +5,7 @@
 #include "EspnowManager_Tasks.hpp"
 #include "EspnowManager_Interface.hpp"
 #include "EspnowManager_Communication.hpp"
+#include "Payload.hpp"
 #include "OpenSeries.hpp"
 #include <string>
 
@@ -70,7 +71,8 @@ void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
     }
 
     // Send keep alive messages
-    RSSI_Message_Keep_Alive::StaticSend();
+    EspnowMessageKeepAlive keepAlive;
+    SendMessage(broadcast_mac, keepAlive.GetPayload());
 
     // Send needed subscription requests
     for(auto& peer : Peers)
@@ -108,7 +110,8 @@ void EspnowManager_MainFunction_HandleReceivedMessages(const void* pvParameters)
 void EspnowManager_SendCalculationSeries(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
-    RSSI_Message_Calculation::StaticSend();
+    EspnowMessageCalculation calculation;
+    SendMessage(broadcast_mac, calculation.GetPayload());
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR

@@ -1,5 +1,6 @@
 #include "EspnowPeer.hpp"
 #include "EspnowManager_Interface.hpp"
+#include "EspnowManager_Communication.hpp"
 
 #include <cstring>
 #include <string>
@@ -10,8 +11,8 @@ void EspnowPeer::SendSubscriptionRequest()
     {
         return;
     }
-    RSSI_Message_Request RSSI_Message = RSSI_Message_Request(areWeSubscribedToPeer);
-    RSSI_Message.Send(sourceAddress);
+    EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
+    SendMessage(sourceAddress, RSSI_Message.GetPayload());
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
@@ -64,10 +65,10 @@ bool EspnowPeer::IsCorrectAddress(const uint8* src_addr)
     }
 }
 
-void EspnowPeer::ReceiveMessage(RSSI_Message_Request       message)
+void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 {
     bool messageStatus;
-    RSSI_Message_Acknowledge* ackn = NULL;
+    EspnowMessageAcknowledge* ackn = NULL;
 
     Enter_Critical_Spinlock(subscriptionStateProtection);
 
@@ -80,7 +81,7 @@ void EspnowPeer::ReceiveMessage(RSSI_Message_Request       message)
             isPeerSubscribedToUs = true;
             EspnowManager_Subscribe();
         }
-        ackn = new RSSI_Message_Acknowledge(SUBSCRIBE);
+        ackn = new EspnowMessageAcknowledge(SUBSCRIBE);
     }
     else if(UNSUBSCRIBE == message.GetSubscriptionStatus())
     {
@@ -89,19 +90,19 @@ void EspnowPeer::ReceiveMessage(RSSI_Message_Request       message)
             isPeerSubscribedToUs = false;
             EspnowManager_Unsubscribe();
         }
-        ackn = new RSSI_Message_Acknowledge(UNSUBSCRIBE);
+        ackn = new EspnowMessageAcknowledge(UNSUBSCRIBE);
     }
     Exit_Critical_Spinlock(subscriptionStateProtection);
 
     if(NULL != ackn)
     {
-        ackn->Send(sourceAddress);
+        SendMessage(sourceAddress, ackn->GetPayload());
         delete ackn;
     }
 
 }
 
-void EspnowPeer::ReceiveMessage(RSSI_Message_Calculation   message)
+void EspnowPeer::ReceiveMessage(EspnowMessageCalculation   message)
 {
     OpenSeries* series = NULL;
 
@@ -112,6 +113,7 @@ void EspnowPeer::ReceiveMessage(RSSI_Message_Calculation   message)
         if(s.series->IsCorrectId(message.GetSeriesID()))
         {
             series = s.series;
+            break;
         }
     }
     if(NULL == series)
@@ -127,12 +129,12 @@ void EspnowPeer::ReceiveMessage(RSSI_Message_Calculation   message)
     Exit_Critical_Spinlock(calculationDataProtection);
 }
 
-void EspnowPeer::ReceiveMessage(RSSI_Message_Keep_Alive    message)
+void EspnowPeer::ReceiveMessage(EspnowMessageKeepAlive    message)
 {
     peerLife = peerBeginningLife;
 }
 
-void EspnowPeer::ReceiveMessage(RSSI_Message_Acknowledge   message)
+void EspnowPeer::ReceiveMessage(EspnowMessageAcknowledge   message)
 {
     if(message.GetStatus() == areWeSubscribedToPeer)
     {

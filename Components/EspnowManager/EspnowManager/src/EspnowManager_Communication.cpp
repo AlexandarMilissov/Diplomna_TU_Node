@@ -3,6 +3,8 @@
 #include "EspnowManager_Interface.hpp"
 #include "EspnowManager_Internal.hpp"
 #include "EspnowManager_Communication.hpp"
+#include "IEspnowMessage.hpp"
+#include "Payload.hpp"
 #include <stdatomic.h>
 #include <string.h>
 #include <stdexcept>
@@ -17,19 +19,9 @@ Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
 std::vector<EspnowPeer*> Peers;
 Spinlock peerListProtection = Spinlock_Init;
 
-void SendMessage(const uint8* dst_addr, MessageType messageType, const Payload* data)
+void SendMessage(const uint8* address, const Payload payload)
 {
-    Payload* message = new Payload(MessageTypeSize);
-    *(message->data) = messageType;
-
-    if(NULL != data)
-    {
-        *message += *data;
-    }
-
-    DataSend(dst_addr, message);
-
-    delete message;
+    DataSend(address, &payload);
 }
 
 void ReceiveMessage(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
@@ -117,25 +109,25 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
         {
         case RSSI_REQUEST:
         {
-            RSSI_Message_Request RSSI_Message = RSSI_Message_Request(*message_data);
+            EspnowMessageRequest RSSI_Message = EspnowMessageRequest(*message_data);
             sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_CALCULATION:
         {
-            RSSI_Message_Calculation RSSI_Message = RSSI_Message_Calculation(irms->rx_ctrl_rssi, *message_data);
+            EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(irms->rx_ctrl_rssi, *message_data);
             sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_KEEP_ALIVE:
         {
-            RSSI_Message_Keep_Alive RSSI_Message = RSSI_Message_Keep_Alive(irms->rx_ctrl_rssi);
+            EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(*message_data);
             sender->ReceiveMessage(RSSI_Message);
         }
         break;
         case RSSI_ACKNOWLEDGE:
         {
-            RSSI_Message_Acknowledge RSSI_Message = RSSI_Message_Acknowledge(message_data);
+            EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(*message_data);
             sender->ReceiveMessage(RSSI_Message);
         }
         break;
