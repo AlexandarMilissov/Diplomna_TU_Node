@@ -1,0 +1,104 @@
+Date : 2023-12-03 02:17:19
+Directory : c:\Projects\Diplomna\Map\Node\Code\Components
+Total : 54 files,  2159 codes, 101 comments, 473 blanks, all 2733 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C++      |         48 |      1,918 |         90 |        423 |      2,431 |
+| C        |          6 |        241 |         11 |         50 |        302 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                              | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                 |         54 |      2,159 |        101 |        473 |      2,733 |
+| Common                                                                                                            |          2 |         45 |          0 |         12 |         57 |
+| EspnowDriver                                                                                                      |          2 |         98 |          5 |         26 |        129 |
+| EspnowManager                                                                                                     |         28 |      1,246 |         68 |        260 |      1,574 |
+| EspnowManager\Distance                                                                                            |          3 |        211 |         36 |         45 |        292 |
+| EspnowManager\EspnowManager                                                                                       |          9 |        458 |          4 |         95 |        557 |
+| EspnowManager\EspnowManager\include                                                                               |          3 |         47 |          0 |         21 |         68 |
+| EspnowManager\EspnowManager\src                                                                                   |          3 |        265 |          4 |         50 |        319 |
+| EspnowManager\EspnowManager\utils                                                                                 |          3 |        146 |          0 |         24 |        170 |
+| EspnowManager\EspnowPeer                                                                                          |          2 |        217 |          0 |         34 |        251 |
+| EspnowManager\Messages                                                                                            |          9 |        243 |          5 |         61 |        309 |
+| EspnowManager\Messages\include                                                                                    |          5 |         91 |          0 |         24 |        115 |
+| EspnowManager\Messages\src                                                                                        |          4 |        152 |          5 |         37 |        194 |
+| EspnowManager\Series                                                                                              |          5 |        117 |         23 |         25 |        165 |
+| Hooks                                                                                                             |          2 |         25 |          8 |         11 |         44 |
+| LogManager                                                                                                        |          7 |        174 |          7 |         43 |        224 |
+| LogManager\Interfaces                                                                                             |          3 |         76 |          0 |         12 |         88 |
+| LogManager\Interfaces (Files)                                                                                     |          1 |         17 |          0 |          5 |         22 |
+| LogManager\Interfaces\UARTLogger                                                                                  |          2 |         59 |          0 |          7 |         66 |
+| LogManager\LogManager                                                                                             |          2 |         45 |          0 |         11 |         56 |
+| LogManager\Wrapper                                                                                                |          2 |         53 |          7 |         20 |         80 |
+| Monitor                                                                                                           |          2 |        152 |         10 |         34 |        196 |
+| NvsManager                                                                                                        |          2 |         58 |          3 |         15 |         76 |
+| Payload                                                                                                           |          2 |         89 |          0 |         16 |        105 |
+| TaskManager                                                                                                       |          5 |        217 |          0 |         41 |        258 |
+| WifiManager                                                                                                       |          2 |         55 |          0 |         15 |         70 |
++-------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                          | language | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Projects\Diplomna\Map\Node\Code\Components\Common\Common.c                                                     | C        |          3 |          0 |          0 |          3 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Common\Common.h                                                     | C++      |         42 |          0 |         12 |         54 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowDriver\EspnowDriver.cpp                                       | C++      |         83 |          5 |         21 |        109 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowDriver\EspnowDriver.hpp                                       | C++      |         15 |          0 |          5 |         20 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Distance\Distance.cpp                                 | C++      |        167 |         30 |         34 |        231 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Distance\Distance.hpp                                 | C++      |         41 |          0 |          9 |         50 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Distance\Distance_ref.hpp                             | C++      |          3 |          6 |          2 |         11 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\include\EspnowManager_Communication.hpp | C++      |         15 |          0 |          7 |         22 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\include\EspnowManager_Interface.hpp     | C++      |         15 |          0 |          6 |         21 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\include\EspnowManager_Tasks.hpp         | C++      |         17 |          0 |          8 |         25 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\src\EspnowManager_Communication.cpp     | C++      |        121 |          2 |         22 |        145 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\src\EspnowManager_Interface.cpp         | C++      |         23 |          0 |          5 |         28 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\src\EspnowManager_Tasks.cpp             | C++      |        121 |          2 |         23 |        146 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\utils\EspnowManager_Config_Validation.h | C++      |          6 |          0 |          2 |          8 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\utils\EspnowManager_Internal.hpp        | C++      |         34 |          0 |         11 |         45 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowManager\utils\EspnowManager_Task_Config.h       | C++      |        106 |          0 |         11 |        117 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowPeer\EspnowPeer.cpp                             | C++      |        172 |          0 |         28 |        200 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\EspnowPeer\EspnowPeer.hpp                             | C++      |         45 |          0 |          6 |         51 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\include\EspnowMessageAcknowledge.hpp         | C++      |         16 |          0 |          3 |         19 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\include\EspnowMessageCalculation.hpp         | C++      |         22 |          0 |          5 |         27 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\include\EspnowMessageKeepAlive.hpp           | C++      |         15 |          0 |          4 |         19 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\include\EspnowMessageRequest.hpp             | C++      |         20 |          0 |          7 |         27 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\include\IEspnowMessage.hpp                   | C++      |         18 |          0 |          5 |         23 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\src\EspnowMessageAcknowledge.cpp             | C++      |         32 |          0 |          9 |         41 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\src\EspnowMessageCalculation.cpp             | C++      |         66 |          1 |         13 |         80 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\src\EspnowMessageKeepAlive.cpp               | C++      |         19 |          1 |          6 |         26 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Messages\src\EspnowMessageRequest.cpp                 | C++      |         35 |          3 |          9 |         47 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Series\ClosedSeries.cpp                               | C++      |         16 |          0 |          4 |         20 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Series\ClosedSeries.hpp                               | C++      |         16 |          0 |          3 |         19 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Series\OpenSeries.cpp                                 | C++      |         54 |         15 |         11 |         80 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Series\OpenSeries.hpp                                 | C++      |         24 |          0 |          3 |         27 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\EspnowManager\Series\SeriesCommon.hpp                               | C++      |          7 |          8 |          4 |         19 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Hooks\Hooks.c                                                       | C        |         18 |          8 |          6 |         32 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Hooks\Hooks.h                                                       | C++      |          7 |          0 |          5 |         12 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\Interfaces\ILogger.hpp                                   | C++      |         17 |          0 |          5 |         22 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\Interfaces\UARTLogger\UARTLogger.cpp                     | C++      |         49 |          0 |          3 |         52 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\Interfaces\UARTLogger\UARTLogger.hpp                     | C++      |         10 |          0 |          4 |         14 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\LogManager\LogManager.cpp                                | C++      |         24 |          0 |          6 |         30 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\LogManager\LogManager.hpp                                | C++      |         21 |          0 |          5 |         26 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\Wrapper\LogManager.cpp                                   | C++      |         33 |          7 |         15 |         55 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\LogManager\Wrapper\LogManager.h                                     | C++      |         20 |          0 |          5 |         25 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Monitor\Monitor.cpp                                                 | C++      |        121 |          9 |         27 |        157 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Monitor\Monitor.hpp                                                 | C++      |         31 |          1 |          7 |         39 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\NvsManager\NvsManager.c                                             | C        |         41 |          3 |         11 |         55 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\NvsManager\NvsManager.h                                             | C++      |         17 |          0 |          4 |         21 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Payload\Payload.cpp                                                 | C++      |         71 |          0 |         12 |         83 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\Payload\Payload.hpp                                                 | C++      |         18 |          0 |          4 |         22 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\TaskManager\TaskManager.c                                           | C        |        126 |          0 |         22 |        148 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\TaskManager\TaskManager.h                                           | C++      |         25 |          0 |          6 |         31 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\TaskManager\TaskManager_cfg.h                                       | C++      |         45 |          0 |          9 |         54 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\TaskManager\TaskNameTable.c                                         | C        |         10 |          0 |          1 |         11 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\TaskManager\TaskNameTable.h                                         | C++      |         11 |          0 |          3 |         14 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\WifiManager\WifiManager.c                                           | C        |         43 |          0 |         10 |         53 |
+| c:\Projects\Diplomna\Map\Node\Code\Components\WifiManager\WifiManager.h                                           | C++      |         12 |          0 |          5 |         17 |
+| Total                                                                                                             |          |      2,159 |        101 |        473 |      2,733 |
++-------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
