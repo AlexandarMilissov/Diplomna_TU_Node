@@ -31,6 +31,14 @@ void TaskManager::Init(const void* pvParameters)
     LogManager::Log(E, "TaskManager", " This is %s. Init success.\n", NvsManager::GetVar<std::string>("name").c_str());
 }
 
+/**
+ * @brief Executes the task specified by the given configuration.
+ *
+ * This function is responsible for executing the task based on the provided configuration.
+ * It handles task repetition, timing, and termination conditions.
+ *
+ * @param in_config_ptr A pointer to the configuration structure for the task.
+ */
 void TaskManager::Task(void* in_config_ptr)
 {
     uint64 time = 0;

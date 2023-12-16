@@ -1,3 +1,11 @@
+/**
+ * @file NvsManager.cpp
+ * @brief Implementation file for the NvsManager class.
+ *
+ * The NvsManager class provides functionality for initializing and accessing the Non-Volatile Storage (NVS) namespace.
+ * It allows retrieving and setting key-value pairs stored in the NVS, with support for various data types.
+ */
+
 #include "Common.hpp"
 #include "NvsManager.hpp"
 #include <string>
