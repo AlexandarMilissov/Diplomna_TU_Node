@@ -24,10 +24,6 @@ void EspnowManager::Init(const void* pvParameters)
 
     espnowManagerInternalState = INIT;
 
-#if 1
-    EspnowManager::ActivateNetwork();
-#endif
-
     // Task_cfg_struct updatePeersTask = EspnowManager_MainFunctionUpdatePeers_Config;
     // Task_cfg_struct sendKeepAliveTask = EspnowManager_MainFunction_Send_Cyclic_KeepAlive_Config;
     // Task_cfg_struct sendCalculationTask = EspnowManager_MainFunction_Send_Cyclic_Calculation_Config;

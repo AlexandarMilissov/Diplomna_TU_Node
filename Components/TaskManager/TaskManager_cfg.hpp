@@ -8,7 +8,7 @@
 #include "Hooks.hpp"
 #include "NvsManager.hpp"
 #include "EspnowManager.hpp"
-#include "EspnowManager_Task_Config.h"
+#include "EspmeshManager.hpp"
 
 typedef struct Init_cfg_struct{
     const char* name;
@@ -24,6 +24,7 @@ Init_cfg_struct init_cfg[] =
 #endif
     {"WifiManager",         WifiManager::Init},
     {"EspnowManager",       EspnowManager::Init},
+    {"EspmeshManager",      EspnowManager::Init},
     {"Hooks",               Hooks::Init},
 };
 
@@ -35,6 +36,7 @@ Task_cfg_struct task_cfg[] =
     EspnowManager_MainFunction_Send_Cyclic_Calculation_Config,
     EspnowManager_MainFunction_HandleReceivedMessages_Core0_Config,
     EspnowManager_MainFunction_HandleReceivedMessages_Core1_Config,
+    EspmeshManager_MainFunction_Config,
 
 #if CONFIG_ENABLE_MONITOR == 1
     Monitor_MainFunction_Config

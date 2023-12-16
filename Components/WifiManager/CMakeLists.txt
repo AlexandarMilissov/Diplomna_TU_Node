@@ -4,4 +4,5 @@ idf_component_register(SRCS "WifiManager.cpp"
                        Common
                        esp_wifi
                        EspnowDriver
+                       EspmeshDriver
                        )

@@ -141,6 +141,8 @@
         "Begguger",
         "CLOSEDSERIES",
         "CONSOLELOGGER",
+        "ESPMESHDRIVER",
+        "ESPMESHMANAGER",
         "Espnow",
         "ESPNOWDRIVER",
         "ESPNOWMANAGER",

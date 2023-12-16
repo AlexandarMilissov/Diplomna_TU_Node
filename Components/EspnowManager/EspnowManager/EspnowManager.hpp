@@ -1,6 +1,8 @@
 #ifndef ESPNOWMANAGER_HPP_
 #define ESPNOWMANAGER_HPP_
 
+#include "EspnowManager_Task_Config.h"
+
 #include "Common.hpp"
 #include "Payload.hpp"
 #include "EspnowPeer.hpp"
@@ -39,7 +41,9 @@ private:
 
     static std::vector<EspnowPeer*> Peers;
     static Spinlock peerListLock;
+    static void HandleReceivedMessages();
     static void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
+    static void Receive(const uint8_t*, const Payload*, const RSSI_Type);
 public:
     static void ActivateNetwork();
     static void DeactivateNetwork();
@@ -54,8 +58,6 @@ public:
     static void SendCalculationSeries(const void*);
 
     static void Send(const uint8*, const Payload);
-    static void Receive(const uint8_t*, const Payload*, const RSSI_Type);
-    static void HandleReceivedMessages();
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
     static const char* Log();

@@ -28,7 +28,7 @@ public:
 #define Monitor_MainFunction_Config                                                     \
 {                                                                                       \
     MonitorName,                    /* The name of task                         */      \
-    Monitor::MainFunction,                   /* The cyclic function the task calls       */      \
+    Monitor::MainFunction,          /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     2000,                           /* Period of the cyclic function            */      \
     CORE_1,                         /* Id of the core                           */      \

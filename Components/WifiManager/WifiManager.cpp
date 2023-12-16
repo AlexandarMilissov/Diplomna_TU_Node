@@ -2,6 +2,7 @@
 #include "Common.hpp"
 #include "esp_wifi.h"
 #include "EspnowDriver.hpp"
+#include "EspmeshDriver.hpp"
 
 void WifiManager::Init(const void* pvParameters)
 {
@@ -28,4 +29,5 @@ void WifiManager::Init(const void* pvParameters)
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
 
     EspnowDriver::Init(NULL);
+    EspmeshDriver::Init(NULL);
 }
