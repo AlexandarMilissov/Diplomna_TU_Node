@@ -17,11 +17,11 @@ std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
 Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
 
 std::vector<EspnowPeer*> Peers;
-Spinlock peerListProtection = Spinlock_Init;
+Spinlock peerListLock = Spinlock_Init;
 
 void SendMessage(const uint8* address, const Payload payload)
 {
-    DataSend(address, &payload);
+    EspnowDriver::Send(address, &payload);
 }
 
 void ReceiveMessage(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
@@ -85,7 +85,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
     *message_data >>= *message_header;
 
     // Identify the sender
-    Enter_Critical_Spinlock(peerListProtection);
+    Enter_Critical_Spinlock(peerListLock);
     for(EspnowPeer* peer : Peers)
     {
         if(peer->IsCorrectAddress(irms->src_addr))
@@ -100,7 +100,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
         sender = new EspnowPeer(irms->src_addr);
         Peers.push_back(sender);
     }
-    Exit_Critical_Spinlock(peerListProtection);
+    Exit_Critical_Spinlock(peerListLock);
 
     // Proccess the message
     try

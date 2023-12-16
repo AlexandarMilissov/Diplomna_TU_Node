@@ -23,7 +23,7 @@ void EspnowManager_Init(const void* pvParameters)
 
     LogManager::SetMinimalLevel("EspnowManager", I);
 
-    EspnowDriver_Init(ReceiveMessage);
+    EspnowDriver::Subscribe(ReceiveMessage);
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
     Monitor::SubscribeFunction(&EspnowManager_Log);

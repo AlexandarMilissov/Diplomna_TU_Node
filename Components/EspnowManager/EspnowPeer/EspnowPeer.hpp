@@ -26,8 +26,8 @@ class EspnowPeer
         Distance distance;
         uint8 sourceAddress[6];
         std::vector<SeriesLife> openSeries;
-        Spinlock subscriptionStateProtection = Spinlock_Init;
-        Spinlock calculationDataProtection = Spinlock_Init;
+        Spinlock subscriptionStateLock = Spinlock_Init;
+        Spinlock calculationDataLock = Spinlock_Init;
         std::atomic<bool> isPeerSubscribedToUs   = false;
         std::atomic<bool> areWeSubscribedToPeer  = false;
         std::atomic<bool> acknowledgeRequired    = false;

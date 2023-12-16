@@ -1,38 +1,21 @@
 #include "EspnowDriver.hpp"
 #include <string.h>
-#include "esp_mac.h"
 #include "WifiManager.hpp"
-#include "Common.hpp"
 
-/* ESPNOW can work in both station and softap mode. It is configured in menuconfig. */
-#if CONFIG_WIFI_AP_ENABLED
-#define ESPNOW_WIFI_MODE WIFI_MODE_AP
-#define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
-#define ESPNOW_MAC       ESP_MAC_WIFI_SOFTAP
-#else
-#define ESPNOW_WIFI_MODE WIFI_MODE_STA
-#define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
-#define ESPNOW_MAC       ESP_MAC_WIFI_STA
-#endif
+Spinlock EspnowDriver::sendLock = Spinlock_Init;
+std::vector<EspnowCallback> EspnowDriver::ul_callbacks = std::vector<EspnowCallback>();
 
-Spinlock sendProtection = Spinlock_Init;
-void (*ul_callback)(const uint8_t*, const Payload*, const RSSI_Type);
-
-void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_Type))
+void EspnowDriver::Init(const void* pvParameters)
 {
-    while(!WifiManager::IsInit())
-    {
-        TaskSleepMiliSeconds(100);
-    }
+    DUMMY_STATEMENT(pvParameters);
 
     LogManager::SetMinimalLevel("EspnowDriver", W);
 
-    ul_callback = callback;
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
 
     ESP_ERROR_CHECK( esp_now_init() );
 
-    ESP_ERROR_CHECK( esp_now_register_recv_cb(DataReceive) );
+    ESP_ERROR_CHECK( esp_now_register_recv_cb(EspnowDriver::Receive) );
     ESP_ERROR_CHECK( esp_now_set_pmk((uint8_t *)CONFIG_ESPNOW_PMK) );
 
     /* Add broadcast peer information to peer list. */
@@ -49,7 +32,12 @@ void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_
     free(peer);
 }
 
-void DataSend(const uint8* dst_addr, const Payload* message)
+void EspnowDriver::Subscribe(EspnowCallback callback)
+{
+    ul_callbacks.push_back(callback);
+}
+
+void EspnowDriver::Send(const uint8* dst_addr, const Payload* message)
 {
     DUMMY_STATEMENT(dst_addr);
     static esp_err_t err;
@@ -59,9 +47,9 @@ void DataSend(const uint8* dst_addr, const Payload* message)
     memcpy(package + ESP_NOW_ETH_ALEN, message->data, message->GetSize());
 
     // Forums said locking the send should help reduce errors
-    Enter_Critical_Spinlock(sendProtection);
+    Enter_Critical_Spinlock(sendLock);
     err = esp_now_send(broadcast_mac, package, package_size);
-    Exit_Critical_Spinlock(sendProtection);
+    Exit_Critical_Spinlock(sendLock);
 
     if(ESP_OK != err)
     {
@@ -77,7 +65,7 @@ void DataSend(const uint8* dst_addr, const Payload* message)
     free(package);
 }
 
-void DataReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
+void EspnowDriver::Receive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
 {
     if(ESP_NOW_ETH_ALEN >= len)
     {
@@ -100,7 +88,10 @@ void DataReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int le
     if( memcmp(dst_address, broadcast_mac,  ESP_NOW_ETH_ALEN) == 0
     ||  memcmp(dst_address, my_esp_now_mac, ESP_NOW_ETH_ALEN) == 0)
     {
-        ul_callback(recv_info->src_addr, message_data, recv_info->rx_ctrl->rssi);
+        for(auto ul_callback : ul_callbacks)
+        {
+            ul_callback(recv_info->src_addr, message_data, recv_info->rx_ctrl->rssi);
+        }
     }
 
     delete message_header;

@@ -70,7 +70,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
     bool messageStatus;
     EspnowMessageAcknowledge* ackn = NULL;
 
-    Enter_Critical_Spinlock(subscriptionStateProtection);
+    Enter_Critical_Spinlock(subscriptionStateLock);
 
     messageStatus = message.GetSubscriptionStatus();
 
@@ -92,7 +92,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         }
         ackn = new EspnowMessageAcknowledge(UNSUBSCRIBE);
     }
-    Exit_Critical_Spinlock(subscriptionStateProtection);
+    Exit_Critical_Spinlock(subscriptionStateLock);
 
     if(NULL != ackn)
     {
@@ -106,7 +106,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageCalculation   message)
 {
     OpenSeries* series = NULL;
 
-    Enter_Critical_Spinlock(calculationDataProtection);
+    Enter_Critical_Spinlock(calculationDataLock);
 
     for(auto& s : openSeries)
     {
@@ -126,7 +126,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageCalculation   message)
     }
     series->AddValue(message.GetMessagePosition(), message.GetRSSI());
 
-    Exit_Critical_Spinlock(calculationDataProtection);
+    Exit_Critical_Spinlock(calculationDataLock);
 }
 
 void EspnowPeer::ReceiveMessage(EspnowMessageKeepAlive    message)
@@ -155,7 +155,7 @@ bool EspnowPeer::IsAlive()
 
 void EspnowPeer::Refresh()
 {
-    Enter_Critical_Spinlock(subscriptionStateProtection);
+    Enter_Critical_Spinlock(subscriptionStateLock);
     if(areWeSubscribedToPeer)
     {
         if(!distance.IsCalculationRequired())
@@ -172,9 +172,9 @@ void EspnowPeer::Refresh()
             acknowledgeRequired = true;
         }
     }
-    Exit_Critical_Spinlock(subscriptionStateProtection);
+    Exit_Critical_Spinlock(subscriptionStateLock);
 
-    Enter_Critical_Spinlock(calculationDataProtection);
+    Enter_Critical_Spinlock(calculationDataLock);
     for(auto it = openSeries.begin(); it != openSeries.end();)
     {
         (*it).life--;
@@ -195,5 +195,5 @@ void EspnowPeer::Refresh()
         }
     }
     distance.Recalculate();
-    Exit_Critical_Spinlock(calculationDataProtection);
+    Exit_Critical_Spinlock(calculationDataLock);
 }

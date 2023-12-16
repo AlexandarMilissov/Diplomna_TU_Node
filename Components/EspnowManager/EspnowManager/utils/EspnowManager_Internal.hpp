@@ -30,6 +30,6 @@ extern std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
 extern Spinlock InterruptReceivedMessagesSpinlock;
 
 extern std::vector<EspnowPeer*> Peers;
-extern Spinlock peerListProtection;
+extern Spinlock peerListLock;
 
 #endif // ESPNOWMANAGER_INTERNAL_HPP_

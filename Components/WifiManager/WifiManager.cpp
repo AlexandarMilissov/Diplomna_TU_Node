@@ -1,8 +1,7 @@
 #include "WifiManager.hpp"
 #include "Common.hpp"
 #include "esp_wifi.h"
-
-bool WifiManager::isInit = false;
+#include "EspnowDriver.hpp"
 
 void WifiManager::Init(const void* pvParameters)
 {
@@ -26,28 +25,7 @@ void WifiManager::Init(const void* pvParameters)
     #define MAX_TX_POWER 80
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(MAX_TX_POWER));
 
-    isInit = true;
-}
+    esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
 
-bool WifiManager::IsInit()
-{
-    return isInit;
+    EspnowDriver::Init(NULL);
 }
-
-
-#if 0
-Mapping Table
-{Power, max_tx_power} = {
-    {8, 2},
-    {20, 5},
-    {28, 7},
-    {34, 8},
-    {44, 11},
-    {52, 13},
-    {56, 14},
-    {60, 15},
-    {66, 16},
-    {72, 18},
-    {80, 20}
-}
-#endif
