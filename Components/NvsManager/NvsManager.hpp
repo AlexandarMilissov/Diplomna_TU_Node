@@ -1,28 +1,17 @@
-#ifndef NVSMANAGER_H_
-#define NVSMANAGER_H_
+#ifndef NVSMANAGER_HPP_
+#define NVSMANAGER_HPP_
 
-typedef enum NvsVarCode
-{
-    VAR8,
-    VAR16,
-    VAR32,
-    VAR64
-}NvsVarCode;
-
-typedef enum NvsLargeCode
-{
-    STRING,
-    BLOB
-}NvsLargeCode;
-
+#include "nvs_flash.h"
 class NvsManager
 {
 private:
-    /* data */
+    static nvs_handle_t my_handle;
 public:
     static void Init(const void*);
-    static const char* NvsGetName();
+    template <typename NvsValueType>
+    static NvsValueType GetVar(const char*);
+    template <typename NvsValueType>
+    void SetVar(const char*, NvsValueType*);
 };
 
-
-#endif // NVSMANAGER_H_
+#endif // NVSMANAGER_HPP_

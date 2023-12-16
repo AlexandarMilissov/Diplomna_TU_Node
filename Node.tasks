@@ -30,7 +30,7 @@ Other:
         ✔ Clean up EspnowManager files @done (12/16/2023, 10:23:11 AM)
         ✔ Clean up monitor files @done (12/16/2023, 10:22:03 AM)
         ✔ Clean up logger files. @done (12/16/2023, 10:22:06 AM)
-    ☐ Make the Nvs generic
+    ✔ Make the Nvs generic @done (12/16/2023, 12:35:15 PM)
     ☐ Remove main tasks start from task manager
 
     http://localhost:9000/dashboard?id=Diplomna

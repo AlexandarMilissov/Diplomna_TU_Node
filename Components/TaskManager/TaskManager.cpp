@@ -5,7 +5,7 @@
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "esp_task_wdt.h"
-#include <string.h>
+#include <string>
 #include "esp_heap_caps.h"
 #include "EspnowManager_Interface.hpp"
 #include "Monitor.hpp"
@@ -28,7 +28,7 @@ void TaskManager::Init(const void* pvParameters)
         RequestTask(task_cfg + i);
     }
 
-    LogManager::Log(E, "TaskManager", " This is %s. Init success.\n", NvsManager::NvsGetName());
+    LogManager::Log(E, "TaskManager", " This is %s. Init success.\n", NvsManager::GetVar<std::string>("name").c_str());
 }
 
 void TaskManager::Task(void* in_config_ptr)
