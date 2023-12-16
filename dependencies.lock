@@ -11,29 +11,11 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 2.4.0
-  espressif/esp_modem:
-    component_hash: eaf036beecd76e9d1eed568f3f26036f076c4a5b02677cb742bcbecac0eec2bb
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 1.0.4
-  espressif/iot_bridge:
-    component_hash: f18eb53fdecf7eb6dc097a5d3d23d0a67ba373c8611017712b1d9facdd3ce2b9
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 0.10.0
-  espressif/mesh_lite:
-    component_hash: 3915be5077da606e4641a4cbfc30a60e893b26b4111958f79b83c3973d3cd475
-    source:
-      service_url: https://api.components.espressif.com/
-      type: service
-    version: 0.9.0
   idf:
     component_hash: null
     source:
       type: idf
     version: 5.3.0
-manifest_hash: 926354b1a0f9c61588f171bc682c1a9f6eadbcc0f5b520f2a841da6c3c821ae0
+manifest_hash: 8d3d3634b4913c7167fdb5f59e46b726cd8e7e20f8035a83c7b2738cb9b62051
 target: esp32
 version: 1.0.0
