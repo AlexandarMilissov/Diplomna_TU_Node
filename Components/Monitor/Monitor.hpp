@@ -1,18 +1,34 @@
 #ifndef MONITOR_HPP_
 #define MONITOR_HPP_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif //__cplusplus
-
-#include "Common.h"
+#include <vector>
+#include "Common.hpp"
 #include "TaskNameTable.h"
+
+
+// Define the log function signature
+typedef const char* (*LogFunctionSignature)(void);
+
+
+class Monitor
+{
+private:
+    static std::vector<LogFunctionSignature> logDelegate;
+    static size_t maximum_heap_regions;
+    static size_t free_heap_regions;
+    static const char *MonitorMemory();
+    static const char *MonitorCPU();
+public:
+    static void Init(const void*);
+    static void MainFunction(const void*);
+    static void SubscribeFunction(LogFunctionSignature);
+    static void UnsubscribeFunction(LogFunctionSignature);
+};
 
 #define Monitor_MainFunction_Config                                                     \
 {                                                                                       \
     MonitorName,                    /* The name of task                         */      \
-    Monitor_MainFunction,           /* The cyclic function the task calls       */      \
+    Monitor::MainFunction,                   /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     2000,                           /* Period of the cyclic function            */      \
     CORE_1,                         /* Id of the core                           */      \
@@ -23,17 +39,5 @@ extern "C"
     NULL,                           /* Function to call when tasks finishes     */      \
     NULL                            /* Parameters for the onComplete function   */      \
 }
-
-// Define the log function signature
-typedef const char* (*LogFunctionSignature)(void);
-
-void Monitor_Init(const void*);
-void Monitor_MainFunction(const void*);
-void Monitor_SubscribeFunction(LogFunctionSignature);
-void Monitor_UnsubscribeFunction(LogFunctionSignature);
-
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 #endif // MONITOR_HPP_

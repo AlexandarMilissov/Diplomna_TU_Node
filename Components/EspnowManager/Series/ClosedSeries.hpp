@@ -1,7 +1,7 @@
 #ifndef CLOSEDSERIES_HPP_
 #define CLOSEDSERIES_HPP_
 
-#include "Common.h"
+#include "Common.hpp"
 #include "SeriesCommon.hpp"
 
 class ClosedSeries

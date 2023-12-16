@@ -1,7 +1,7 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef COMMON_HPP
+#define COMMON_HPP
 
-#include "LogManager.h"
+#include "LogManager.hpp"
 #include "esp_task_wdt.h"
 #include <stdint.h>
 #include "freertos/semphr.h"

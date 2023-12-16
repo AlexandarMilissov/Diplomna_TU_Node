@@ -1,5 +1,5 @@
 idf_component_register(SRCS
-                        "Common.c"
+                        "Common.cpp"
                        INCLUDE_DIRS
                         "."
                        REQUIRES pthread

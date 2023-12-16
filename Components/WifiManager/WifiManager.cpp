@@ -1,10 +1,10 @@
-#include "WifiManager.h"
-#include "Common.h"
+#include "WifiManager.hpp"
+#include "Common.hpp"
 #include "esp_wifi.h"
 
-bool isInit = false;
+bool WifiManager::isInit = false;
 
-void WifiManager_Init(const void* pvParameters)
+void WifiManager::Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     esp_event_loop_create_default();
@@ -29,7 +29,7 @@ void WifiManager_Init(const void* pvParameters)
     isInit = true;
 }
 
-bool WifiManager_IsInit()
+bool WifiManager::IsInit()
 {
     return isInit;
 }

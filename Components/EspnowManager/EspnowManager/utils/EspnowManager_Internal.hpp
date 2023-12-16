@@ -5,12 +5,7 @@
 #include <queue>
 #include "EspnowPeer.hpp"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif //__cplusplus
-
-#include "Common.h"
+#include "Common.hpp"
 
 typedef enum
 {
@@ -36,10 +31,5 @@ extern Spinlock InterruptReceivedMessagesSpinlock;
 
 extern std::vector<EspnowPeer*> Peers;
 extern Spinlock peerListProtection;
-
-
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 #endif // ESPNOWMANAGER_INTERNAL_HPP_

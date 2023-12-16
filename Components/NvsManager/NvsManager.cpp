@@ -1,5 +1,5 @@
-#include "Common.h"
-#include "NvsManager.h"
+#include "Common.hpp"
+#include "NvsManager.hpp"
 #include "nvs_flash.h"
 
 nvs_handle_t my_handle;
@@ -9,9 +9,9 @@ char* saved_name = NULL;
 
 void ReadName();
 
-void NvsManager_Init(const void *pvParameters)
+void NvsManager::Init(const void *pvParameters)
 {
-    LogManager_SetMinimalLevel("NvsManager", W);
+    LogManager::SetMinimalLevel("NvsManager", W);
     DUMMY_STATEMENT(pvParameters);
 
     // Initialize NVS
@@ -36,19 +36,19 @@ void ReadName()
     nvs_open("Info", NVS_READWRITE, &my_handle);
 
     NVS_GET_STR_SIZE(my_handle, "name", &length);
-    saved_name = malloc(sizeof(char) * length);
+    saved_name = (char*)malloc(sizeof(char) * length);
     err = nvs_get_str(my_handle, "name", saved_name, &length);
     if(ESP_ERR_NVS_NOT_FOUND == err)
     {
         nvs_set_str(my_handle, "name", "Default");
         nvs_commit(my_handle);
-        LogManager_Log(W, "NvsManager", "Setting name.\n");
+        LogManager::Log(W, "NvsManager", "Setting name.\n");
     }
 
     nvs_close(my_handle);
 }
 
-const char* NvsGetName()
+const char* NvsManager::NvsGetName()
 {
     return (const char*)(saved_name);
 }

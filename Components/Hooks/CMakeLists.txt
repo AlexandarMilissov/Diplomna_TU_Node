@@ -1,6 +1,6 @@
-idf_component_register(SRCS "Hooks.c"
+idf_component_register(SRCS "Hooks.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES 
+                       REQUIRES
                        Common
                        TaskManager
                        )

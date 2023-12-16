@@ -1,7 +1,7 @@
 #ifndef RSSI_MESSAGE_KEEP_ALIVE_HPP_
 #define RSSI_MESSAGE_KEEP_ALIVE_HPP_
 
-#include "Common.h"
+#include "Common.hpp"
 #include "Payload.hpp"
 #include "IEspnowMessage.hpp"
 

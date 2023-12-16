@@ -1,6 +1,6 @@
-idf_component_register(SRCS "WifiManager.c"
+idf_component_register(SRCS "WifiManager.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES 
+                       REQUIRES
                        Common
                        esp_wifi
                        )

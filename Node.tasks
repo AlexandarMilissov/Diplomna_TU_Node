@@ -1,4 +1,4 @@
-Eps now:
+Esp now:
     ✔ fix send error @done (11/27/2023, 10:28:45 PM)
     ✔ main function managment @done (11/25/2023, 11:51:31 AM)
     ✔ ram monitor @done (11/25/2023, 11:51:45 AM)
@@ -7,20 +7,31 @@ Eps now:
     ✔ const function params @done (11/25/2023, 11:51:53 AM)
     ✔ something is iffy about the calculation mechanic @done (11/26/2023, 7:43:03 AM)
     ✔ test with multiple devices @done (11/26/2023, 8:12:22 PM)
-    ☐ send your data to peer
-    ☐ make L3 addressing
-    ☐ update drwaio
     ✔ make class diagram @done (12/2/2023, 3:48:03 PM)
-    ☐ add serial read
     ✔ Device disconnect @done (11/26/2023, 1:45:22 PM)
     ✔ menu config optimization @done (11/25/2023, 8:41:24 PM)
     ✔ load analysys @done (11/30/2023, 9:07:13 AM)
     ✔ the buffer works; something is shit @done (11/26/2023, 11:50:07 AM)
     ✔ Remove the c/cpp encapsulation files @done (11/28/2023, 9:36:45 AM)
     ✔ create an abstraction for the logger @done (11/29/2023, 8:26:00 PM)
-    ☐ send the name somewhere
     ☐ Another the other memory leak. Starting a peer communcations and canceling it causes a drop of 1.5% of available RAM
-    ☐ Migrate all code to C++
+    ☐ Wifi manager should init espnow driver
+
+Esp mesh:
+    ☐ Make a server
+    ☐ Implement messages.
+    ☐ send your data to peer
+
+Other:
+    ☐ Add serial read
+    ☐ Update drwaio
+    ☐ Make interfaces for EspnowManager
+    ✔ Migrate all code to C++ @done (12/16/2023, 10:23:14 AM)
+        ✔ Clean up EspnowManager files @done (12/16/2023, 10:23:11 AM)
+        ✔ Clean up monitor files @done (12/16/2023, 10:22:03 AM)
+        ✔ Clean up logger files. @done (12/16/2023, 10:22:06 AM)
+    ☐ Make the Nvs generic
+    ☐ Remove main tasks start from task manager
 
     http://localhost:9000/dashboard?id=Diplomna
     sonar-scanner.bat -D"sonar.projectKey=Diplomna" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000" -D"sonar.token=sqp_cd909d50403fc08ff2b1be2296168c0b07eecf06"

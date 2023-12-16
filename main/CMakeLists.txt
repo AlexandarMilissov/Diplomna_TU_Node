@@ -1,5 +1,5 @@
-idf_component_register(SRCS "Node.c"
+idf_component_register(SRCS "Node.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES 
+                       REQUIRES
                        "TaskManager"
                        )

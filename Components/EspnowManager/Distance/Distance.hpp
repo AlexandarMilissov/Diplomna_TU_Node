@@ -1,7 +1,7 @@
 #ifndef DISTANCE_HPP_
 #define DISTANCE_HPP_
 
-#include "Common.h"
+#include "Common.hpp"
 
 #include "OpenSeries.hpp"
 

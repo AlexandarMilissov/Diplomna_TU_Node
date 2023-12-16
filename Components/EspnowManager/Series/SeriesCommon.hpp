@@ -1,7 +1,7 @@
 #ifndef SERIESCOMMON_HPP_
 #define SERIESCOMMON_HPP_
 
-#include "Common.h"
+#include "Common.hpp"
 typedef sint32 DistanceUnits;
 
 /**

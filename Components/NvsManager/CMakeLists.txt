@@ -1,6 +1,6 @@
-idf_component_register(SRCS "NvsManager.c"
+idf_component_register(SRCS "NvsManager.cpp"
                        INCLUDE_DIRS "."
-                       REQUIRES 
+                       REQUIRES
                        Common
                        nvs_flash
                        )

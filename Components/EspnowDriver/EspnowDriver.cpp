@@ -1,8 +1,8 @@
 #include "EspnowDriver.hpp"
 #include <string.h>
 #include "esp_mac.h"
-#include "WifiManager.h"
-#include "Common.h"
+#include "WifiManager.hpp"
+#include "Common.hpp"
 
 /* ESPNOW can work in both station and softap mode. It is configured in menuconfig. */
 #if CONFIG_WIFI_AP_ENABLED
@@ -20,12 +20,12 @@ void (*ul_callback)(const uint8_t*, const Payload*, const RSSI_Type);
 
 void EspnowDriver_Init(void(*callback)(const uint8*, const Payload*, const RSSI_Type))
 {
-    while(!WifiManager_IsInit())
+    while(!WifiManager::IsInit())
     {
         TaskSleepMiliSeconds(100);
     }
 
-    LogManager_SetMinimalLevel("EspnowDriver", W);
+    LogManager::SetMinimalLevel("EspnowDriver", W);
 
     ul_callback = callback;
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
@@ -67,7 +67,7 @@ void DataSend(const uint8* dst_addr, const Payload* message)
     {
         if(ESP_ERR_ESPNOW_NO_MEM == err)
         {
-            LogManager_Log(E, "EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
+            LogManager::Log(E, "EspnowDriver", "esp_now_send: ESP_ERR_ESPNOW_NO_MEM, increase buffer");
         }
         else
         {

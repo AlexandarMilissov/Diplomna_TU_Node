@@ -1,7 +1,7 @@
 #ifndef PEER_H
 #define PEER_H
 
-#include "Common.h"
+#include "Common.hpp"
 #include "Distance.hpp"
 #include "EspnowMessageRequest.hpp"
 #include "EspnowMessageCalculation.hpp"

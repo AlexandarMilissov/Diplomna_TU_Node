@@ -1,14 +1,11 @@
 idf_component_register(SRCS
                         "LogManager/LogManager.cpp"
-                        "Wrapper/LogManager.cpp"
                         "Interfaces/UARTLogger/UARTLogger.cpp"
-                       INCLUDE_DIRS
-                       "./Wrapper"
+                        INCLUDE_DIRS
+                        "./LogManager"
+                        "./Interfaces/"
                        PRIV_INCLUDE_DIRS
-                       "./Interfaces/"
                        "./Interfaces/UARTLogger"
-                       "./Wrapper"
-                       "./LogManager"
                        REQUIRES
                        Common
                        )

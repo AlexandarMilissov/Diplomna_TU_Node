@@ -4,11 +4,6 @@
 #include "TaskNameTable.h"
 #include "EspnowManager_Config_Validation.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif //__cplusplus
-
 #define EspnowManager_MainFunctionUpdatePeers_Config                                    \
 {                                                                                       \
     UpdateSeriesName,               /* The name of task                         */      \
@@ -108,10 +103,6 @@ extern "C"
     NULL,                           /* Function to call when tasks finishes     */      \
     NULL                            /* Parameters for the onComplete function   */      \
 }
-
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 
 #endif // ESPNOWMANAGER_TASK_CONFIG_H_

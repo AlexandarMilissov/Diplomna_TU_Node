@@ -1,6 +1,6 @@
 idf_component_register(SRCS
                             "TaskNameTable.c"
-                            "TaskManager.c"
+                            "TaskManager.cpp"
                        INCLUDE_DIRS
                             "."
                        REQUIRES

@@ -1,7 +1,7 @@
 #ifndef PAYLOAD_HPP_
 #define PAYLOAD_HPP_
 
-#include "Common.h"
+#include "Common.hpp"
 
 class Payload
 {

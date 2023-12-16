@@ -131,7 +131,7 @@
         "variant": "cpp"
     },
     "idf.flashType": "UART",
-    "idf.portWin": "COM3",
+    "idf.portWin": "COM8",
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
         "ackn",
@@ -152,6 +152,7 @@
         "irms",
         "LOGGERINTERFACE",
         "LOGI",
+        "LOGSEVERITY",
         "LOGV",
         "LOGW",
         "LOGWRAPPER",
@@ -163,6 +164,7 @@
         "schan",
         "SERIESCOMMON",
         "sval",
+        "TASKMANAGER",
         "TASKNAMETABLE",
         "timercb",
         "transmiting",

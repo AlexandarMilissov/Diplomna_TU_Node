@@ -1,6 +1,6 @@
-#include "Common.h"
-#include "TaskManager.h"
-#include "TaskManager_cfg.h"
+#include "Common.hpp"
+#include "TaskManager.hpp"
+#include "TaskManager_cfg.hpp"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
@@ -9,19 +9,14 @@
 #include "esp_heap_caps.h"
 #include "EspnowManager_Interface.hpp"
 #include "Monitor.hpp"
-#include "NvsManager.h"
+#include "NvsManager.hpp"
 
-#define TWDT_TIMEOUT_MS 5000
-
-void Task(void*);
-bool IsTaskCfgValid(Task_cfg_struct);
-
-void TaskManager_Init(const void* pvParameters)
+void TaskManager::Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
 
-    LogManager_SetMinimalLevel("EspnowPeer", I);
-    LogManager_SetMinimalLevel("TaskManager", W);
+    LogManager::SetMinimalLevel("EspnowPeer", I);
+    LogManager::SetMinimalLevel("TaskManager", W);
 
     for (size_t i = 0; i < Init_cfg_size; i++)
     {
@@ -33,10 +28,10 @@ void TaskManager_Init(const void* pvParameters)
         RequestTask(task_cfg + i);
     }
 
-    LogManager_Log(E, "TaskManager", " This is %s. Init success.\n", NvsGetName());
+    LogManager::Log(E, "TaskManager", " This is %s. Init success.\n", NvsManager::NvsGetName());
 }
 
-void Task(void* in_config_ptr)
+void TaskManager::Task(void* in_config_ptr)
 {
     uint64 time = 0;
 
@@ -67,7 +62,7 @@ void Task(void* in_config_ptr)
         {
             esp_task_wdt_delete(NULL);
 
-            LogManager_Log(E, "TaskManager", "Task '%s' failed. Main function has become NULL. Terminating.", pcTaskGetName(xTaskGetCurrentTaskHandle() ));
+            LogManager::Log(E, "TaskManager", "Task '%s' failed. Main function has become NULL. Terminating.", pcTaskGetName(xTaskGetCurrentTaskHandle() ));
             shouldExit = true;
             continue;
         }
@@ -77,15 +72,14 @@ void Task(void* in_config_ptr)
         esp_task_wdt_reset();
         if((cfg->period * 1000) >= time)
         {
-            LogManager_Log(V, "TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
+            LogManager::Log(V, "TaskManager", "%s executed on time by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
             TaskSleepMiliSeconds(cfg->period - (time / 1000));
         }
         else
         {
-            LogManager_Log(W, "TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
+            LogManager::Log(W, "TaskManager", "%s took to long to execute by %lld/%lld us\n", task_name_table[cfg->namePointer], time, (uint64)cfg->period * 1000);
         }
     }
-
     if(NULL != cfg->OnComplete)
     {
         cfg->OnComplete(cfg->onCompleteParams);
@@ -95,11 +89,11 @@ void Task(void* in_config_ptr)
     vTaskDelete(NULL);
 }
 
-TaskHandle_t* RequestTask(Task_cfg_struct* config)
+TaskHandle_t* TaskManager::RequestTask(Task_cfg_struct* config)
 {
     if(!IsTaskCfgValid(*config))
     {
-        LogManager_Log(E, "TaskManager", "Invalidly configured task: %s", task_name_table[config->namePointer]);
+        LogManager::Log(E, "TaskManager", "Invalidly configured task: %s", task_name_table[config->namePointer]);
         return NULL;
     }
 
@@ -123,12 +117,12 @@ TaskHandle_t* RequestTask(Task_cfg_struct* config)
         taskHandle,
         config->core))
     {
-        LogManager_Log(E, "TaskManager", "Failed to create task: %s", task_name_table[config->namePointer]);
+        LogManager::Log(E, "TaskManager", "Failed to create task: %s", task_name_table[config->namePointer]);
     }
     return taskHandle;
 }
 
-bool IsTaskCfgValid(Task_cfg_struct config)
+bool TaskManager::IsTaskCfgValid(Task_cfg_struct config)
 {
     if(NULL == config.MainFunction)
     {
@@ -138,7 +132,7 @@ bool IsTaskCfgValid(Task_cfg_struct config)
     {
         return false;
     }
-    if(TWDT_TIMEOUT_MS <= config.period)
+    if(wdtTimeout <= config.period)
     {
         return false;
     }

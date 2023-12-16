@@ -1,29 +1,31 @@
 #include "Monitor.hpp"
 
-#include <vector>
 #include <string>
 #include <functional>
 #include <algorithm>
-#include "TaskManager.h"
+#include "TaskManager.hpp"
 
-std::vector<LogFunctionSignature> logDelegate;
 
-size_t maximum_heap_regions;
-size_t free_heap_regions;
+std::vector<LogFunctionSignature> Monitor::logDelegate;
+size_t Monitor::maximum_heap_regions;
+size_t Monitor::free_heap_regions;
 
-const char *MonitorMemory();
-const char *MonitorCPU();
-
-void Monitor_Init(const void *)
+void Monitor::Init(const void *)
 {
+#if CONFIG_ENABLE_MONITOR
+    // Task_cfg_struct monitor_task = Monitor_MainFunction_Config;
+    // TaskManager::RequestTask(&monitor_task);
+
     maximum_heap_regions = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MEMORY_MONITOR
-    Monitor_SubscribeFunction(&MonitorMemory);
+#if CONFIG_ENABLE_MEMORY_MONITOR
+    SubscribeFunction(&MonitorMemory);
 #endif
-    Monitor_SubscribeFunction(&MonitorCPU);
+    SubscribeFunction(&MonitorCPU);
+
+#endif
 }
 
-void Monitor_MainFunction(const void *)
+void Monitor::MainFunction(const void *)
 {
     static uint16 counter = 0;
     static std::string monitorLog = "";
@@ -38,18 +40,18 @@ void Monitor_MainFunction(const void *)
 
     monitorLog += "\n==========END==========\n";
 
-    LogManager_Log(I, "Monitor", "%s", monitorLog.c_str());
+    LogManager::Log(I, "Monitor", "%s", monitorLog.c_str());
 
     monitorLog = "";
     counter++;
 }
 
-void Monitor_SubscribeFunction(LogFunctionSignature logFunction)
+void Monitor::SubscribeFunction(LogFunctionSignature logFunction)
 {
     logDelegate.push_back(logFunction);
 }
 
-void Monitor_UnsubscribeFunction(LogFunctionSignature logFunction)
+void Monitor::UnsubscribeFunction(LogFunctionSignature logFunction)
 {
     auto it = std::find(logDelegate.begin(), logDelegate.end(), logFunction);
     if (it != logDelegate.end())
@@ -58,7 +60,7 @@ void Monitor_UnsubscribeFunction(LogFunctionSignature logFunction)
     }
 }
 
-const char *MonitorMemory()
+const char *Monitor::MonitorMemory()
 {
     static std::string memoryLog;
     free_heap_regions = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
@@ -73,7 +75,7 @@ const char *MonitorMemory()
     return memoryLog.c_str();
 }
 
-const char *MonitorCPU()
+const char *Monitor::MonitorCPU()
 {
     TaskStatus_t *pxTaskStatusArray;
     volatile UBaseType_t uxArraySize;
@@ -92,7 +94,7 @@ const char *MonitorCPU()
     uxArraySize = uxTaskGetNumberOfTasks();
 
     // Allocate a TaskStatus_t structure for each task.
-    pxTaskStatusArray = (TaskStatus_t*)pvPortMalloc(uxArraySize * sizeof(TaskStatus_t));
+    pxTaskStatusArray = (TaskStatus_t *)pvPortMalloc(uxArraySize * sizeof(TaskStatus_t));
 
     if (pxTaskStatusArray != NULL)
     {
@@ -109,20 +111,19 @@ const char *MonitorCPU()
 
             // Using std::sort to sort the array of pointers
             std::sort(pxTaskStatusArray, pxTaskStatusArray + uxArraySize,
-                [](const TaskStatus_t& a, const TaskStatus_t& b)
-                {
-                    return (a.ulRunTimeCounter < b.ulRunTimeCounter);
-                }
-            );
+                      [](const TaskStatus_t &a, const TaskStatus_t &b)
+                      {
+                          return (a.ulRunTimeCounter < b.ulRunTimeCounter);
+                      });
 
             // For each populated position in the pxTaskStatusArray array
             for (UBaseType_t i = 0; i < uxArraySize; i++)
             {
-                if(pxTaskStatusArray[i].xCoreID == CORE_0)
+                if (pxTaskStatusArray[i].xCoreID == CORE_0)
                 {
                     ulStatsAsPercentage = ((float)(pxTaskStatusArray[i].ulRunTimeCounter)) / ((float)ulTotalRunTime);
                     cpuLogCore0 += "    ";
-                    if(ulStatsAsPercentage < 10)
+                    if (ulStatsAsPercentage < 10)
                     {
                         cpuLogCore0 += "0";
                     }
@@ -135,7 +136,7 @@ const char *MonitorCPU()
                 {
                     ulStatsAsPercentage = ((float)(pxTaskStatusArray[i].ulRunTimeCounter)) / ((float)ulTotalRunTime);
                     cpuLogCore1 += "    ";
-                    if(ulStatsAsPercentage < 10)
+                    if (ulStatsAsPercentage < 10)
                     {
                         cpuLogCore1 += "0";
                     }

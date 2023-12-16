@@ -1,6 +1,6 @@
 #include "UARTLogger.hpp"
 #include <esp_log.h>
-#include "Common.h"
+#include "Common.hpp"
 
 void UARTLogger::SetMinimalLevel(const char* source, const Log_Severity severity)
 {

@@ -1,4 +1,4 @@
-#include "Common.h"
+#include "Common.hpp"
 #include "EspnowDriver.hpp"
 #include "EspnowManager_Interface.hpp"
 #include "EspnowManager_Internal.hpp"
@@ -137,7 +137,7 @@ void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
     }
     catch(const std::invalid_argument& e)
     {
-        LogManager_Log(E, "EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
+        LogManager::Log(E, "EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
     }
 
     delete message_header;

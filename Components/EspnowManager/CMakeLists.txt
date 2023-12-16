@@ -13,11 +13,11 @@ idf_component_register(SRCS
                        INCLUDE_DIRS
                         "./EspnowManager/include"
                         PRIV_INCLUDE_DIRS
+                        "./EspnowManager/utils"
                         "./EspnowPeer"
                         "./Series"
                         "./Distance"
                         "./Messages/include"
-                        "./EspnowManager/utils"
                        REQUIRES
                         "Common"
                         "TaskManager"
