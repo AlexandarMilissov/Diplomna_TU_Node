@@ -1,5 +1,5 @@
 #include "EspnowMessageRequest.hpp"
-#include "EspnowManager_Communication.hpp"
+#include "EspnowManager.hpp"
 #include <stdexcept>
 
 // Functions for receiving messages

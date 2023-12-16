@@ -1,7 +1,7 @@
-idf_component_register(SRCS
-                        "EspnowManager/src/EspnowManager_Tasks.cpp"
-                        "EspnowManager/src/EspnowManager_Interface.cpp"
-                        "EspnowManager/src/EspnowManager_Communication.cpp"
+idf_component_register( SRCS
+                        "EspnowManager/src/EspnowManagerTasks.cpp"
+                        "EspnowManager/src/EspnowManagerInterface.cpp"
+                        "EspnowManager/src/EspnowManagerCommunication.cpp"
                         "EspnowPeer/EspnowPeer.cpp"
                         "Series/OpenSeries.cpp"
                         "Series/ClosedSeries.cpp"
@@ -10,15 +10,15 @@ idf_component_register(SRCS
                         "Messages/src/EspnowMessageAcknowledge.cpp"
                         "Messages/src/EspnowMessageCalculation.cpp"
                         "Messages/src/EspnowMessageKeepAlive.cpp"
-                       INCLUDE_DIRS
-                        "./EspnowManager/include"
-                        PRIV_INCLUDE_DIRS
-                        "./EspnowManager/utils"
+                        INCLUDE_DIRS
+                        "./EspnowManager"
                         "./EspnowPeer"
-                        "./Series"
                         "./Distance"
+                        "./Series"
                         "./Messages/include"
-                       REQUIRES
+                        "./EspnowManager/utils"
+                        PRIV_INCLUDE_DIRS
+                        REQUIRES
                         "Common"
                         "TaskManager"
                         "Payload"

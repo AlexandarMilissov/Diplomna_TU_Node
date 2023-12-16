@@ -7,7 +7,7 @@
 #define EspnowManager_MainFunctionUpdatePeers_Config                                    \
 {                                                                                       \
     UpdateSeriesName,               /* The name of task                         */      \
-    EspnowManager_MainFunctionUpdatePeers,                                              \
+    EspnowManager::MainFunctionUpdatePeers,                                             \
                                     /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     300,                            /* Period of the cyclic function            */      \
@@ -23,7 +23,7 @@
 #define EspnowManager_MainFunction_Send_Cyclic_KeepAlive_Config                         \
 {                                                                                       \
     SendCyclicKeepAliveName,        /* The name of task                         */      \
-    EspnowManager_MainFunction_Send_Cyclic_KeepAlive,                                   \
+    EspnowManager::MainFunctionSendCyclicKeepAlive,                                     \
                                     /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     250,                            /* Period of the cyclic function            */      \
@@ -39,7 +39,7 @@
 #define EspnowManager_MainFunction_Send_Cyclic_Calculation_Config                       \
 {                                                                                       \
     SendCyclicCalculationName,      /* The name of task                         */      \
-    EspnowManager_MainFunction_Send_Cyclic_Calculation,                                 \
+    EspnowManager::MainFunctionSendCyclicCalculation,                                   \
                                     /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     CONFIG_SERIES_INITIATION_INTERVAL,                                                  \
@@ -57,7 +57,7 @@
 {                                                                                       \
     HandleReceivedMessagesOnCore0Name,                                                  \
                                     /* The name of task                         */      \
-    EspnowManager_MainFunction_HandleReceivedMessages,                                  \
+    EspnowManager::MainFunctionHandleReceivedMessages,                                  \
                                     /* The cyclic function the task calls       */      \
     (void*)CORE_0,                  /* Parameters for the cyclic function       */      \
     50,                             /* Period of the cyclic function            */      \
@@ -74,7 +74,7 @@
 {                                                                                       \
     HandleReceivedMessagesOnCore1Name,                                                  \
                                     /* The name of task                         */      \
-    EspnowManager_MainFunction_HandleReceivedMessages,                                  \
+    EspnowManager::MainFunctionHandleReceivedMessages,                                  \
                                     /* The cyclic function the task calls       */      \
     (void*)CORE_1,                  /* Parameters for the cyclic function       */      \
     50,                             /* Period of the cyclic function            */      \
@@ -90,7 +90,7 @@
 #define EspnowManager_SendCalculationFunction_Config                                    \
 {                                                                                       \
     SendCalculationSeriesName,      /* The name of task                         */      \
-    EspnowManager_SendCalculationSeries,                                                \
+    EspnowManager::SendCalculationSeries,                                                \
                                     /* The cyclic function the task calls       */      \
     NULL,                           /* Parameters for the cyclic function       */      \
     CONFIG_SERIES_CYCLIC_SEND_INTERVAL,                                                 \

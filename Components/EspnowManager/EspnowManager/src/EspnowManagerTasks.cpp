@@ -1,21 +1,14 @@
 #include "Common.hpp"
 #include "EspnowDriver.hpp"
 #include "TaskManager.hpp"
-#include "EspnowManager_Internal.hpp"
-#include "EspnowManager_Tasks.hpp"
-#include "EspnowManager_Interface.hpp"
-#include "EspnowManager_Communication.hpp"
 #include "EspnowManager_Task_Config.h"
 #include "Payload.hpp"
 #include "OpenSeries.hpp"
 #include <string>
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-#include "Monitor.hpp"
-const char* EspnowManager_Log();
-#endif
+#include "EspnowManager.hpp"
 
-void EspnowManager_Init(const void* pvParameters)
+void EspnowManager::Init(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     Peers = {};
@@ -23,16 +16,16 @@ void EspnowManager_Init(const void* pvParameters)
 
     LogManager::SetMinimalLevel("EspnowManager", I);
 
-    EspnowDriver::Subscribe(ReceiveMessage);
+    EspnowDriver::Subscribe(Receive);
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-    Monitor::SubscribeFunction(&EspnowManager_Log);
+    Monitor::SubscribeFunction(Log);
 #endif
 
     espnowManagerInternalState = INIT;
 
 #if 1
-    EspnowManager_ActivateNetwork();
+    EspnowManager::ActivateNetwork();
 #endif
 
     // Task_cfg_struct updatePeersTask = EspnowManager_MainFunctionUpdatePeers_Config;
@@ -47,7 +40,7 @@ void EspnowManager_Init(const void* pvParameters)
     // TaskManager::RequestTask(&HandleReceivedMessages1Task);
 }
 
-void EspnowManager_MainFunctionUpdatePeers(const void* pvParameters)
+void EspnowManager::MainFunctionUpdatePeers(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
 
@@ -74,7 +67,7 @@ void EspnowManager_MainFunctionUpdatePeers(const void* pvParameters)
     }
 }
 
-void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
+void EspnowManager::MainFunctionSendCyclicKeepAlive(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     if(RUN != espnowManagerInternalState)
@@ -84,7 +77,7 @@ void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
 
     // Send keep alive messages
     EspnowMessageKeepAlive keepAlive;
-    SendMessage(broadcast_mac, keepAlive.GetPayload());
+    EspnowManager::Send(broadcast_mac, keepAlive.GetPayload());
 
     // Send needed subscription requests
     for(auto& peer : Peers)
@@ -93,7 +86,7 @@ void EspnowManager_MainFunction_Send_Cyclic_KeepAlive(const void* pvParameters)
     }
 }
 
-void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters)
+void EspnowManager::MainFunctionSendCyclicCalculation(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     if(RUN != espnowManagerInternalState)
@@ -108,7 +101,7 @@ void EspnowManager_MainFunction_Send_Cyclic_Calculation(const void* pvParameters
     }
 }
 
-void EspnowManager_MainFunction_HandleReceivedMessages(const void* pvParameters)
+void EspnowManager::MainFunctionHandleReceivedMessages(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     if(RUN != espnowManagerInternalState)
@@ -119,15 +112,15 @@ void EspnowManager_MainFunction_HandleReceivedMessages(const void* pvParameters)
     HandleReceivedMessages();
 }
 
-void EspnowManager_SendCalculationSeries(const void* pvParameters)
+void EspnowManager::SendCalculationSeries(const void* pvParameters)
 {
     DUMMY_STATEMENT(pvParameters);
     EspnowMessageCalculation calculation;
-    SendMessage(broadcast_mac, calculation.GetPayload());
+    Send(broadcast_mac, calculation.GetPayload());
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-const char* EspnowManager_Log()
+const char* EspnowManager::Log()
 {
     static std::string messagesLog;
     size_t operations;

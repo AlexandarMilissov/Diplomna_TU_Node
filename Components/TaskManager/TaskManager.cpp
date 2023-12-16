@@ -7,7 +7,6 @@
 #include "esp_task_wdt.h"
 #include <string>
 #include "esp_heap_caps.h"
-#include "EspnowManager_Interface.hpp"
 #include "Monitor.hpp"
 #include "NvsManager.hpp"
 

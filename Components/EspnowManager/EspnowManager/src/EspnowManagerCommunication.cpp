@@ -1,30 +1,27 @@
 #include "Common.hpp"
 #include "EspnowDriver.hpp"
-#include "EspnowManager_Interface.hpp"
-#include "EspnowManager_Internal.hpp"
-#include "EspnowManager_Communication.hpp"
 #include "IEspnowMessage.hpp"
 #include "Payload.hpp"
 #include <stdatomic.h>
 #include <string.h>
 #include <stdexcept>
 
-void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
+#include "EspnowManager.hpp"
 
-uint64 handledMessagesCounter = 0;
-uint64 receivedMessagesCounter = 0;
-std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
-Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
+uint64 EspnowManager::handledMessagesCounter = 0;
+uint64 EspnowManager::receivedMessagesCounter = 0;
+std::queue<InterruptReceivedMessageStruct*> EspnowManager::interruptReceivedMessages;
+Spinlock EspnowManager::InterruptReceivedMessagesSpinlock = Spinlock_Init;
 
-std::vector<EspnowPeer*> Peers;
-Spinlock peerListLock = Spinlock_Init;
+std::vector<EspnowPeer*> EspnowManager::Peers;
+Spinlock EspnowManager::peerListLock = Spinlock_Init;
 
-void SendMessage(const uint8* address, const Payload payload)
+void EspnowManager::Send(const uint8* address, const Payload payload)
 {
     EspnowDriver::Send(address, &payload);
 }
 
-void ReceiveMessage(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
+void EspnowManager::Receive(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
 {
     if(espnowManagerInternalState != RUN)
     {
@@ -43,7 +40,7 @@ void ReceiveMessage(const uint8_t *src_addr, const Payload* message, const RSSI_
     Exit_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
 }
 
-void HandleReceivedMessages()
+void EspnowManager::HandleReceivedMessages()
 {
     InterruptReceivedMessageStruct* message_handle;
     uint8 maximumOperationMainFunction = 0xFF;
@@ -75,7 +72,7 @@ void HandleReceivedMessages()
     }
 }
 
-void HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
+void EspnowManager::HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
 {
     EspnowPeer* sender = NULL;
 

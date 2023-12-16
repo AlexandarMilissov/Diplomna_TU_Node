@@ -1,6 +1,6 @@
 #include "EspnowMessageCalculation.hpp"
 #include "OpenSeries.hpp"
-#include "EspnowManager_Communication.hpp"
+#include "EspnowManager.hpp"
 #include <stdexcept>
 #include <string.h>
 

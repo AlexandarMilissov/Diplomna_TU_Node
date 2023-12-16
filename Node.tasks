@@ -21,11 +21,13 @@ Esp mesh:
     ☐ Make a server
     ☐ Implement messages.
     ☐ Send your data to peer
+    ☐ Implement OTA
 
 Other:
     ☐ Add serial read
     ☐ Update drwaio
     ☐ Make interfaces for EspnowManager
+        ✔ Make EspnowManager a proper cpp class @done (12/16/2023, 5:03:28 PM)
     ✔ Migrate all code to C++ @done (12/16/2023, 10:23:14 AM)
         ✔ Clean up EspnowManager files @done (12/16/2023, 10:23:11 AM)
         ✔ Clean up monitor files @done (12/16/2023, 10:22:03 AM)

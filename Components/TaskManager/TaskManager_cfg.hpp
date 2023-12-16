@@ -3,11 +3,12 @@
 
 #include "TaskManager.hpp"
 #include "WifiManager.hpp"
-#include "EspnowManager_Tasks.hpp"
 #include "LogManager.hpp"
 #include "Monitor.hpp"
 #include "Hooks.hpp"
 #include "NvsManager.hpp"
+#include "EspnowManager.hpp"
+#include "EspnowManager_Task_Config.h"
 
 typedef struct Init_cfg_struct{
     const char* name;
@@ -22,7 +23,7 @@ Init_cfg_struct init_cfg[] =
     {"Monitor",             Monitor::Init},
 #endif
     {"WifiManager",         WifiManager::Init},
-    {"EspnowManager",       EspnowManager_Init},
+    {"EspnowManager",       EspnowManager::Init},
     {"Hooks",               Hooks::Init},
 };
 

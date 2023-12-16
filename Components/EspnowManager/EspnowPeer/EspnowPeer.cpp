@@ -1,6 +1,5 @@
 #include "EspnowPeer.hpp"
-#include "EspnowManager_Interface.hpp"
-#include "EspnowManager_Communication.hpp"
+#include "EspnowManager.hpp"
 
 #include <cstring>
 #include <string>
@@ -12,7 +11,7 @@ void EspnowPeer::SendSubscriptionRequest()
         return;
     }
     EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
-    SendMessage(sourceAddress, RSSI_Message.GetPayload());
+    EspnowManager::Send(sourceAddress, RSSI_Message.GetPayload());
 }
 
 #if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
@@ -48,7 +47,7 @@ EspnowPeer::~EspnowPeer()
 {
     if(isPeerSubscribedToUs)
     {
-        EspnowManager_Unsubscribe();
+        EspnowManager::Unsubscribe();
     }
 
 }
@@ -79,7 +78,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         if(!isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = true;
-            EspnowManager_Subscribe();
+            EspnowManager::Subscribe();
         }
         ackn = new EspnowMessageAcknowledge(SUBSCRIBE);
     }
@@ -88,7 +87,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         if(isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = false;
-            EspnowManager_Unsubscribe();
+            EspnowManager::Unsubscribe();
         }
         ackn = new EspnowMessageAcknowledge(UNSUBSCRIBE);
     }
@@ -96,7 +95,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 
     if(NULL != ackn)
     {
-        SendMessage(sourceAddress, ackn->GetPayload());
+        EspnowManager::Send(sourceAddress, ackn->GetPayload());
         delete ackn;
     }
 
