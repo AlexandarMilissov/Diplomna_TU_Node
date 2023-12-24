@@ -21,8 +21,6 @@ void EspnowDriver::Init()
 {
     logManager.SetMinimalLevel("EspnowDriver", W);
 
-    esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
-
     ESP_ERROR_CHECK( esp_now_init() );
 
     ESP_ERROR_CHECK( esp_now_register_recv_cb(EspnowDriver::InternalReceive) );
