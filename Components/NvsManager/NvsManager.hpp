@@ -21,19 +21,6 @@ public:
     void Init();
 
     /**
-     * @brief Retrieves the value of a non-volatile storage (NVS) variable.
-     *
-     * This function retrieves the value of an NVS variable identified by its name.
-     * The type of the variable is specified by the template parameter `NvsValueType`.
-     *
-     * @param name The name of the NVS variable.
-     * @return The value of the NVS variable.
-     * @tparam NvsValueType The type of the NVS variable.
-     */
-    template <typename NvsValueType>
-    NvsValueType GetVar(const char*);
-
-    /**
      * @brief Sets the value of a variable in the NvsManager.
      *
      * This function allows you to set the value of a variable in the NvsManager.
@@ -45,6 +32,19 @@ public:
      */
     template <typename NvsValueType>
     void SetVar(const char*, NvsValueType*);
+
+    /**
+     * @brief Retrieves the value of a non-volatile storage (NVS) variable.
+     *
+     * This function retrieves the value of an NVS variable identified by its name.
+     * The type of the variable is specified by the template parameter `NvsValueType`.
+     *
+     * @param name The name of the NVS variable.
+     * @return The value of the NVS variable.
+     * @tparam NvsValueType The type of the NVS variable.
+     */
+    template <typename NvsValueType>
+    NvsValueType GetVar(const char*, NvsValueType = NvsValueType());
 };
 
 #endif // NVSMANAGER_HPP_

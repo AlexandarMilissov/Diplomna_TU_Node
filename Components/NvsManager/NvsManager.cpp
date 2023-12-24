@@ -37,141 +37,6 @@ void NvsManager::Init()
 }
 
 template <>
-uint8 NvsManager::GetVar<uint8>(const char* key)
-{
-    uint8 value;
-    esp_err_t err = nvs_get_u8(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-uint16 NvsManager::GetVar<uint16>(const char* key)
-{
-    uint16 value;
-    esp_err_t err = nvs_get_u16(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-uint32 NvsManager::GetVar<uint32>(const char* key)
-{
-    uint32 value;
-    esp_err_t err = nvs_get_u32(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-uint64 NvsManager::GetVar<uint64>(const char* key)
-{
-    uint64 value;
-    esp_err_t err = nvs_get_u64(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-sint8 NvsManager::GetVar<sint8>(const char* key)
-{
-    sint8 value;
-    esp_err_t err = nvs_get_i8(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-sint16 NvsManager::GetVar<sint16>(const char* key)
-{
-    sint16 value;
-    esp_err_t err = nvs_get_i16(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-sint32 NvsManager::GetVar<sint32>(const char* key)
-{
-    sint32 value;
-    esp_err_t err = nvs_get_i32(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-sint64 NvsManager::GetVar<sint64>(const char* key)
-{
-    sint64 value;
-    esp_err_t err = nvs_get_i64(my_handle, key, &value);
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return value;
-}
-
-template <>
-std::string NvsManager::GetVar<std::string>(const char* key)
-{
-    size_t required_size;
-    esp_err_t err = nvs_get_str(my_handle, key, NULL, &required_size);
-    if(err == ESP_OK)
-    {
-        char* char_str = (char*)malloc(required_size);
-        if(char_str == NULL)
-        {
-            err = ESP_ERR_NO_MEM;
-        }
-        else
-        {
-            err = nvs_get_str(my_handle, key, char_str, &required_size);
-            if(err == ESP_OK)
-            {
-                return std::string(char_str);
-            }
-            free(char_str);
-        }
-    }
-
-    if(ESP_OK != err)
-    {
-        logManager.Log(E, "NvsManager", "Error getting value from NVS: %s", esp_err_to_name(err));
-        throw std::runtime_error("Error getting value from NVS.");
-    }
-    return std::string();
-}
-
-template <>
 void NvsManager::SetVar<uint8>(const char* key, uint8* value)
 {
     esp_err_t err = nvs_set_u8(my_handle, key, *value);
@@ -322,4 +187,213 @@ void NvsManager::SetVar<std::string>(const char* key, std::string* value)
         logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
+}
+
+template <>
+uint8 NvsManager::GetVar<uint8>(const char* key, uint8 defaultValue)
+{
+    uint8 value;
+    esp_err_t err = nvs_get_u8(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<uint8>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+uint16 NvsManager::GetVar<uint16>(const char* key, uint16 defaultValue)
+{
+    uint16 value;
+    esp_err_t err = nvs_get_u16(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<uint16>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+uint32 NvsManager::GetVar<uint32>(const char* key, uint32 defaultValue)
+{
+    uint32 value;
+    esp_err_t err = nvs_get_u32(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<uint32>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+uint64 NvsManager::GetVar<uint64>(const char* key, uint64 defaultValue)
+{
+    uint64 value;
+    esp_err_t err = nvs_get_u64(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<uint64>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+sint8 NvsManager::GetVar<sint8>(const char* key, sint8 defaultValue)
+{
+    sint8 value;
+    esp_err_t err = nvs_get_i8(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<sint8>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+sint16 NvsManager::GetVar<sint16>(const char* key, sint16 defaultValue)
+{
+    sint16 value;
+    esp_err_t err = nvs_get_i16(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<sint16>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+sint32 NvsManager::GetVar<sint32>(const char* key, sint32 defaultValue)
+{
+    sint32 value;
+    esp_err_t err = nvs_get_i32(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<sint32>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+sint64 NvsManager::GetVar<sint64>(const char* key, sint64 defaultValue)
+{
+    sint64 value;
+    esp_err_t err = nvs_get_i64(my_handle, key, &value);
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<sint64>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS.");
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
+}
+
+template <>
+std::string NvsManager::GetVar<std::string>(const char* key, std::string defaultValue)
+{
+    std::string value;
+    size_t required_size;
+    esp_err_t err = nvs_get_str(my_handle, key, NULL, &required_size);
+
+    if(ESP_OK == err)
+    {
+        char* char_str = (char*)malloc(required_size);
+        if(char_str == NULL)
+        {
+            err = ESP_ERR_NO_MEM;
+        }
+        else
+        {
+            err = nvs_get_str(my_handle, key, char_str, &required_size);
+            if(ESP_OK == err)
+            {
+                value = std::string(char_str);
+            }
+            free(char_str);
+        }
+    }
+
+    if(ESP_OK != err)
+    {
+        if(ESP_ERR_NVS_NOT_FOUND == err)
+        {
+            value = defaultValue;
+            SetVar<std::string>(key, &defaultValue);
+        }
+        else
+        {
+            logManager.Log(E, "NvsManager", "Error getting value from NVS: %s", esp_err_to_name(err));
+            throw std::runtime_error("Error getting value from NVS.");
+        }
+    }
+    return value;
 }

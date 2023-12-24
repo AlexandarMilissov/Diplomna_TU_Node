@@ -46,5 +46,5 @@ extern "C" void app_main(void)
     monitor->Subscribe(monitor);
     monitor->Subscribe(espnowManager);
 
-    logManager->Log(E, "System", "This is %s. End of Init.\n", nvsManager->GetVar<std::string>("name").c_str());
+    logManager->Log(E, "System", "This is %s. End of Init.\n", nvsManager->GetVar<std::string>("name", "Default").c_str());
 }
