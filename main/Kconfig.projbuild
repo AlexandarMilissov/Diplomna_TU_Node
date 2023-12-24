@@ -174,13 +174,28 @@ menu "Wifi Project"
             prompt "Minimum number of messages per series"
             default 8
             help
-                "The minimum mumber of messages that a series needs to have to be considered valid"
+                "The minimum mumber of messages that a series needs to have to be considered valid."
 
+        config LIFE_OF_SERIES
+            int
+            range 1 100
+            prompt "Series life time"
+            default 5
+            help
+                "The times update peers needs to be called before closing a series."
+
+        config LIFE_OF_PEERS
+            int
+            range 1 100
+            prompt "Peers life time"
+            default 5
+            help
+                "The times update peers needs to be called without receiving a keep alive message to consider a peer dead."
             menu "Tasks"
 
                 config SERIES_INITIATION_INTERVAL
                     int
-                    range 10 1000
+                    range 10 10000
                     prompt "Period of the cyclic send begin function"
                     default 50
                     help
@@ -188,11 +203,35 @@ menu "Wifi Project"
 
                 config SERIES_CYCLIC_SEND_INTERVAL
                     int
-                    range 1 10
+                    range 1 10000
                     prompt "Period of the cyclic send function"
                     default 3
                     help
                         "The cooldown period between the sending of 2 messages of a series"
+
+                config UPDATE_PEERS_INTERVAL
+                    int
+                    range 10 10000
+                    prompt "Period of the update peers function"
+                    default 300
+                    help
+                        "The period at which the peers are updated"
+
+                config SEND_KEEP_ALIVE_INTERVAL
+                    int
+                    range 10 10000
+                    prompt "Period of the send keep alive function"
+                    default 250
+                    help
+                        "The period at which the keep alive messages are sent"
+
+                config HANDLE_RECEIVED_MESSAGES_INTERVAL
+                    int
+                    range 10 10000
+                    prompt "Period of the handle received messages functions"
+                    default 50
+                    help
+                        "The period at which the received messages are handled."
             endmenu
 
     endmenu

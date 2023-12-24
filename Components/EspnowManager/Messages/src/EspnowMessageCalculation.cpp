@@ -17,12 +17,11 @@ uint8 EspnowMessageCalculation::GetElementsSize()
     return sizeof(series_Id) + sizeof(message_Position_Id);
 }
 
-// On received
 EspnowMessageCalculation::EspnowMessageCalculation(RSSI_Type rssi, Payload message) : RSSI(rssi)
 {
     if(message.GetSize() != GetElementsSize())
     {
-        throw std::invalid_argument("Wrong message size");
+        throw std::invalid_argument(std::string("Wrong message size for ") + __FUNCTION__ );
     }
     struct RSSI_Message_Calculation_Struct data_s;
     memcpy(&data_s, message.data, GetElementsSize());

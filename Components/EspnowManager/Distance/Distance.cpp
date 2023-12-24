@@ -166,11 +166,9 @@ DistanceUnits Distance::Float_To_DistanceUnits(float value)
 #endif
 }
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
-const char* Distance::Log()
+std::string Distance::GetMonitorData()
 {
-    // Init
-    static std::string distanceLog;
+    std::string distanceLog;
     distanceLog = "";
 
 
@@ -225,6 +223,5 @@ const char* Distance::Log()
         distanceLog += std::to_string(truncated_counter) + " truncated(hidden) values.\n";
     }
 
-    return distanceLog.c_str();
+    return distanceLog;
 }
-#endif

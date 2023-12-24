@@ -1,45 +1,83 @@
 #include "Common.hpp"
-#include "EspnowDriver.hpp"
 #include "TaskManager.hpp"
-#include "EspnowManager_Task_Config.h"
 #include "Payload.hpp"
 #include "OpenSeries.hpp"
 #include <string>
 
 #include "EspnowManager.hpp"
 
-void EspnowManager::Init(const void* pvParameters)
+#if (CONFIG_NUMBER_OF_MESSAGES_PER_SERIES * CONFIG_SERIES_CYCLIC_SEND_INTERVAL) >= CONFIG_SERIES_INITIATION_INTERVAL
+    #error "Invalid send configuration. Overlapping send times."
+#endif
+
+#if (CONFIG_UPDATE_PEERS_INTERVAL * CONFIG_LIFE_OF_SERIES) <= (CONFIG_NUMBER_OF_MESSAGES_PER_SERIES * CONFIG_SERIES_CYCLIC_SEND_INTERVAL)
+    #error "The series will never complete successfully."
+#endif
+
+#if (CONFIG_UPDATE_PEERS_INTERVAL * CONFIG_LIFE_OF_PEERS) <= CONFIG_SEND_KEEP_ALIVE_INTERVAL
+    #error "The peers are killed before they can send a new message."
+#endif
+
+void EspnowManager::Init()
 {
-    DUMMY_STATEMENT(pvParameters);
     Peers = {};
     interruptReceivedMessages = {};
 
-    LogManager::SetMinimalLevel("EspnowManager", I);
+    logManager.SetMinimalLevel("EspnowManager", I);
 
-    EspnowDriver::Subscribe(Receive);
+    driver.Subscribe(*this);
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-    Monitor::SubscribeFunction(Log);
-#endif
+    TaskConfig updatePeersTaskConfig = TaskConfig(
+        "Update Series",
+        [this]() { MainFunctionUpdatePeers(); },
+        CONFIG_UPDATE_PEERS_INTERVAL,
+        CORE_0,
+        8192,
+        10
+    );
+    TaskConfig sendKeepAliveTaskConfig = TaskConfig(
+        "Send Keep Alive",
+        [this]() { MainFunctionSendCyclicKeepAlive(); },
+        CONFIG_SEND_KEEP_ALIVE_INTERVAL,
+        CORE_0,
+        8192,
+        10
+    );
+    TaskConfig sendCalculationTaskConfig = TaskConfig(
+        "Series Begin",
+        [this]() { MainFunctionSeriesBegin(); },
+        CONFIG_SERIES_INITIATION_INTERVAL,
+        CORE_0,
+        8192,
+        10
+    );
+    TaskConfig HandleReceivedMessages0TaskConfig = TaskConfig(
+        "Handle Received Messages on Core 0",
+        [this]() { MainFunctionHandleReceivedMessages(); },
+        CONFIG_HANDLE_RECEIVED_MESSAGES_INTERVAL,
+        CORE_0,
+        8192,
+        10
+    );
+    TaskConfig HandleReceivedMessages1TaskConfig = TaskConfig(
+        "Handle Received Messages on Core 1",
+        [this]() { MainFunctionHandleReceivedMessages(); },
+        CONFIG_HANDLE_RECEIVED_MESSAGES_INTERVAL,
+        CORE_1,
+        8192,
+        10
+    );
+    taskManager.RequestTask(updatePeersTaskConfig);
+    taskManager.RequestTask(sendKeepAliveTaskConfig);
+    taskManager.RequestTask(sendCalculationTaskConfig);
+    taskManager.RequestTask(HandleReceivedMessages0TaskConfig);
+    taskManager.RequestTask(HandleReceivedMessages1TaskConfig);
 
-    espnowManagerInternalState = INIT;
-
-    // Task_cfg_struct updatePeersTask = EspnowManager_MainFunctionUpdatePeers_Config;
-    // Task_cfg_struct sendKeepAliveTask = EspnowManager_MainFunction_Send_Cyclic_KeepAlive_Config;
-    // Task_cfg_struct sendCalculationTask = EspnowManager_MainFunction_Send_Cyclic_Calculation_Config;
-    // Task_cfg_struct HandleReceivedMessages0Task = EspnowManager_MainFunction_HandleReceivedMessages_Core0_Config;
-    // Task_cfg_struct HandleReceivedMessages1Task = EspnowManager_MainFunction_HandleReceivedMessages_Core1_Config;
-    // TaskManager::RequestTask(&updatePeersTask);
-    // TaskManager::RequestTask(&sendKeepAliveTask);
-    // TaskManager::RequestTask(&sendCalculationTask);
-    // TaskManager::RequestTask(&HandleReceivedMessages0Task);
-    // TaskManager::RequestTask(&HandleReceivedMessages1Task);
+    internalState = INIT;
 }
 
-void EspnowManager::MainFunctionUpdatePeers(const void* pvParameters)
+void EspnowManager::MainFunctionUpdatePeers()
 {
-    DUMMY_STATEMENT(pvParameters);
-
     size_t count = 0;
     std::vector<size_t> toRemove;
 
@@ -51,7 +89,7 @@ void EspnowManager::MainFunctionUpdatePeers(const void* pvParameters)
         }
         else
         {
-            LogManager::Log(W, "EspnowManager", "EspnowPeer has disconnected.");
+            logManager.Log(W, "EspnowManager", "EspnowPeer has disconnected.");
             delete peer;
             toRemove.push_back(count);
         }
@@ -63,17 +101,17 @@ void EspnowManager::MainFunctionUpdatePeers(const void* pvParameters)
     }
 }
 
-void EspnowManager::MainFunctionSendCyclicKeepAlive(const void* pvParameters)
+void EspnowManager::MainFunctionSendCyclicKeepAlive()
 {
-    DUMMY_STATEMENT(pvParameters);
-    if(RUN != espnowManagerInternalState)
+    if(RUN != internalState)
     {
         return;
     }
 
     // Send keep alive messages
     EspnowMessageKeepAlive keepAlive;
-    EspnowManager::Send(broadcast_mac, keepAlive.GetPayload());
+    Payload header(broadcast_mac, sizeof(broadcast_mac));
+    Send(header, keepAlive.GetPayload());
 
     // Send needed subscription requests
     for(auto& peer : Peers)
@@ -82,25 +120,32 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive(const void* pvParameters)
     }
 }
 
-void EspnowManager::MainFunctionSendCyclicCalculation(const void* pvParameters)
+void EspnowManager::MainFunctionSeriesBegin()
 {
-    DUMMY_STATEMENT(pvParameters);
-    if(RUN != espnowManagerInternalState)
+    if(RUN != internalState)
     {
         return;
     }
     if(0 < calculationSubscribers)
     {
-        static Task_cfg_struct task_cfg = EspnowManager_SendCalculationFunction_Config;
-        task_cfg.repetition = (uint16)OpenSeries::GetNumberOfMessagesPerSeries();
-        TaskManager::RequestTask(&task_cfg);
+        TaskConfig taskConfig = TaskConfig
+        (
+            "Send Calculation",
+            [this]() { SendCalculationSeries(); },
+            CONFIG_SERIES_CYCLIC_SEND_INTERVAL,
+            CORE_1,
+            8192,
+            20,
+            true,
+            CONFIG_NUMBER_OF_MESSAGES_PER_SERIES
+        );
+        taskManager.RequestTask(taskConfig);
     }
 }
 
-void EspnowManager::MainFunctionHandleReceivedMessages(const void* pvParameters)
+void EspnowManager::MainFunctionHandleReceivedMessages()
 {
-    DUMMY_STATEMENT(pvParameters);
-    if(RUN != espnowManagerInternalState)
+    if(RUN != internalState)
     {
         return;
     }
@@ -108,15 +153,15 @@ void EspnowManager::MainFunctionHandleReceivedMessages(const void* pvParameters)
     HandleReceivedMessages();
 }
 
-void EspnowManager::SendCalculationSeries(const void* pvParameters)
+void EspnowManager::SendCalculationSeries()
 {
-    DUMMY_STATEMENT(pvParameters);
     EspnowMessageCalculation calculation;
-    Send(broadcast_mac, calculation.GetPayload());
+
+    Payload header(broadcast_mac, sizeof(broadcast_mac));
+    Send(header, calculation.GetPayload());
 }
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR
-const char* EspnowManager::Log()
+std::string EspnowManager::GetMonitorData()
 {
     static std::string messagesLog;
     size_t operations;
@@ -134,13 +179,10 @@ const char* EspnowManager::Log()
     messagesLog += "[" + std::to_string(localHandledMessagesCounter ) + "] handled messages\n"  ;
     messagesLog += "[" + std::to_string(localReceivedMessagesCounter) + "] received messages\n" ;
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
     for(auto& peer : Peers)
     {
-        messagesLog += peer->Log();
+        messagesLog += peer->GetMonitorData();
     }
-#endif
 
-    return messagesLog.c_str();
+    return messagesLog;
 }
-#endif

@@ -5,4 +5,5 @@ idf_component_register(SRCS
                        REQUIRES pthread
                        esp_wifi
                        LogManager
+                       TaskManager
                        )

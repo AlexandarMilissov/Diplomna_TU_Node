@@ -7,7 +7,7 @@ EspnowMessageRequest::EspnowMessageRequest(Payload message)
 {
     if(message.GetSize() != GetElementsSize())
     {
-        throw std::invalid_argument("Wrong message size");
+        throw std::invalid_argument(std::string("Wrong message size for ") + __FUNCTION__);
     }
     subscriptionStatus = *((uint8*)message.data);
 }

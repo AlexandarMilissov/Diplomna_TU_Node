@@ -2,17 +2,22 @@
 #include "EspnowManager.hpp"
 #include "Common.hpp"
 
-void EspmeshManager::Init(const void* pvParameters)
+void EspmeshManager::Init()
 {
-    DUMMY_STATEMENT(pvParameters);
+    espnowController.ActivateNetwork();
+
+    TaskConfig config = TaskConfig(
+        "EspmeshManager",
+        [this]() { MainFunction(); },
+        1000,
+        CORE_1,
+        8192,
+        10
+    );
+    taskManager.RequestTask(config);
 }
 
-void EspmeshManager::MainFunction(const void* pvParameters)
+void EspmeshManager::MainFunction()
 {
-    DUMMY_STATEMENT(pvParameters);
-
-#if 1
-    EspnowManager::ActivateNetwork();
-#endif
-
+    espnowController.ActivateNetwork();
 }

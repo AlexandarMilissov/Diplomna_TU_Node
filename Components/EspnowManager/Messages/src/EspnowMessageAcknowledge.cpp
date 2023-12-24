@@ -11,7 +11,7 @@ EspnowMessageAcknowledge::EspnowMessageAcknowledge(Payload message)
 {
     if(message.GetSize() != GetElementsSize())
     {
-        throw std::invalid_argument("Wrong message size");
+        throw std::invalid_argument(std::string("Wrong message size for ") + __FUNCTION__);
     }
     status = (bool)(message.data);
 }
@@ -33,7 +33,7 @@ Payload EspnowMessageAcknowledge::GetPayload() const
     *(data.data) = status;
 
     Payload message(MessageTypeSize);
-    *(message.data) = RSSI_CALCULATION;
+    *(message.data) = RSSI_ACKNOWLEDGE;
 
     message += data;
     return message;

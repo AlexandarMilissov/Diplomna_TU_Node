@@ -1,28 +1,25 @@
 #ifndef ESPMESHMANAGER_HPP_
 #define ESPMESHMANAGER_HPP_
 
-#define EspmeshManager_MainFunction_Config                                              \
-{                                                                                       \
-    MonitorName,                    /* The name of task                         */      \
-    EspmeshManager::MainFunction,   /* The cyclic function the task calls       */      \
-    NULL,                           /* Parameters for the cyclic function       */      \
-    1000,                           /* Period of the cyclic function            */      \
-    CORE_1,                         /* Id of the core                           */      \
-    8192,                           /* Task stack size                          */      \
-    20,                             /* Task priority                            */      \
-    false,                          /* Is the task finite                       */      \
-    0,                              /* Number of repetitions for finite task    */      \
-    NULL,                           /* Function to call when tasks finishes     */      \
-    NULL                            /* Parameters for the onComplete function   */      \
-}
+#include "IScheduler.hpp"
+#include "IComponent.hpp"
+#include "IEspnowController.hpp"
 
-class EspmeshManager
+class EspmeshManager : public IComponent
 {
 private:
-    /* data */
+    IEspnowController& espnowController;
+    IScheduler& taskManager;
+    void MainFunction();
 public:
-    static void Init(const void*);
-    static void MainFunction(const void*);
+    EspmeshManager(
+        IEspnowController& espnowController,
+        IScheduler& taskManager
+        ) :
+        espnowController(espnowController),
+        taskManager(taskManager)
+        {}
+    void Init();
 };
 
 #endif // ESPMESHMANAGER_HPP_

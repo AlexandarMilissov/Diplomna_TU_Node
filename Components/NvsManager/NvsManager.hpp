@@ -1,18 +1,24 @@
 #ifndef NVSMANAGER_HPP_
 #define NVSMANAGER_HPP_
 
+#include "IComponent.hpp"
+#include "LogManager.hpp"
+
 #include "nvs_flash.h"
-class NvsManager
+class NvsManager : public IComponent
 {
 private:
-    static nvs_handle_t my_handle;
+    nvs_handle_t my_handle;
+    LogManager& logManager;
 public:
+    NvsManager(LogManager& logManager) : logManager(logManager) {};
+
     /**
      * @brief Initializes the NvsManager with the provided data.
      *
      * @param data A pointer to the data used for initialization.
      */
-    static void Init(const void*);
+    void Init();
 
     /**
      * @brief Retrieves the value of a non-volatile storage (NVS) variable.
@@ -25,7 +31,7 @@ public:
      * @tparam NvsValueType The type of the NVS variable.
      */
     template <typename NvsValueType>
-    static NvsValueType GetVar(const char*);
+    NvsValueType GetVar(const char*);
 
     /**
      * @brief Sets the value of a variable in the NvsManager.

@@ -9,7 +9,9 @@
 #include <map>
 #include <vector>
 
-class Distance
+#include "IMonitorable.hpp"
+
+class Distance : public IMonitorable
 {
     private:
         static const uint16 minNumberOfValues = CONFIG_MINIMUM_NUMBER_OF_VALUES;
@@ -42,9 +44,8 @@ class Distance
         void Recalculate();
         static uint8 GetRequestedRepetitions();
         static DistanceUnits Float_To_DistanceUnits(float);
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
-        const char* Log();
-#endif
+
+        std::string GetMonitorData();
 };
 
 #endif // DISTANCE_HPP_

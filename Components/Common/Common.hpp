@@ -1,7 +1,6 @@
 #ifndef COMMON_HPP
 #define COMMON_HPP
 
-#include "LogManager.hpp"
 #include "esp_task_wdt.h"
 #include <stdint.h>
 #include "freertos/semphr.h"

@@ -3,12 +3,8 @@
 #include "Common.hpp"
 #include "UARTLogger.hpp"
 
-std::vector<ILogger*> LogManager::loggers;
-
-void LogManager::Init(const void *pvParameters)
+void LogManager::Init()
 {
-    DUMMY_STATEMENT(pvParameters);
-
     loggers.push_back(new UARTLogger());
 }
 

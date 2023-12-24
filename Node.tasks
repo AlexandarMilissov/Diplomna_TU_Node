@@ -16,6 +16,7 @@ Esp now:
     ✔ create an abstraction for the logger @done (11/29/2023, 8:26:00 PM)
     ☐ Another the other memory leak. Starting a peer communcations and canceling it causes a drop of 1.5% of available RAM
     ✔ Wifi manager should init espnow driver @done (12/16/2023, 1:47:31 PM)
+    ☐ After the Esp mesh is done, create a multicast group for sending esp now messages instead of sending them to the broadcast address
 
 Esp mesh:
     ☐ Make a server
@@ -34,3 +35,6 @@ Other:
         ✔ Clean up logger files. @done (12/16/2023, 10:22:06 AM)
     ✔ Make the Nvs generic @done (12/16/2023, 12:35:15 PM)
     ☐ Remove main tasks start from task manager
+    ☐ Rename InterruptReceivedMessageStruct
+    ☐ Make mac address a class
+    ☐ Write a wrapper with default values for the NvsManager

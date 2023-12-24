@@ -1,6 +1,6 @@
 idf_component_register(SRCS
-                            "TaskNameTable.c"
                             "TaskManager.cpp"
+                            "TaskConfig.cpp"
                        INCLUDE_DIRS
                             "."
                        REQUIRES
@@ -10,6 +10,5 @@ idf_component_register(SRCS
                             EspmeshManager
                             WifiManager
                             Monitor
-                            Hooks
                             NvsManager
                        )

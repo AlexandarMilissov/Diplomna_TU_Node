@@ -5,17 +5,17 @@
 #include <stdarg.h>
 #include "LogSeverity.hpp"
 #include "ILogger.hpp"
+#include "IComponent.hpp"
 
-class LogManager
+class LogManager : public IComponent
 {
     private:
-        static std::vector<ILogger*> loggers;
+        std::vector<ILogger*> loggers;
         static char* FormatString(const char*, va_list);
     public:
-        static void SetMinimalLevel(const char*, const Log_Severity);
-        static void Log(const Log_Severity, const char*, const char*, ...);
-        static void Init(const void* pvParameters);
+        void Init();
+        void SetMinimalLevel(const char*, const Log_Severity);
+        void Log(const Log_Severity, const char*, const char*, ...);
 };
-
 
 #endif // LOGGER_HPP_

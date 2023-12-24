@@ -11,12 +11,9 @@
 #include <string>
 #include <stdexcept>
 
-nvs_handle_t NvsManager::my_handle;
-
-void NvsManager::Init(const void *pvParameters)
+void NvsManager::Init()
 {
-    LogManager::SetMinimalLevel("NvsManager", W);
-    DUMMY_STATEMENT(pvParameters);
+    logManager.SetMinimalLevel("NvsManager", W);
 
     // Initialize NVS
     esp_err_t err;
@@ -31,7 +28,12 @@ void NvsManager::Init(const void *pvParameters)
     }
     ESP_ERROR_CHECK(err);
 
-    nvs_open("Info", NVS_READWRITE, &my_handle);
+    err = nvs_open("Info", NVS_READWRITE, &my_handle);
+    if (err != ESP_OK)
+    {
+        logManager.Log(E, "NvsManager", "Error opening NVS namespace: %s", esp_err_to_name(err));
+        throw std::runtime_error("Error opening NVS namespace.");
+    }
 }
 
 template <>
@@ -41,7 +43,7 @@ uint8 NvsManager::GetVar<uint8>(const char* key)
     esp_err_t err = nvs_get_u8(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -54,7 +56,7 @@ uint16 NvsManager::GetVar<uint16>(const char* key)
     esp_err_t err = nvs_get_u16(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -67,7 +69,7 @@ uint32 NvsManager::GetVar<uint32>(const char* key)
     esp_err_t err = nvs_get_u32(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -80,7 +82,7 @@ uint64 NvsManager::GetVar<uint64>(const char* key)
     esp_err_t err = nvs_get_u64(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -93,7 +95,7 @@ sint8 NvsManager::GetVar<sint8>(const char* key)
     esp_err_t err = nvs_get_i8(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -106,7 +108,7 @@ sint16 NvsManager::GetVar<sint16>(const char* key)
     esp_err_t err = nvs_get_i16(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -119,7 +121,7 @@ sint32 NvsManager::GetVar<sint32>(const char* key)
     esp_err_t err = nvs_get_i32(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -132,7 +134,7 @@ sint64 NvsManager::GetVar<sint64>(const char* key)
     esp_err_t err = nvs_get_i64(my_handle, key, &value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS.");
         throw std::runtime_error("Error getting value from NVS.");
     }
     return value;
@@ -163,7 +165,7 @@ std::string NvsManager::GetVar<std::string>(const char* key)
 
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error getting value from NVS.");
+        logManager.Log(E, "NvsManager", "Error getting value from NVS: %s", esp_err_to_name(err));
         throw std::runtime_error("Error getting value from NVS.");
     }
     return std::string();
@@ -175,13 +177,13 @@ void NvsManager::SetVar<uint8>(const char* key, uint8* value)
     esp_err_t err = nvs_set_u8(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -192,13 +194,13 @@ void NvsManager::SetVar<uint16>(const char* key, uint16* value)
     esp_err_t err = nvs_set_u16(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -209,13 +211,13 @@ void NvsManager::SetVar<uint32>(const char* key, uint32* value)
     esp_err_t err = nvs_set_u32(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -226,13 +228,13 @@ void NvsManager::SetVar<uint64>(const char* key, uint64* value)
     esp_err_t err = nvs_set_u64(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -243,13 +245,13 @@ void NvsManager::SetVar<sint8>(const char* key, sint8* value)
     esp_err_t err = nvs_set_i8(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -260,13 +262,13 @@ void NvsManager::SetVar<sint16>(const char* key, sint16* value)
     esp_err_t err = nvs_set_i16(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -277,13 +279,13 @@ void NvsManager::SetVar<sint32>(const char* key, sint32* value)
     esp_err_t err = nvs_set_i32(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -294,13 +296,13 @@ void NvsManager::SetVar<sint64>(const char* key, sint64* value)
     esp_err_t err = nvs_set_i64(my_handle, key, *value);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }
@@ -311,13 +313,13 @@ void NvsManager::SetVar<std::string>(const char* key, std::string* value)
     esp_err_t err = nvs_set_str(my_handle, key, value->c_str());
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error setting value to NVS.");
+        logManager.Log(E, "NvsManager", "Error setting value to NVS.");
         throw std::runtime_error("Error setting value to NVS.");
     }
     err = nvs_commit(my_handle);
     if(ESP_OK != err)
     {
-        LogManager::Log(E, "NvsManager", "Error committing value to NVS.");
+        logManager.Log(E, "NvsManager", "Error committing value to NVS.");
         throw std::runtime_error("Error committing value to NVS.");
     }
 }

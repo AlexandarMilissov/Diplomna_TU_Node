@@ -5,62 +5,67 @@
 #include <algorithm>
 #include "TaskManager.hpp"
 
-
-std::vector<LogFunctionSignature> Monitor::logDelegate;
 size_t Monitor::maximum_heap_regions;
 size_t Monitor::free_heap_regions;
 
-void Monitor::Init(const void *)
+void Monitor::Init()
 {
-#if CONFIG_ENABLE_MONITOR
-    // Task_cfg_struct monitor_task = Monitor_MainFunction_Config;
-    // TaskManager::RequestTask(&monitor_task);
+    try
+    {
+        TaskConfig monitorTaskConfig = TaskConfig
+        (
+            "Monitor",
+            [this]() { MainFunction(); },
+            2000,
+            CORE_1,
+            8192,
+            9
+        );
+        scheduler.RequestTask(monitorTaskConfig);
+    }
+    catch (const std::exception& e)
+    {
+        logManager.Log(E, "Monitor", "Failed to initialize: %s", e.what());
+    }
 
     maximum_heap_regions = heap_caps_get_total_size(MALLOC_CAP_DEFAULT);
-#if CONFIG_ENABLE_MEMORY_MONITOR
-    SubscribeFunction(&MonitorMemory);
-#endif
-    SubscribeFunction(&MonitorCPU);
-
-#endif
+    // SubscribeFunction(&MonitorMemory);
+    // SubscribeFunction(&MonitorCPU);
 }
 
-void Monitor::MainFunction(const void *)
+void Monitor::MainFunction()
 {
-    static uint16 counter = 0;
-    static std::string monitorLog = "";
-
+    std::string monitorLog = "";
     monitorLog += "\n=========BEGIN=========\n";
     monitorLog += "Counter: " + std::to_string(counter) + "\n";
 
-    for (const auto &func : logDelegate)
+    for (auto monitorable : monitorables)
     {
-        monitorLog += func();
+        monitorLog += monitorable->GetMonitorData();
     }
 
     monitorLog += "\n==========END==========\n";
 
-    LogManager::Log(I, "Monitor", "%s", monitorLog.c_str());
+    logManager.Log(I, "Monitor", "%s", monitorLog.c_str());
 
-    monitorLog = "";
     counter++;
 }
 
-void Monitor::SubscribeFunction(LogFunctionSignature logFunction)
+void Monitor::Subscribe(IMonitorable* monitorable)
 {
-    logDelegate.push_back(logFunction);
+    monitorables.push_back(monitorable);
 }
 
-void Monitor::UnsubscribeFunction(LogFunctionSignature logFunction)
+void Monitor::Unsubscribe(IMonitorable* monitorable)
 {
-    auto it = std::find(logDelegate.begin(), logDelegate.end(), logFunction);
-    if (it != logDelegate.end())
+    auto it = std::find(monitorables.begin(), monitorables.end(), monitorable);
+    if (it != monitorables.end())
     {
-        logDelegate.erase(it);
+        monitorables.erase(it);
     }
 }
 
-const char *Monitor::MonitorMemory()
+std::string Monitor::MonitorMemory()
 {
     static std::string memoryLog;
     free_heap_regions = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
@@ -72,10 +77,10 @@ const char *Monitor::MonitorMemory()
     memoryLog += "% free)";
     memoryLog += "\n\0";
 
-    return memoryLog.c_str();
+    return memoryLog;
 }
 
-const char *Monitor::MonitorCPU()
+std::string Monitor::MonitorCPU()
 {
     TaskStatus_t *pxTaskStatusArray;
     volatile UBaseType_t uxArraySize;
@@ -153,5 +158,10 @@ const char *Monitor::MonitorCPU()
         // The array is no longer needed, free the memory it consumes.
         vPortFree(pxTaskStatusArray);
     }
-    return cpuLog.c_str();
+    return cpuLog;
+}
+
+std::string Monitor::GetMonitorData()
+{
+    return Monitor::MonitorMemory() + Monitor::MonitorCPU();
 }

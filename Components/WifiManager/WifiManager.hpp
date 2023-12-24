@@ -2,6 +2,7 @@
 #define WIFIMANAGER_HPP
 
 #include "Common.hpp"
+#include "IComponent.hpp"
 #include "esp_mac.h"
 
 /* ESPNOW can work in both station and softap mode. It is configured in menuconfig. */
@@ -15,10 +16,13 @@
 #define ESPNOW_MAC       ESP_MAC_WIFI_STA
 #endif
 
+#include "EspnowDriver.hpp"
+#include "EspmeshDriver.hpp"
+
 /**
  * @brief The WifiManager class handles the initialization of the WiFi module.
  */
-class WifiManager
+class WifiManager : public IComponent
 {
 private:
 public:
@@ -27,7 +31,7 @@ public:
      *
      * @param data A pointer to the initialization data.
      */
-    static void Init(const void* data);
+    void Init();
 };
 
 #endif

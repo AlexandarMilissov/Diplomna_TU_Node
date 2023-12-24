@@ -1,20 +1,16 @@
 #include "Common.hpp"
-#include "EspnowDriver.hpp"
 #include <stdatomic.h>
 
 #include "EspnowManager.hpp"
 
-std::atomic<EspnowManagerInternalState> EspnowManager::espnowManagerInternalState = NO_INIT;
-std::atomic<uint16> EspnowManager::calculationSubscribers = 0;
-
 void EspnowManager::ActivateNetwork()
 {
-    espnowManagerInternalState = RUN;
+    internalState = RUN;
 }
 
 void EspnowManager::DeactivateNetwork()
 {
-    espnowManagerInternalState = INIT;
+    internalState = INIT;
 }
 
 void EspnowManager::Subscribe()

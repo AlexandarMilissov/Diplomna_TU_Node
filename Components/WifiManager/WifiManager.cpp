@@ -1,12 +1,11 @@
-#include "WifiManager.hpp"
 #include "Common.hpp"
+#include "WifiManager.hpp"
 #include "esp_wifi.h"
 #include "EspnowDriver.hpp"
 #include "EspmeshDriver.hpp"
 
-void WifiManager::Init(const void* pvParameters)
+void WifiManager::Init()
 {
-    DUMMY_STATEMENT(pvParameters);
     esp_event_loop_create_default();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -27,7 +26,4 @@ void WifiManager::Init(const void* pvParameters)
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(MAX_TX_POWER));
 
     esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
-
-    EspnowDriver::Init(NULL);
-    EspmeshDriver::Init(NULL);
 }

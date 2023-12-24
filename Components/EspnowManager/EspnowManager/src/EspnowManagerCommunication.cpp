@@ -1,38 +1,27 @@
 #include "Common.hpp"
-#include "EspnowDriver.hpp"
 #include "IEspnowMessage.hpp"
 #include "Payload.hpp"
 #include <stdatomic.h>
 #include <string.h>
-#include <stdexcept>
 
 #include "EspnowManager.hpp"
 
-uint64 EspnowManager::handledMessagesCounter = 0;
-uint64 EspnowManager::receivedMessagesCounter = 0;
-std::queue<InterruptReceivedMessageStruct*> EspnowManager::interruptReceivedMessages;
-Spinlock EspnowManager::InterruptReceivedMessagesSpinlock = Spinlock_Init;
-
-std::vector<EspnowPeer*> EspnowManager::Peers;
-Spinlock EspnowManager::peerListLock = Spinlock_Init;
-
-void EspnowManager::Send(const uint8* address, const Payload payload)
+void EspnowManager::Send(const Payload address, const Payload payload)
 {
-    EspnowDriver::Send(address, &payload);
+    driver.Send(address, payload);
 }
 
-void EspnowManager::Receive(const uint8_t *src_addr, const Payload* message, const RSSI_Type rssi)
+void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
 {
-    if(espnowManagerInternalState != RUN)
+    if(internalState != RUN)
     {
         return;
     }
 
     InterruptReceivedMessageStruct* irms = (InterruptReceivedMessageStruct*)malloc(sizeof(InterruptReceivedMessageStruct));
 
-    memcpy(irms->src_addr, src_addr, sizeof(uint8) * 6);
+    irms->src_addr = new Payload(*src_addr);
     irms->message = new Payload(*message);
-    irms->rx_ctrl_rssi = rssi;
 
     Enter_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
     interruptReceivedMessages.push(irms);
@@ -65,6 +54,7 @@ void EspnowManager::HandleReceivedMessages()
 
         HandleReceivedMessage(message_handle);
 
+        delete message_handle->src_addr;
         delete message_handle->message;
         free(message_handle);
 
@@ -76,16 +66,17 @@ void EspnowManager::HandleReceivedMessage(const InterruptReceivedMessageStruct* 
 {
     EspnowPeer* sender = NULL;
 
-    Payload* message_header = new Payload(MessageTypeSize);
-    Payload* message_data = new Payload(*(irms->message));
+    Payload source_address = Payload(*(irms->src_addr));
+    Payload message_identifier = Payload(MessageTypeSize);
+    Payload message_data = Payload(*(irms->message));
 
-    *message_data >>= *message_header;
+    message_data >>= message_identifier;
 
     // Identify the sender
     Enter_Critical_Spinlock(peerListLock);
     for(EspnowPeer* peer : Peers)
     {
-        if(peer->IsCorrectAddress(irms->src_addr))
+        if(peer->IsCorrectAddress(source_address.data))
         {
             sender = peer;
             break;
@@ -94,49 +85,10 @@ void EspnowManager::HandleReceivedMessage(const InterruptReceivedMessageStruct* 
 
     if(NULL == sender)
     {
-        sender = new EspnowPeer(irms->src_addr);
+        sender = new EspnowPeer(source_address.data, *this, *this, logManager);
         Peers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListLock);
 
-    // Proccess the message
-    try
-    {
-        switch (*(message_header->data))
-        {
-        case RSSI_REQUEST:
-        {
-            EspnowMessageRequest RSSI_Message = EspnowMessageRequest(*message_data);
-            sender->ReceiveMessage(RSSI_Message);
-        }
-        break;
-        case RSSI_CALCULATION:
-        {
-            EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(irms->rx_ctrl_rssi, *message_data);
-            sender->ReceiveMessage(RSSI_Message);
-        }
-        break;
-        case RSSI_KEEP_ALIVE:
-        {
-            EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(*message_data);
-            sender->ReceiveMessage(RSSI_Message);
-        }
-        break;
-        case RSSI_ACKNOWLEDGE:
-        {
-            EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(*message_data);
-            sender->ReceiveMessage(RSSI_Message);
-        }
-        break;
-        default:
-            break;
-        }
-    }
-    catch(const std::invalid_argument& e)
-    {
-        LogManager::Log(E, "EspnowManager", "ESP_ERR_INVALID_ARG: %s\n", e.what());
-    }
-
-    delete message_header;
-    delete message_data;
+    sender->Receive(&message_identifier, &message_data);
 }

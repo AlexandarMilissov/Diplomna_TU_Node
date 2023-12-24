@@ -1,8 +1,60 @@
 #include "EspnowPeer.hpp"
-#include "EspnowManager.hpp"
-
 #include <cstring>
 #include <string>
+#include <stdexcept>
+
+void EspnowPeer::Send(const Payload address, const Payload payload)
+{
+    lowerLayer.Send(address, payload);
+}
+
+void EspnowPeer::Receive(const Payload* header, const Payload* data)
+{
+    Payload message_rssi = Payload(*data);
+    Payload message_data = Payload(message_rssi.GetSize() - sizeof(RSSI_Type));
+    message_rssi >>= message_data;
+
+    MessageType message_identifier;
+    memcpy(&message_identifier, header->data, MessageTypeSize);
+    RSSI_Type* message_rssi_value = (RSSI_Type*)(message_rssi.data);
+    // Proccess the message
+    try
+    {
+        switch (message_identifier)
+        {
+        case RSSI_REQUEST:
+        {
+            EspnowMessageRequest RSSI_Message = EspnowMessageRequest(message_data);
+            this->ReceiveMessage(RSSI_Message);
+        }
+        break;
+        case RSSI_CALCULATION:
+        {
+            EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(*message_rssi_value, message_data);
+            this->ReceiveMessage(RSSI_Message);
+        }
+        break;
+        case RSSI_KEEP_ALIVE:
+        {
+            EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(message_data);
+            this->ReceiveMessage(RSSI_Message);
+        }
+        break;
+        case RSSI_ACKNOWLEDGE:
+        {
+            EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(message_data);
+            this->ReceiveMessage(RSSI_Message);
+        }
+        break;
+        default:
+            break;
+        }
+    }
+    catch(const std::invalid_argument& e)
+    {
+        logManager.Log(E, "EspnowPeer", "ESP_ERR_INVALID_ARG: %s\n", e.what());
+    }
+}
 
 void EspnowPeer::SendSubscriptionRequest()
 {
@@ -11,14 +63,13 @@ void EspnowPeer::SendSubscriptionRequest()
         return;
     }
     EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
-    EspnowManager::Send(sourceAddress, RSSI_Message.GetPayload());
+    Payload header(sourceAddress, sizeof(sourceAddress));
+    Send(header, RSSI_Message.GetPayload());
 }
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR
-const char* EspnowPeer::Log()
+std::string EspnowPeer::GetMonitorData()
 {
-    static std::string peerLog;
-    peerLog = "";
+    std::string peerLog = "";
     peerLog += std::to_string(sourceAddress[0]) + ":";
     peerLog += std::to_string(sourceAddress[1]) + ":";
     peerLog += std::to_string(sourceAddress[2]) + ":";
@@ -26,14 +77,20 @@ const char* EspnowPeer::Log()
     peerLog += std::to_string(sourceAddress[4]) + ":";
     peerLog += std::to_string(sourceAddress[5]) + "\n";
 
-#if CONFIG_ENABLE_MONITOR && CONFIG_ENABLE_MESSAGE_MONITOR && CONFIG_ENABLE_PEER_MONITOR && CONFIG_ENABLE_DISTANCE_MONITOR
-    peerLog += distance.Log();
-#endif
-    return peerLog.c_str();
+    peerLog += distance.GetMonitorData();
+    return peerLog;
 }
-#endif
 
-EspnowPeer::EspnowPeer(const uint8_t *src_addr) : peerLife(peerBeginningLife)
+EspnowPeer::EspnowPeer(
+    const uint8_t* src_addr,
+    IMessageable& messageable,
+    IEspnowController& espnowController,
+    LogManager& logManager
+    ) :
+    peerLife(peerBeginningLife),
+    lowerLayer(messageable),
+    espnowController(espnowController),
+    logManager(logManager)
 {
     if(false) // TODO: Validate
     {
@@ -47,7 +104,7 @@ EspnowPeer::~EspnowPeer()
 {
     if(isPeerSubscribedToUs)
     {
-        EspnowManager::Unsubscribe();
+        espnowController.Unsubscribe();
     }
 
 }
@@ -78,7 +135,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         if(!isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = true;
-            EspnowManager::Subscribe();
+            espnowController.Subscribe();
         }
         ackn = new EspnowMessageAcknowledge(SUBSCRIBE);
     }
@@ -87,7 +144,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         if(isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = false;
-            EspnowManager::Unsubscribe();
+            espnowController.Subscribe();
         }
         ackn = new EspnowMessageAcknowledge(UNSUBSCRIBE);
     }
@@ -95,7 +152,8 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 
     if(NULL != ackn)
     {
-        EspnowManager::Send(sourceAddress, ackn->GetPayload());
+        Payload header(sourceAddress, sizeof(sourceAddress));
+        Send(header, ackn->GetPayload());
         delete ackn;
     }
 

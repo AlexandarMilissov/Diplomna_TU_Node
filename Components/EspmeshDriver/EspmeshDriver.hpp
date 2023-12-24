@@ -1,12 +1,15 @@
 #ifndef ESPMESHDRIVER_HPP_
 #define ESPMESHDRIVER_HPP_
 
-class EspmeshDriver
+#include "Common.hpp"
+#include "IComponent.hpp"
+
+class EspmeshDriver : public IComponent
 {
 private:
     /* data */
 public:
-    static void Init(const void*);
+    void Init();
 };
 
 
