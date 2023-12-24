@@ -27,14 +27,14 @@ Esp mesh:
 Other:
     ☐ Add serial read
     ☐ Update drwaio
-    ☐ Make interfaces for EspnowManager
+    ✔ Make interfaces for EspnowManager @done (12/24/2023, 9:32:56 PM)
         ✔ Make EspnowManager a proper cpp class @done (12/16/2023, 5:03:28 PM)
     ✔ Migrate all code to C++ @done (12/16/2023, 10:23:14 AM)
         ✔ Clean up EspnowManager files @done (12/16/2023, 10:23:11 AM)
         ✔ Clean up monitor files @done (12/16/2023, 10:22:03 AM)
         ✔ Clean up logger files. @done (12/16/2023, 10:22:06 AM)
     ✔ Make the Nvs generic @done (12/16/2023, 12:35:15 PM)
-    ☐ Remove main tasks start from task manager
-    ☐ Rename InterruptReceivedMessageStruct
+    ✔ Remove main tasks start from task manager @done (12/24/2023, 9:33:02 PM)
+    ✔ Rename InterruptReceivedMessageStruct @done (12/24/2023, 9:44:16 PM)
     ☐ Make mac address a class
-    ☐ Write a wrapper with default values for the NvsManager
+    ✔ Write a wrapper with default values for the NvsManager @done (12/24/2023, 9:33:13 PM)

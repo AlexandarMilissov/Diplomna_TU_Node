@@ -21,7 +21,7 @@
 void EspnowManager::Init()
 {
     Peers = {};
-    interruptReceivedMessages = {};
+    receivedMessagesQueue = {};
 
     logManager.SetMinimalLevel("EspnowManager", I);
 
@@ -168,11 +168,11 @@ std::string EspnowManager::GetMonitorData()
     uint64 localHandledMessagesCounter;
     uint64 localReceivedMessagesCounter;
 
-    Enter_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
-    operations = interruptReceivedMessages.size();
+    Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
+    operations = receivedMessagesQueue.size();
     localHandledMessagesCounter = handledMessagesCounter;
     localReceivedMessagesCounter = receivedMessagesCounter;
-    Exit_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+    Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
 
     messagesLog = "\n";
     messagesLog += "[" + std::to_string(operations                  ) + "] queued messages\n"   ;

@@ -17,58 +17,57 @@ void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
     {
         return;
     }
+    std::tuple<Payload*, Payload*>* irms = new std::tuple<Payload*, Payload*>(new Payload(*src_addr), new Payload(*message));
 
-    InterruptReceivedMessageStruct* irms = (InterruptReceivedMessageStruct*)malloc(sizeof(InterruptReceivedMessageStruct));
-
-    irms->src_addr = new Payload(*src_addr);
-    irms->message = new Payload(*message);
-
-    Enter_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
-    interruptReceivedMessages.push(irms);
+    Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
+    receivedMessagesQueue.push(irms);
     receivedMessagesCounter++;
-    Exit_Critical_Spinlock_ISR(InterruptReceivedMessagesSpinlock);
+    Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
 }
 
 void EspnowManager::HandleReceivedMessages()
 {
-    InterruptReceivedMessageStruct* message_handle;
+    std::tuple<Payload*, Payload*>* message_handle = NULL;
     uint8 maximumOperationMainFunction = 0xFF;
 
     while (maximumOperationMainFunction > 0)
     {
         message_handle = NULL;
 
-        Enter_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
-        if(!interruptReceivedMessages.empty())
+        Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
+        if(!receivedMessagesQueue.empty())
         {
             handledMessagesCounter++;
-            message_handle = interruptReceivedMessages.front();
-            interruptReceivedMessages.pop();
+            message_handle = receivedMessagesQueue.front();
+            receivedMessagesQueue.pop();
         }
-        Exit_Critical_Spinlock(InterruptReceivedMessagesSpinlock);
+        Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
 
         if(NULL == message_handle)
         {
             break;
         }
 
-        HandleReceivedMessage(message_handle);
+        Payload* src_addr = std::get<0>(*message_handle);
+        Payload* message = std::get<1>(*message_handle);
 
-        delete message_handle->src_addr;
-        delete message_handle->message;
+        HandleReceivedMessage(src_addr, message);
+
+        delete src_addr;
+        delete message;
         free(message_handle);
 
         maximumOperationMainFunction--;
     }
 }
 
-void EspnowManager::HandleReceivedMessage(const InterruptReceivedMessageStruct* irms)
+void EspnowManager::HandleReceivedMessage(Payload* src_address, Payload* msg_data)
 {
     EspnowPeer* sender = NULL;
 
-    Payload source_address = Payload(*(irms->src_addr));
+    Payload source_address = Payload(*(src_address));
     Payload message_identifier = Payload(MessageTypeSize);
-    Payload message_data = Payload(*(irms->message));
+    Payload message_data = Payload(*(msg_data));
 
     message_data >>= message_identifier;
 

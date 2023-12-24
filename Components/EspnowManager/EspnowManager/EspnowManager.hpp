@@ -8,6 +8,7 @@
 #include <stdatomic.h>
 #include <queue>
 #include <vector>
+#include <tuple>
 
 #include "IComponent.hpp"
 #include "IMessageable.hpp"
@@ -25,13 +26,6 @@ typedef enum
     RUN,        // Network is active
 }InternalState;
 
-// TODO: Update this
-typedef struct InterruptReceivedMessageStruct
-{
-    Payload* src_addr;
-    Payload* message;
-}InterruptReceivedMessageStruct;
-
 class EspnowManager : public IComponent, public IEspnowController, public IMessageable, public IMonitorable
 {
 private:
@@ -40,13 +34,13 @@ private:
 
     uint64 handledMessagesCounter  = 0;
     uint64 receivedMessagesCounter = 0;
-    std::queue<InterruptReceivedMessageStruct*> interruptReceivedMessages;
-    Spinlock InterruptReceivedMessagesSpinlock = Spinlock_Init;
+    std::queue<std::tuple<Payload*, Payload*>*> receivedMessagesQueue;
+    Spinlock receivedMessagesQueueSpinlock = Spinlock_Init;
 
     std::vector<EspnowPeer*> Peers;
     Spinlock peerListLock = Spinlock_Init;
     void HandleReceivedMessages();
-    void HandleReceivedMessage(const InterruptReceivedMessageStruct*);
+    void HandleReceivedMessage(Payload*, Payload*);
 
     IDriver& driver;
     LogManager& logManager;
