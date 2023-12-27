@@ -23,9 +23,9 @@ extern "C" void app_main(void)
     Monitor* monitor = new Monitor(*logManager, *taskManager);
     WifiManager* wifiManager = new WifiManager();
     EspnowDriver* espnowDriver = new EspnowDriver(*logManager);
-    EspmeshDriver* espmeshDriver = new EspmeshDriver();
+    EspmeshDriver* espmeshDriver = new EspmeshDriver(*logManager);
     EspnowManager* espnowManager = new EspnowManager(*espnowDriver, *logManager, *taskManager);
-    EspmeshManager* espmeshManager = new EspmeshManager(*espnowManager, *taskManager);
+    EspmeshManager* espmeshManager = new EspmeshManager(*espmeshDriver, *espnowManager, *logManager, *taskManager);
 
     components->push_back(logManager);
     components->push_back(nvsManager);
