@@ -17,10 +17,31 @@ void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
     {
         return;
     }
-    std::tuple<Payload*, Payload*>* irms = new std::tuple<Payload*, Payload*>(new Payload(*src_addr), new Payload(*message));
+
+    std::tuple<Payload*, Payload*>* receivedMessageFromInterrupt;
+    // Memory allocation during ISR is not recommended.
+    // We use a pool of tuples to avoid memory allocation during ISR.
+    // But if the pool is empty, we have to allocate memory.
+    // Memory allocation for the payloads can't be avoided.
 
     Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
-    receivedMessagesQueue.push(irms);
+    if(!tuplePool.empty())
+    {
+        receivedMessageFromInterrupt = tuplePool.front();
+        tuplePool.pop();
+    }
+    else
+    {
+        receivedMessageFromInterrupt = new std::tuple<Payload*, Payload*>(NULL, NULL);
+        tuplePoolSize++;
+    }
+    Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
+
+    std::get<0>(*receivedMessageFromInterrupt) = new Payload(*src_addr);
+    std::get<1>(*receivedMessageFromInterrupt) = new Payload(*message);
+
+    Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
+    receivedMessagesQueue.push(receivedMessageFromInterrupt);
     receivedMessagesCounter++;
     Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
 }
@@ -55,13 +76,16 @@ void EspnowManager::HandleReceivedMessages()
 
         delete src_addr;
         delete message;
-        free(message_handle);
+
+        Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
+        tuplePool.push(message_handle);
+        Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
 
         maximumOperationMainFunction--;
     }
 }
 
-void EspnowManager::HandleReceivedMessage(Payload* src_address, Payload* msg_data)
+void EspnowManager::HandleReceivedMessage(const Payload* src_address, const Payload* msg_data)
 {
     EspnowPeer* sender = NULL;
 

@@ -14,9 +14,10 @@ Esp now:
     ✔ the buffer works; something is shit @done (11/26/2023, 11:50:07 AM)
     ✔ Remove the c/cpp encapsulation files @done (11/28/2023, 9:36:45 AM)
     ✔ create an abstraction for the logger @done (11/29/2023, 8:26:00 PM)
-    ☐ Another the other memory leak. Starting a peer communcations and canceling it causes a drop of 1.5% of available RAM
+    ✔ Another the other memory leak. Starting a peer communcations and canceling it causes a drop of 1.5% of available RAM @done (12/27/2023, 3:46:06 PM)
     ✔ Wifi manager should init espnow driver @done (12/16/2023, 1:47:31 PM)
     ☐ After the Esp mesh is done, create a multicast group for sending esp now messages instead of sending them to the broadcast address
+    ☐ Trigger a recalculation on a bad keep alive message.
 
 Esp mesh:
     ☐ Make a server
@@ -38,3 +39,5 @@ Other:
     ✔ Rename InterruptReceivedMessageStruct @done (12/24/2023, 9:44:16 PM)
     ☐ Make mac address a class
     ✔ Write a wrapper with default values for the NvsManager @done (12/24/2023, 9:33:13 PM)
+    ☐ Add voltage monitor
+    ☐ Implement a moving average for cpu usage

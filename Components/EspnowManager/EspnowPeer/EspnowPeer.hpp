@@ -15,6 +15,7 @@
 #include <list>
 #include <atomic>
 
+// TODO: Replace with tuple
 typedef struct SeriesLife
 {
     OpenSeries* series;

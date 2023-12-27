@@ -34,13 +34,16 @@ private:
 
     uint64 handledMessagesCounter  = 0;
     uint64 receivedMessagesCounter = 0;
+
+    uint16 tuplePoolSize = 10;
+    std::queue<std::tuple<Payload*, Payload*>*> tuplePool;
     std::queue<std::tuple<Payload*, Payload*>*> receivedMessagesQueue;
     Spinlock receivedMessagesQueueSpinlock = Spinlock_Init;
 
     std::vector<EspnowPeer*> Peers;
     Spinlock peerListLock = Spinlock_Init;
     void HandleReceivedMessages();
-    void HandleReceivedMessage(Payload*, Payload*);
+    void HandleReceivedMessage(const Payload*, const Payload*);
 
     IDriver& driver;
     LogManager& logManager;
@@ -57,11 +60,9 @@ public:
         IDriver& driver,
         LogManager& logManager,
         IScheduler& taskManager
-        ) :
-        driver(driver),
-        logManager(logManager),
-        taskManager(taskManager)
-        {}
+    );
+
+    ~EspnowManager();
 
     void ActivateNetwork();
     void DeactivateNetwork();

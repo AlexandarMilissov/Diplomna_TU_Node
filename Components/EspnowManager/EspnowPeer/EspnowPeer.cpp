@@ -106,7 +106,10 @@ EspnowPeer::~EspnowPeer()
     {
         espnowController.Unsubscribe();
     }
-
+    for(auto& s : openSeries)
+    {
+        delete s.series;
+    }
 }
 
 bool EspnowPeer::IsCorrectAddress(const uint8* src_addr)
@@ -144,7 +147,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
         if(isPeerSubscribedToUs)
         {
             isPeerSubscribedToUs = false;
-            espnowController.Subscribe();
+            espnowController.Unsubscribe();
         }
         ackn = new EspnowMessageAcknowledge(UNSUBSCRIBE);
     }

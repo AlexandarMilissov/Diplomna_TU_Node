@@ -78,26 +78,31 @@ void EspnowManager::Init()
 
 void EspnowManager::MainFunctionUpdatePeers()
 {
-    size_t count = 0;
-    std::vector<size_t> toRemove;
+    std::vector<EspnowPeer*> deadPeers;
 
-    for(auto peer:Peers)
+    Enter_Critical_Spinlock(peerListLock);
+    for(auto peer : Peers)
     {
-        if(peer->IsAlive())
+        if(!peer->IsAlive())
         {
-            peer->Refresh();
+            deadPeers.push_back(peer);
         }
-        else
-        {
-            logManager.Log(W, "EspnowManager", "EspnowPeer has disconnected.");
-            delete peer;
-            toRemove.push_back(count);
-        }
-        count++;
     }
-    for(size_t i = 0; i < toRemove.size(); i++)
+    for(auto peer : deadPeers)
     {
-        Peers.erase(Peers.begin() + toRemove.at(i));
+        delete peer;
+        Peers.erase(std::remove(Peers.begin(), Peers.end(), peer), Peers.end());
+    }
+    Exit_Critical_Spinlock(peerListLock);
+
+    for (auto peer : Peers)
+    {
+        peer->Refresh();
+    }
+
+    if (deadPeers.size() > 0)
+    {
+        logManager.Log(W, "EspnowManager", "[%d] EspnowPeers have disconnected.", deadPeers.size());
     }
 }
 
@@ -167,14 +172,17 @@ std::string EspnowManager::GetMonitorData()
     size_t operations;
     uint64 localHandledMessagesCounter;
     uint64 localReceivedMessagesCounter;
+    uint16 localTuplePoolSize;
 
     Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
     operations = receivedMessagesQueue.size();
     localHandledMessagesCounter = handledMessagesCounter;
     localReceivedMessagesCounter = receivedMessagesCounter;
+    localTuplePoolSize = tuplePoolSize;
     Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
 
     messagesLog = "\n";
+    messagesLog += "[" + std::to_string(localTuplePoolSize          ) + "] tuple queue size\n"  ;
     messagesLog += "[" + std::to_string(operations                  ) + "] queued messages\n"   ;
     messagesLog += "[" + std::to_string(localHandledMessagesCounter ) + "] handled messages\n"  ;
     messagesLog += "[" + std::to_string(localReceivedMessagesCounter) + "] received messages\n" ;

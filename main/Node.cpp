@@ -12,7 +12,6 @@
 
 #include <vector>
 
-
 std::vector<IComponent*>* components;
 extern "C" void app_main(void)
 {
