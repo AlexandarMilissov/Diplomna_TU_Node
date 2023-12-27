@@ -133,7 +133,7 @@
         "ischedulable.hpp": "c"
     },
     "idf.flashType": "UART",
-    "idf.portWin": "COM8",
+    "idf.portWin": "COM3",
     "C_Cpp.errorSquiggles": "disabled",
     "cSpell.words": [
         "ackn",
