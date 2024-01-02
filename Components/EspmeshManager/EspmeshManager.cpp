@@ -5,7 +5,6 @@
 void EspmeshManager::Init()
 {
     driver.Subscribe(*this);
-    espnowController.ActivateNetwork();
 
     TaskConfig config = TaskConfig(
         "EspmeshManager",
@@ -20,7 +19,7 @@ void EspmeshManager::Init()
 
 void EspmeshManager::MainFunction()
 {
-    espnowController.ActivateNetwork();
+    // espnowController.ActivateNetwork();
 }
 
 void EspmeshManager::Send(const Payload payload, const Payload metadata)
@@ -35,5 +34,5 @@ void EspmeshManager::Receive(const Payload* payload, const Payload* metadata)
 
 std::string EspmeshManager::GetMonitorData()
 {
-    return "EspmeshManager";
+    return "EspmeshManager\n";
 }

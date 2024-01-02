@@ -6,8 +6,8 @@
 class ILogger
 {
     public:
-        virtual void SetMinimalLevel(const char*, const Log_Severity) = 0;
-        virtual void Log(const Log_Severity, const char*, const char*) = 0;
+        virtual void SetMinimalLevel(const char*, const LogSeverity) = 0;
+        virtual void Log(const LogSeverity, const char*, const char*) = 0;
 };
 
 

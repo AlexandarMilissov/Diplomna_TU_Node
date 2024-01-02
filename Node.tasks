@@ -41,3 +41,4 @@ Other:
     ✔ Write a wrapper with default values for the NvsManager @done (12/24/2023, 9:33:13 PM)
     ☐ Add voltage monitor
     ☐ Implement a moving average for cpu usage
+    ☐ Update NvsManager to use a dictionery of pages

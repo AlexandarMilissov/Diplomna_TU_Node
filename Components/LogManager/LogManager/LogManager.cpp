@@ -8,7 +8,7 @@ void LogManager::Init()
     loggers.push_back(new UARTLogger());
 }
 
-void LogManager::SetMinimalLevel(const char* source, const Log_Severity severity)
+void LogManager::SetMinimalLevel(const char* source, const LogSeverity severity)
 {
     for (auto logger : loggers)
     {
@@ -16,7 +16,7 @@ void LogManager::SetMinimalLevel(const char* source, const Log_Severity severity
     }
 }
 
-void LogManager::Log(const Log_Severity severity, const char * source, const char * format, ...)
+void LogManager::Log(const LogSeverity severity, const char * source, const char * format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -33,6 +33,15 @@ void LogManager::Log(const Log_Severity severity, const char * source, const cha
     free(message);
 
     va_end(args);
+}
+
+void LogManager::Log(const LogSeverity severity, const char* source, const std::string message)
+{
+    // Call the actual logging functions
+    for (auto logger : loggers)
+    {
+        logger->Log(severity, source, message.c_str());
+    }
 }
 
 // Function to format the log message

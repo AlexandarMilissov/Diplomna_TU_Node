@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdarg.h>
+#include <string>
 #include "LogSeverity.hpp"
 #include "ILogger.hpp"
 #include "IComponent.hpp"
@@ -14,8 +15,9 @@ class LogManager : public IComponent
         static char* FormatString(const char*, va_list);
     public:
         void Init();
-        void SetMinimalLevel(const char*, const Log_Severity);
-        void Log(const Log_Severity, const char*, const char*, ...);
+        void SetMinimalLevel(const char*, const LogSeverity);
+        void Log(const LogSeverity, const char*, const char*, ...);
+        void Log(const LogSeverity, const char*, const std::string);
 };
 
 #endif // LOGGER_HPP_

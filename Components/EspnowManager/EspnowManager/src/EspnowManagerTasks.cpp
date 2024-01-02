@@ -160,6 +160,11 @@ void EspnowManager::MainFunctionHandleReceivedMessages()
 
 void EspnowManager::SendCalculationSeries()
 {
+    if(RUN != internalState)
+    {
+        return;
+    }
+
     EspnowMessageCalculation calculation;
 
     Payload header(broadcast_mac, sizeof(broadcast_mac));

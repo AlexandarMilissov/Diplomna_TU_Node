@@ -5,17 +5,30 @@
 #include "IComponent.hpp"
 #include "IDriver.hpp"
 #include "LogManager.hpp"
+#include "IScheduler.hpp"
+#include "NvsManager.hpp"
 
 class EspmeshDriver : public IComponent, public IDriver
 {
 private:
+    NvsManager& nvsManager;
     LogManager& logManager;
+    IScheduler& scheduler;
+
+    static std::vector<EspmeshDriver*> drivers;
+
+    static void ReceiveMeshEvent(void*, esp_event_base_t, sint32, void*);
+    void DistributeMeshEvents(void*, esp_event_base_t, sint32, void*);
+    void ReceiveMeshEventRootAddress(void*, esp_event_base_t, sint32, void*);
+
+    void ConnectRouterless();
+    void ConnectRouter();
 public:
     EspmeshDriver(
-        LogManager& logManager
-        ) :
-        logManager(logManager)
-        {}
+        NvsManager& nvsManager,
+        LogManager& logManager,
+        IScheduler& scheduler
+    );
 
     void Init();
 

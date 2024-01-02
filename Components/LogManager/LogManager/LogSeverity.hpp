@@ -7,6 +7,6 @@ typedef enum{
     I,
     W,
     E
-}Log_Severity;
+}LogSeverity;
 
 #endif // LOGSEVERITY_HPP_

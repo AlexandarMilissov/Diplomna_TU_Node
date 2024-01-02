@@ -2,7 +2,7 @@
 #include <esp_log.h>
 #include "Common.hpp"
 
-void UARTLogger::SetMinimalLevel(const char* source, const Log_Severity severity)
+void UARTLogger::SetMinimalLevel(const char* source, const LogSeverity severity)
 {
     switch (severity)
     {
@@ -26,7 +26,7 @@ void UARTLogger::SetMinimalLevel(const char* source, const Log_Severity severity
     }
 }
 
-void UARTLogger::Log(const Log_Severity severity, const char * source, const char * log)
+void UARTLogger::Log(const LogSeverity severity, const char * source, const char * log)
 {
     switch (severity)
     {
