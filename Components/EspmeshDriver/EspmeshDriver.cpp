@@ -44,16 +44,16 @@ void EspmeshDriver::ConnectRouterless()
     ESP_ERROR_CHECK(esp_mesh_fix_root(true));
 
     mesh_cfg_t cfg = {
-        .channel = nvsManager.GetVar<uint8>("espMshChn", CONFIG_MESH_CHANNEL),
+        .channel = nvsManager.GetVar<uint8>("espMesh", "channel", CONFIG_MESH_CHANNEL),
         .allow_channel_switch = false,
         .mesh_id = {
             .addr = {
-                nvsManager.GetVar<uint8>("espMshId0", 0x77),
-                nvsManager.GetVar<uint8>("espMshId1", 0x77),
-                nvsManager.GetVar<uint8>("espMshId2", 0x77),
-                nvsManager.GetVar<uint8>("espMshId3", 0x77),
-                nvsManager.GetVar<uint8>("espMshId4", 0x77),
-                nvsManager.GetVar<uint8>("espMshId5", 0x77)
+                nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
             },
         },
         .router = {
@@ -62,15 +62,15 @@ void EspmeshDriver::ConnectRouterless()
         },
         .mesh_ap = {
             .password = { 0 },
-            .max_connection = nvsManager.GetVar<uint8>("espMshMxCon", CONFIG_MESH_AP_CONNECTIONS),
-            .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMshNMshCon", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
+            .max_connection = nvsManager.GetVar<uint8>("espMesh", "maxConn", CONFIG_MESH_AP_CONNECTIONS),
+            .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMesh", "nonMeshMaxConn", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
         },
         .crypto_funcs = &g_wifi_default_mesh_crypto_funcs
     };
 
-    std::string meshApPassword = nvsManager.GetVar<std::string>("espMshApPsd", CONFIG_MESH_AP_PASSWD);
+    std::string meshApPassword = nvsManager.GetVar<std::string>("espMesh", "meshApPass", CONFIG_MESH_AP_PASSWD);
     memcpy((uint8_t *) &cfg.mesh_ap.password, meshApPassword.c_str(), meshApPassword.length());
-    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMshAuthMode", CONFIG_MESH_AP_AUTHMODE)));
+    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMesh", "authMode", CONFIG_MESH_AP_AUTHMODE)));
     ESP_ERROR_CHECK(esp_mesh_set_config(&cfg));
 }
 
@@ -83,28 +83,28 @@ void EspmeshDriver::ConnectRouter()
     ESP_ERROR_CHECK(esp_mesh_allow_root_conflicts(false));
     ESP_ERROR_CHECK(esp_mesh_fix_root(false));
 
-    std::string ssid = nvsManager.GetVar<std::string>("espMshSsid", CONFIG_MESH_ROUTER_SSID);
-    std::string password = nvsManager.GetVar<std::string>("espMshPsd", CONFIG_MESH_ROUTER_PASSWD);
-    std::string meshApPassword = nvsManager.GetVar<std::string>("espMshApPsd", CONFIG_MESH_AP_PASSWD);
+    std::string ssid = nvsManager.GetVar<std::string>("espMesh", "ssid", CONFIG_MESH_ROUTER_SSID);
+    std::string password = nvsManager.GetVar<std::string>("espMesh", "routerPass", CONFIG_MESH_ROUTER_PASSWD);
+    std::string meshApPassword = nvsManager.GetVar<std::string>("espMesh", "meshApPass", CONFIG_MESH_AP_PASSWD);
 
     mesh_cfg_t cfg = {
-        .channel = nvsManager.GetVar<uint8>("espMshChn", CONFIG_MESH_CHANNEL),
+        .channel = nvsManager.GetVar<uint8>("espMesh", "channel", CONFIG_MESH_CHANNEL),
         .allow_channel_switch = false,
         .mesh_id = {
             .addr = {
-                nvsManager.GetVar<uint8>("espMshId0", 0x77),
-                nvsManager.GetVar<uint8>("espMshId1", 0x77),
-                nvsManager.GetVar<uint8>("espMshId2", 0x77),
-                nvsManager.GetVar<uint8>("espMshId3", 0x77),
-                nvsManager.GetVar<uint8>("espMshId4", 0x77),
-                nvsManager.GetVar<uint8>("espMshId5", 0x77)
+                nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+                nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
             },
         },
         .router = { },
         .mesh_ap = {
             .password = { 0 },
-            .max_connection = nvsManager.GetVar<uint8>("espMshMxCon", CONFIG_MESH_AP_CONNECTIONS),
-            .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMshNMshCon", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
+            .max_connection = nvsManager.GetVar<uint8>("espMesh", "maxConn", CONFIG_MESH_AP_CONNECTIONS),
+            .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMesh", "nonMeshMaxConn", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
         },
         .crypto_funcs = &g_wifi_default_mesh_crypto_funcs
     };
@@ -114,7 +114,7 @@ void EspmeshDriver::ConnectRouter()
     memcpy((uint8_t *) &cfg.router.password, password.c_str(), password.length());
     memcpy((uint8_t *) &cfg.mesh_ap.password, meshApPassword.c_str(), meshApPassword.length());
 
-    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMshAuthMode", CONFIG_MESH_AP_AUTHMODE)));
+    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMesh", "authMode", CONFIG_MESH_AP_AUTHMODE)));
     ESP_ERROR_CHECK(esp_mesh_set_config(&cfg));
 }
 
@@ -163,6 +163,10 @@ void EspmeshDriver::Send(const Payload address, const Payload data)
     mesh_data.proto = MESH_PROTO_BIN;
     mesh_data.tos = MESH_TOS_P2P;
     err = esp_mesh_send(&to, &mesh_data, MESH_DATA_P2P, NULL, 0);
+    if(err != ESP_OK)
+    {
+        logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
+    }
 }
 
 void EspmeshDriver::Receive(const Payload*, const Payload*)
@@ -192,9 +196,8 @@ void EspmeshDriver::Receive(const Payload*, const Payload*)
 void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
 {
     LogSeverity logSeverity = I;
-    mesh_event_id_t event_type = (mesh_event_id_t)event_id;
 
-    switch(event_type)
+    switch((mesh_event_id_t)event_id)
     {
         case MESH_EVENT_STARTED:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_STARTED");

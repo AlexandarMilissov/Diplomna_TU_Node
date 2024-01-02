@@ -11,25 +11,27 @@
 class NvsManager : public IComponent
 {
 private:
-    nvs_handle_t my_handle;
     LogManager& logManager;
     std::map<std::string, nvs_handle_t*> handlesMap;
 
-    void SetVarErrorCheck(esp_err_t);
+    nvs_handle_t* GetHandle(std::string);
+    void SetVarErrorCheck(esp_err_t, nvs_handle_t);
     bool GetVarErrorCheck(esp_err_t);
 
 public:
     NvsManager(LogManager& logManager) : logManager(logManager) {};
-
-    nvs_handle_t* GetHandle(std::string);
+    ~NvsManager();
 
     void Init();
 
     template <typename NvsValueType>
-    void SetVar(std::string, NvsValueType*);
+    void SetVar(std::string, std::string, NvsValueType*);
 
     template <typename NvsValueType>
-    NvsValueType GetVar(std::string, NvsValueType = NvsValueType());
+    NvsValueType GetVar(std::string, std::string, NvsValueType = NvsValueType());
+
+    void EraseVar(std::string, std::string);
+    void EraseAll(std::string);
 };
 
 #endif // NVSMANAGER_HPP_
