@@ -73,7 +73,7 @@ void EspnowManager::Init()
     taskManager.RequestTask(HandleReceivedMessages0TaskConfig);
     taskManager.RequestTask(HandleReceivedMessages1TaskConfig);
 
-    internalState = INIT;
+    internalState = NOW_INIT;
 }
 
 void EspnowManager::MainFunctionUpdatePeers()
@@ -108,7 +108,7 @@ void EspnowManager::MainFunctionUpdatePeers()
 
 void EspnowManager::MainFunctionSendCyclicKeepAlive()
 {
-    if(RUN != internalState)
+    if(NOW_RUN != internalState)
     {
         return;
     }
@@ -127,7 +127,7 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive()
 
 void EspnowManager::MainFunctionSeriesBegin()
 {
-    if(RUN != internalState)
+    if(NOW_RUN != internalState)
     {
         return;
     }
@@ -150,7 +150,7 @@ void EspnowManager::MainFunctionSeriesBegin()
 
 void EspnowManager::MainFunctionHandleReceivedMessages()
 {
-    if(RUN != internalState)
+    if(NOW_RUN != internalState)
     {
         return;
     }
@@ -160,7 +160,7 @@ void EspnowManager::MainFunctionHandleReceivedMessages()
 
 void EspnowManager::SendCalculationSeries()
 {
-    if(RUN != internalState)
+    if(NOW_RUN != internalState)
     {
         return;
     }

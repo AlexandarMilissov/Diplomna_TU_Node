@@ -21,15 +21,15 @@
 
 typedef enum
 {
-    NO_INIT,    // Before any values are initialized
-    INIT,       // After everything has been initialized, Network is not active
-    RUN,        // Network is active
-}InternalState;
+    NOW_NO_INIT,    // Before any values are initialized
+    NOW_INIT,       // After everything has been initialized, Network is not active
+    NOW_RUN,        // Network is active
+}EspnowManagerState;
 
 class EspnowManager : public IComponent, public IEspnowController, public IMessageable, public IMonitorable
 {
 private:
-    std::atomic<InternalState> internalState = NO_INIT;
+    std::atomic<EspnowManagerState> internalState = NOW_NO_INIT;
     std::atomic<uint16> calculationSubscribers = 0;
 
     uint64 handledMessagesCounter  = 0;

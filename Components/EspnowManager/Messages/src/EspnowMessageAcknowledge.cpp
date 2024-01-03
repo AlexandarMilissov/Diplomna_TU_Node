@@ -33,7 +33,7 @@ Payload EspnowMessageAcknowledge::GetPayload() const
     *(data.data) = status;
 
     Payload message(MessageTypeSize);
-    *(message.data) = RSSI_ACKNOWLEDGE;
+    *(message.data) = NOW_ACKNOWLEDGE;
 
     message += data;
     return message;

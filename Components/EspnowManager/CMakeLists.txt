@@ -12,15 +12,15 @@ idf_component_register( SRCS
                         "Messages/src/EspnowMessageKeepAlive.cpp"
                         INCLUDE_DIRS
                         "./EspnowManager"
-                        "./Interfaces"
                         "./EspnowPeer"
                         "./Distance"
                         "./Series"
                         "./Messages/include"
                         PRIV_INCLUDE_DIRS
                         REQUIRES
-                        "Common"
-                        "TaskManager"
-                        "Payload"
-                        "EspnowDriver"
+                        Common
+                        TaskManager
+                        Payload
+                        EspnowDriver
+                        Monitor
                        )

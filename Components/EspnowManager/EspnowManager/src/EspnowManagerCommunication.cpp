@@ -13,7 +13,7 @@ void EspnowManager::Send(const Payload address, const Payload payload)
 
 void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
 {
-    if(internalState != RUN)
+    if(internalState != NOW_RUN)
     {
         return;
     }

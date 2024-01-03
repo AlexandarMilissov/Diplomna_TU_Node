@@ -16,9 +16,6 @@
 #define ESPNOW_MAC       ESP_MAC_WIFI_STA
 #endif
 
-#include "EspnowDriver.hpp"
-#include "EspmeshDriver.hpp"
-
 /**
  * @brief The WifiManager class handles the initialization of the WiFi module.
  */

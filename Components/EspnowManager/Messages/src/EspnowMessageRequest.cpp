@@ -23,7 +23,7 @@ Payload EspnowMessageRequest::GetPayload() const
     *(data.data) = subscriptionStatus;
 
     Payload message(MessageTypeSize);
-    *(message.data) = RSSI_REQUEST;
+    *(message.data) = NOW_REQUEST;
 
     message += data;
     return message;

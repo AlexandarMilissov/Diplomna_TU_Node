@@ -30,6 +30,8 @@ typedef int64_t  sint64;
 
 typedef signed int RSSI_Type;
 
+#define sizeof_array(array) (sizeof(array)/sizeof(array[0]))
+
 #ifndef portTICK_PERIOD_MS
     #define portTICK_PERIOD_MS ( ( TickType_t ) 1000 / CONFIG_FREERTOS_HZ )
 #endif

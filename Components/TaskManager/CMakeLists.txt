@@ -6,9 +6,6 @@ idf_component_register(SRCS
                        REQUIRES
                             Common
                             esp_timer
-                            EspnowManager
-                            EspmeshManager
-                            WifiManager
-                            Monitor
                             NvsManager
+                            Interfaces
                        )

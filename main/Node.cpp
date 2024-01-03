@@ -6,6 +6,7 @@
 #include "EspnowDriver.hpp"
 #include "EspmeshDriver.hpp"
 #include "EspmeshManager.hpp"
+#include "EspmeshServer.hpp"
 #include "WifiManager.hpp"
 #include "NvsManager.hpp"
 #include "Monitor.hpp"
@@ -26,6 +27,7 @@ extern "C" void app_main(void)
     EspmeshDriver* espmeshDriver = new EspmeshDriver(*nvsManager, *logManager, *taskManager);
     EspnowManager* espnowManager = new EspnowManager(*espnowDriver, *logManager, *taskManager);
     EspmeshManager* espmeshManager = new EspmeshManager(*espmeshDriver, *espnowManager, *logManager, *taskManager);
+    EspmeshServer* espmeshServer = new EspmeshServer(*espmeshDriver, *logManager, *taskManager);
 
     components->push_back(logManager);
     components->push_back(nvsManager);
@@ -45,6 +47,7 @@ extern "C" void app_main(void)
     monitor->Subscribe(monitor);
     monitor->Subscribe(espnowManager);
     monitor->Subscribe(espmeshManager);
+    monitor->Subscribe(espmeshServer);
 
     logManager->Log(E, "System", "This is %s. End of Init.\n", nvsManager->GetVar<std::string>("Info", "name", "Default").c_str());
 }

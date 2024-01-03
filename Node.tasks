@@ -25,6 +25,9 @@ Esp mesh:
     ☐ Send your data to peer
     ☐ Implement OTA
 
+    ☐ Tests
+        ☐ Research
+
 Other:
     ☐ Add serial read
     ☐ Update drwaio

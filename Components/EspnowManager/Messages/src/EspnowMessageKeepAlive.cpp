@@ -19,7 +19,7 @@ EspnowMessageKeepAlive::EspnowMessageKeepAlive()
 Payload EspnowMessageKeepAlive::GetPayload() const
 {
     Payload header(MessageTypeSize);
-    *(header.data) = RSSI_KEEP_ALIVE;
+    *(header.data) = NOW_KEEP_ALIVE;
 
     return header;
 }

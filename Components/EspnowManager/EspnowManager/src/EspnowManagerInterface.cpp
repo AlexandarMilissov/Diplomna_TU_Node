@@ -46,12 +46,12 @@ EspnowManager::~EspnowManager()
 
 void EspnowManager::ActivateNetwork()
 {
-    internalState = RUN;
+    internalState = NOW_RUN;
 }
 
 void EspnowManager::DeactivateNetwork()
 {
-    internalState = INIT;
+    internalState = NOW_INIT;
 }
 
 void EspnowManager::Subscribe()

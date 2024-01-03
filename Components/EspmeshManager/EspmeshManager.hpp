@@ -13,6 +13,15 @@
 #include "LogManager.hpp"
 
 #include <string>
+#include <atomic>
+
+typedef enum
+{
+    MESH_NO_INIT,    // Before any values are initialized
+    MESH_INIT,       // After everything has been initialized, Network is not active
+    MESH_ROOT,       // Network is active and this node is the root
+    MESH_NON_ROOT    // Network is active and this node is not the root
+}EspmeshManagerState;
 
 class EspmeshManager : public IComponent, public IMessageable, public IMonitorable
 {
@@ -21,7 +30,13 @@ private:
     IEspnowController& espnowController;
     LogManager& logManager;
     IScheduler& taskManager;
+
+    std::atomic<EspmeshManagerState> internalState = MESH_NO_INIT;
+    uint8 rootAddress[6] = {0};
+
     void MainFunction();
+
+    void MainFunctionSendKeepAlive();
 public:
     EspmeshManager(
         IDriver& driver,

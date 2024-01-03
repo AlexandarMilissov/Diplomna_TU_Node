@@ -1,8 +1,7 @@
-idf_component_register(SRCS "EspmeshManager.cpp"
+idf_component_register(SRCS "EspmeshServer.cpp"
                        INCLUDE_DIRS
                        "."
-                       "Messages"
                        REQUIRES
                        Common
-                       EspnowManager
+                       Interfaces
                        )

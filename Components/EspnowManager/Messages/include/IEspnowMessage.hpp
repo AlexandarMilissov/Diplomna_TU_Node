@@ -3,13 +3,13 @@
 
 #include "Payload.hpp"
 
-typedef enum MessageType
+typedef enum EspnowMessageType
 {
-    RSSI_REQUEST,
-    RSSI_CALCULATION,
-    RSSI_KEEP_ALIVE,
-    RSSI_ACKNOWLEDGE
-}MessageType;
+    NOW_REQUEST,
+    NOW_CALCULATION,
+    NOW_KEEP_ALIVE,
+    NOW_ACKNOWLEDGE
+}EspnowMessageType;
 #define MessageTypeSize 1
 
 class IEspnowMessage

@@ -1,11 +1,13 @@
 #include "EspmeshDriver.hpp"
 #include "Common.hpp"
+#include "IEspmeshMessage.hpp"
 
 #include "esp_mesh.h"
 
 #include "esp_event.h"
 
 #include <string>
+#include <cstring>
 
 #define RX_SIZE          (1500)
 #define TX_SIZE          (1460)
@@ -149,7 +151,7 @@ void EspmeshDriver::Init()
 
 void EspmeshDriver::Subscribe(IMessageable& component)
 {
-
+    upperLayerMessageables.push_back(&component);
 }
 
 void EspmeshDriver::Send(const Payload address, const Payload data)
@@ -162,7 +164,8 @@ void EspmeshDriver::Send(const Payload address, const Payload data)
     mesh_data.size = data.GetSize();
     mesh_data.proto = MESH_PROTO_BIN;
     mesh_data.tos = MESH_TOS_P2P;
-    err = esp_mesh_send(&to, &mesh_data, MESH_DATA_P2P, NULL, 0);
+    int flags = 0;
+    err = esp_mesh_send(NULL, &mesh_data, flags, NULL, 0);
     if(err != ESP_OK)
     {
         logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
@@ -172,16 +175,21 @@ void EspmeshDriver::Send(const Payload address, const Payload data)
 void EspmeshDriver::Receive(const Payload*, const Payload*)
 {
     mesh_rx_pending_t pending;
-    mesh_addr_t from;
+    mesh_addr_t address;
     esp_mesh_get_rx_pending(&pending);
     int flags = MESH_DATA_FROMDS;
     for(int i = 0; i < pending.toDS; i++)
     {
         mesh_data_t data;
-        esp_err_t err = esp_mesh_recv(&from, &data, 0, &flags, NULL, 0);
+        esp_err_t err = esp_mesh_recv(&address, &data, 0, &flags, NULL, 0);
         if(err == ESP_OK)
         {
-            logManager.Log(I, "EspmeshDriver", "Receive data successfully.");
+            Payload addressPayload(address.addr, sizeof(address.addr));
+            Payload dataPayload(data.data, data.size);
+            for(IMessageable* messageable : upperLayerMessageables)
+            {
+                messageable->Receive(&addressPayload, &dataPayload);
+            }
         }
         else
         {
@@ -189,9 +197,6 @@ void EspmeshDriver::Receive(const Payload*, const Payload*)
         }
     }
 }
-
-
-#include "esp_log.h" // Include the missing header file
 
 void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
 {
@@ -289,22 +294,31 @@ void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base,
 
 void EspmeshDriver::ReceiveMeshEventRootAddress(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
 {
-    std::string textMessage;
-    if(esp_mesh_is_root())
+    uint8 root_address[6];
+    bool isRoot = esp_mesh_is_root();
+    EspMeshMessageType messageType = MESH_ROOT_UPDATED;
+
+    if(isRoot)
     {
-        textMessage = "Root address acquired. We are root.";
+        std::memset(root_address, 0, sizeof(root_address));
     }
     else
     {
         mesh_event_root_address_t* root_address = (mesh_event_root_address_t*)event_data;
-        textMessage = "Root address acquired. Root is ";
-        textMessage +=
-            std::to_string(root_address->addr[0]) + ":" +
-            std::to_string(root_address->addr[1]) + ":" +
-            std::to_string(root_address->addr[2]) + ":" +
-            std::to_string(root_address->addr[3]) + ":" +
-            std::to_string(root_address->addr[4]) + ":" +
-            std::to_string(root_address->addr[5]);
+        std::memcpy(&root_address, root_address->addr, sizeof(root_address));
     }
-    logManager.Log(W, "EspmeshDriver", textMessage.c_str());
+
+    Payload addressPayload = Payload(root_address, sizeof(root_address));
+    Payload dataPayload = Payload((uint8*)(&messageType), sizeof(messageType));
+    dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
+    for(IMessageable* messageable : upperLayerMessageables)
+    {
+        messageable->Receive(&addressPayload, &dataPayload);
+    }
+}
+
+void EspmeshDriver::ReceiveMeshEventChildDisconnected(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    mesh_event_child_disconnected_t* child_disconnected = (mesh_event_child_disconnected_t*)event_data;
+    logManager.Log(W, "EspmeshDriver", "Child disconnected. Reason is %d", child_disconnected->reason);
 }

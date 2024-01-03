@@ -72,7 +72,7 @@ Payload EspnowMessageCalculation::GetPayload() const
     memcpy(data.data, &dataStruct, GetElementsSize());
 
     Payload message(MessageTypeSize);
-    *(message.data) = RSSI_CALCULATION;
+    *(message.data) = NOW_CALCULATION;
 
     message += data;
     return message;

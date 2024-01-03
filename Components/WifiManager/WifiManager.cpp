@@ -1,8 +1,6 @@
 #include "Common.hpp"
 #include "WifiManager.hpp"
 #include "esp_wifi.h"
-#include "EspnowDriver.hpp"
-#include "EspmeshDriver.hpp"
 
 void WifiManager::Init()
 {

@@ -14,7 +14,7 @@ void EspnowPeer::Receive(const Payload* header, const Payload* data)
     Payload message_data = Payload(message_rssi.GetSize() - sizeof(RSSI_Type));
     message_rssi >>= message_data;
 
-    MessageType message_identifier;
+    EspnowMessageType message_identifier;
     memcpy(&message_identifier, header->data, MessageTypeSize);
     RSSI_Type* message_rssi_value = (RSSI_Type*)(message_rssi.data);
     // Proccess the message
@@ -22,25 +22,25 @@ void EspnowPeer::Receive(const Payload* header, const Payload* data)
     {
         switch (message_identifier)
         {
-        case RSSI_REQUEST:
+        case NOW_REQUEST:
         {
             EspnowMessageRequest RSSI_Message = EspnowMessageRequest(message_data);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
-        case RSSI_CALCULATION:
+        case NOW_CALCULATION:
         {
             EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(*message_rssi_value, message_data);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
-        case RSSI_KEEP_ALIVE:
+        case NOW_KEEP_ALIVE:
         {
             EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(message_data);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
-        case RSSI_ACKNOWLEDGE:
+        case NOW_ACKNOWLEDGE:
         {
             EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(message_data);
             this->ReceiveMessage(RSSI_Message);
