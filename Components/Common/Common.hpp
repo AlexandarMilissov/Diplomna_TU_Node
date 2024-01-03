@@ -49,7 +49,4 @@ typedef signed int RSSI_Type;
     #define HIGH 0x1
 #endif
 
-extern uint8_t my_esp_now_mac[ESP_NOW_ETH_ALEN];
-extern uint8_t broadcast_mac [ESP_NOW_ETH_ALEN];
-
 #endif

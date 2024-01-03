@@ -1,6 +1,5 @@
-idf_component_register(SRCS "WifiManager.cpp"
+idf_component_register(SRCS "MacAddress.cpp"
                        INCLUDE_DIRS "."
                        REQUIRES
                        Common
-                       esp_wifi
                        )

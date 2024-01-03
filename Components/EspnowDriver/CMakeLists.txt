@@ -6,6 +6,6 @@ idf_component_register(SRCS
                         "Common"
                         "Payload"
                         "esp_wifi"
-                        "WifiManager"
+                        "WifiDriver"
                         "Interfaces"
                        )

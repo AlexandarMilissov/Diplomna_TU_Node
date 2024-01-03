@@ -173,6 +173,7 @@
         "LOGV",
         "LOGW",
         "LOGWRAPPER",
+        "MACADDRESS",
         "MACSTR",
         "Messageables",
         "Monitorable",
@@ -194,6 +195,7 @@
         "tparam",
         "transmiting",
         "TWDT",
+        "WIFIDRIVER",
         "WIFIMANAGER"
     ],
     "sonarlint.pathToCompileCommands": "${workspaceFolder}\\build\\compile_commands.json",

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "EspnowManager.hpp"
+#include "WifiDriver.hpp"
 
 #if (CONFIG_NUMBER_OF_MESSAGES_PER_SERIES * CONFIG_SERIES_CYCLIC_SEND_INTERVAL) >= CONFIG_SERIES_INITIATION_INTERVAL
     #error "Invalid send configuration. Overlapping send times."
@@ -115,6 +116,8 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive()
 
     // Send keep alive messages
     EspnowMessageKeepAlive keepAlive;
+    uint8 broadcast_mac[6];
+    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
     Payload header(broadcast_mac, sizeof(broadcast_mac));
     Send(header, keepAlive.GetPayload());
 
@@ -167,6 +170,8 @@ void EspnowManager::SendCalculationSeries()
 
     EspnowMessageCalculation calculation;
 
+    uint8 broadcast_mac[6];
+    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
     Payload header(broadcast_mac, sizeof(broadcast_mac));
     Send(header, calculation.GetPayload());
 }

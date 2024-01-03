@@ -7,7 +7,7 @@
 #include "EspmeshDriver.hpp"
 #include "EspmeshManager.hpp"
 #include "EspmeshServer.hpp"
-#include "WifiManager.hpp"
+#include "WifiDriver.hpp"
 #include "NvsManager.hpp"
 #include "Monitor.hpp"
 
@@ -22,7 +22,7 @@ extern "C" void app_main(void)
     NvsManager* nvsManager = new NvsManager(*logManager);
     TaskManager* taskManager = new TaskManager(*logManager);
     Monitor* monitor = new Monitor(*logManager, *taskManager);
-    WifiManager* wifiManager = new WifiManager();
+    WifiDriver* wifiManager = new WifiDriver();
     EspnowDriver* espnowDriver = new EspnowDriver(*logManager);
     EspmeshDriver* espmeshDriver = new EspmeshDriver(*nvsManager, *logManager, *taskManager);
     EspnowManager* espnowManager = new EspnowManager(*espnowDriver, *logManager, *taskManager);

@@ -4,7 +4,7 @@ idf_component_register(SRCS "Node.cpp"
                        LogManager
                        TaskManager
                        NvsManager
-                       WifiManager
+                       WifiDriver
                        EspnowDriver
                        EspnowManager
                        EspmeshDriver

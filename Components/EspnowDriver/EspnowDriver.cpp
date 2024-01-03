@@ -1,7 +1,8 @@
 #include "EspnowDriver.hpp"
-#include "WifiManager.hpp"
+#include "WifiDriver.hpp"
 #include <string.h>
 #include <algorithm>
+#include "MacAddress.hpp"
 
 Spinlock EspnowDriver::sendLock = Spinlock_Init;
 std::vector<EspnowDriver*> EspnowDriver::drivers;
@@ -33,7 +34,7 @@ void EspnowDriver::Init()
     peer->channel = CONFIG_WIFI_CHANNEL;
     peer->ifidx = (wifi_interface_t)ESPNOW_WIFI_IF;
     peer->encrypt = false;
-    memcpy(peer->peer_addr, broadcast_mac, ESP_NOW_ETH_ALEN);
+    WifiDriver::broadcastMac.CopyTo(peer->peer_addr);
 
     ESP_ERROR_CHECK( esp_now_add_peer(peer) );
 
@@ -54,6 +55,10 @@ void EspnowDriver::Send(const Payload dst_addr, const Payload message)
 
     // Forums said locking the send should help reduce errors
     // https://esp32.com/viewtopic.php?t=17592
+
+    uint8 broadcast_mac[6];
+    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
+
     Enter_Critical_Spinlock(sendLock);
 
     err = esp_now_send(broadcast_mac, package.data, package.GetSize());
@@ -80,7 +85,8 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
         // Received a message with a broken size
         return;
     }
-    if( memcmp(recv_info->des_addr, broadcast_mac, ESP_NOW_ETH_ALEN) != 0)
+    MacAddress received_address(recv_info->src_addr);
+    if( received_address != WifiDriver::broadcastMac)
     {
         // Received non broadcast mac
         return;
@@ -91,8 +97,10 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
     Payload destination_address = Payload(ESP_NOW_ETH_ALEN);
     received_message_data >>= destination_address;
 
-    if( memcmp(destination_address.data, broadcast_mac,  ESP_NOW_ETH_ALEN) == 0
-    ||  memcmp(destination_address.data, my_esp_now_mac, ESP_NOW_ETH_ALEN) == 0)
+    MacAddress destination_mac_address(destination_address.data);
+
+    if(destination_mac_address == WifiDriver::broadcastMac
+    || destination_mac_address == WifiDriver::myMac)
     {
         Payload source_address = Payload(recv_info->src_addr, ESP_NOW_ETH_ALEN);
         RSSI_Type rssi = recv_info->rx_ctrl->rssi;

@@ -1,8 +1,21 @@
 #include "Common.hpp"
-#include "WifiManager.hpp"
+#include "WifiDriver.hpp"
 #include "esp_wifi.h"
 
-void WifiManager::Init()
+MacAddress WifiDriver::myMac;
+MacAddress WifiDriver::broadcastMac;
+
+WifiDriver::WifiDriver()
+{
+    uint8 my_esp_now_mac[6];
+    esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
+    myMac = MacAddress(my_esp_now_mac);
+
+    uint8 broadcast_esp_now_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    broadcastMac = MacAddress(broadcast_esp_now_mac);
+}
+
+void WifiDriver::Init()
 {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -24,6 +37,4 @@ void WifiManager::Init()
 
     #define MAX_TX_POWER 80
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(MAX_TX_POWER));
-
-    esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
 }
