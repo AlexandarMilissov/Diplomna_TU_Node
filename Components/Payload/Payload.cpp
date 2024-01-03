@@ -28,6 +28,12 @@ Payload::Payload(const uint8* newData, const size_t size) : size(size)
     }
 }
 
+Payload::Payload(const MacAddress& mac) : size(MAC_ADDRESS_LENGTH)
+{
+    data = (uint8*)malloc(sizeof(uint8) * size);
+    mac.CopyTo(data);
+}
+
 Payload::~Payload()
 {
     if(size > 0)

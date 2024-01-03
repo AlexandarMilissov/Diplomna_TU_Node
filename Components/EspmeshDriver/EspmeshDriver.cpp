@@ -172,6 +172,11 @@ void EspmeshDriver::Send(const Payload address, const Payload data)
     }
 }
 
+void EspmeshDriver::SendBroadcast(const Payload data)
+{
+
+}
+
 void EspmeshDriver::Receive(const Payload*, const Payload*)
 {
     mesh_rx_pending_t pending;

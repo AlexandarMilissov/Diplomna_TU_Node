@@ -2,16 +2,28 @@
 #include "WifiDriver.hpp"
 #include <string.h>
 #include <algorithm>
-#include "MacAddress.hpp"
+/* ESPNOW can work in both station and softap mode. */
+#if CONFIG_WIFI_AP_ENABLED
+#define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
+#define GET_MAC_FUNCTION GetMyApMac
+#else
+#define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
+#define GET_MAC_FUNCTION GetMyStaMac
+#endif
 
 Spinlock EspnowDriver::sendLock = Spinlock_Init;
 std::vector<EspnowDriver*> EspnowDriver::drivers;
+MacAddress EspnowDriver::myEspnowMac;
+MacAddress EspnowDriver::broadcastEspnowMac;
+MacAddress EspnowDriver::communicationChannelEspnowMac;
 
 EspnowDriver::EspnowDriver(LogManager& logManager) : logManager(logManager)
 {
     drivers.push_back(this);
+    myEspnowMac = WifiDriver::GET_MAC_FUNCTION();
+    broadcastEspnowMac = WifiDriver::GetBroadcastMac();
+    communicationChannelEspnowMac = WifiDriver::GetBroadcastMac();
 }
-
 
 EspnowDriver::~EspnowDriver()
 {
@@ -34,7 +46,7 @@ void EspnowDriver::Init()
     peer->channel = CONFIG_WIFI_CHANNEL;
     peer->ifidx = (wifi_interface_t)ESPNOW_WIFI_IF;
     peer->encrypt = false;
-    WifiDriver::broadcastMac.CopyTo(peer->peer_addr);
+    communicationChannelEspnowMac.CopyTo(peer->peer_addr);
 
     ESP_ERROR_CHECK( esp_now_add_peer(peer) );
 
@@ -56,12 +68,12 @@ void EspnowDriver::Send(const Payload dst_addr, const Payload message)
     // Forums said locking the send should help reduce errors
     // https://esp32.com/viewtopic.php?t=17592
 
-    uint8 broadcast_mac[6];
-    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
+    uint8 communication_channel_mac[6];
+    communicationChannelEspnowMac.CopyTo(communication_channel_mac);
 
     Enter_Critical_Spinlock(sendLock);
 
-    err = esp_now_send(broadcast_mac, package.data, package.GetSize());
+    err = esp_now_send(communication_channel_mac, package.data, package.GetSize());
 
     Exit_Critical_Spinlock(sendLock);
 
@@ -78,6 +90,11 @@ void EspnowDriver::Send(const Payload dst_addr, const Payload message)
     }
 }
 
+void EspnowDriver::SendBroadcast(const Payload message)
+{
+    Send(broadcastEspnowMac, message);
+}
+
 void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
 {
     if(ESP_NOW_ETH_ALEN >= len)
@@ -86,7 +103,7 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
         return;
     }
     MacAddress received_address(recv_info->src_addr);
-    if( received_address != WifiDriver::broadcastMac)
+    if( received_address != communicationChannelEspnowMac)
     {
         // Received non broadcast mac
         return;
@@ -99,8 +116,8 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
 
     MacAddress destination_mac_address(destination_address.data);
 
-    if(destination_mac_address == WifiDriver::broadcastMac
-    || destination_mac_address == WifiDriver::myMac)
+    if(destination_mac_address == communicationChannelEspnowMac
+    || destination_mac_address == myEspnowMac)
     {
         Payload source_address = Payload(recv_info->src_addr, ESP_NOW_ETH_ALEN);
         RSSI_Type rssi = recv_info->rx_ctrl->rssi;

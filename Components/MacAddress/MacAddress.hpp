@@ -3,6 +3,7 @@
 
 #include "Common.hpp"
 
+#define MAC_ADDRESS_LENGTH 6
 class MacAddress
 {
 private:

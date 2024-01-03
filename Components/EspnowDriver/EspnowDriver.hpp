@@ -9,6 +9,8 @@
 #include "IMessageable.hpp"
 #include "IDriver.hpp"
 #include "LogManager.hpp"
+#include "MacAddress.hpp"
+
 
 /**
  * @brief The EspnowDriver class provides functionality for initializing and sending data using ESP-NOW protocol.
@@ -16,6 +18,9 @@
 class EspnowDriver : public IComponent, public IDriver
 {
 private:
+    static MacAddress myEspnowMac;
+    static MacAddress broadcastEspnowMac;
+    static MacAddress communicationChannelEspnowMac;
     /**< The spinlock used for thread-safe sending of data. */
     static Spinlock sendLock;
     /**< The vector that stores the instances of all EspnowDrivers. */
@@ -59,6 +64,7 @@ public:
      */
 
     void Send(const Payload, const Payload);
+    void SendBroadcast(const Payload);
     void Receive(const Payload*, const Payload*);
 };
 

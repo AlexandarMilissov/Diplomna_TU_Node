@@ -52,6 +52,7 @@ class EspnowPeer : public IMessageable, public IMonitorable
         void SendSubscriptionRequest();
 
         void Send(const Payload, const Payload);
+        void SendBroadcast(const Payload);
         void Receive(const Payload*, const Payload*);
 
         std::string GetMonitorData();

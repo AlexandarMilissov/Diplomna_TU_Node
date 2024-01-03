@@ -72,6 +72,7 @@ public:
     void Init();
 
     void Send(const Payload, const Payload);
+    void SendBroadcast(const Payload);
     void Receive(const Payload*, const Payload*);
 
     std::string GetMonitorData();

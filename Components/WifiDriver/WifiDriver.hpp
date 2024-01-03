@@ -6,26 +6,16 @@
 #include "esp_mac.h"
 #include "MacAddress.hpp"
 
-/* ESPNOW can work in both station and softap mode. It is configured in menuconfig. */
-#if CONFIG_WIFI_AP_ENABLED
-#define ESPNOW_WIFI_MODE WIFI_MODE_AP
-#define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
-#define ESPNOW_MAC       ESP_MAC_WIFI_SOFTAP
-#else
-#define ESPNOW_WIFI_MODE WIFI_MODE_STA
-#define ESPNOW_WIFI_IF   ESP_IF_WIFI_STA
-#define ESPNOW_MAC       ESP_MAC_WIFI_STA
-#endif
-
 /**
  * @brief The WifiDriver class handles the initialization of the WiFi module.
  */
 class WifiDriver : public IComponent
 {
 private:
-public:
     static MacAddress broadcastMac;
-    static MacAddress myMac;
+    static MacAddress myStaMac;
+    static MacAddress myApMac;
+public:
 
     WifiDriver();
     /**
@@ -34,6 +24,10 @@ public:
      * @param data A pointer to the initialization data.
      */
     void Init();
+
+    static MacAddress GetMyStaMac();
+    static MacAddress GetMyApMac();
+    static MacAddress GetBroadcastMac();
 };
 
 #endif

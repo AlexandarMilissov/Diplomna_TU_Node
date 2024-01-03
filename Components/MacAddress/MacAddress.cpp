@@ -1,8 +1,6 @@
 #include "MacAddress.hpp"
 #include <cstring>
 
-#define MAC_ADDRESS_LENGTH 6
-
 MacAddress::MacAddress(uint8* address)
 {
     memcpy(this->address, address, MAC_ADDRESS_LENGTH);

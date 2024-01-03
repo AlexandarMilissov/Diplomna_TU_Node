@@ -37,6 +37,7 @@ public:
 
     void Subscribe(IMessageable& component);
     void Send(const Payload, const Payload);
+    void SendBroadcast(const Payload);
     void Receive(const Payload*, const Payload*);
 
 };

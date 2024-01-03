@@ -11,6 +11,11 @@ void EspnowManager::Send(const Payload address, const Payload payload)
     driver.Send(address, payload);
 }
 
+void EspnowManager::SendBroadcast(const Payload payload)
+{
+    driver.SendBroadcast(payload);
+}
+
 void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
 {
     if(internalState != NOW_RUN)

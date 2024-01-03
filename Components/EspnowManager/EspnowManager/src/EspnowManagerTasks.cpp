@@ -116,10 +116,7 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive()
 
     // Send keep alive messages
     EspnowMessageKeepAlive keepAlive;
-    uint8 broadcast_mac[6];
-    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
-    Payload header(broadcast_mac, sizeof(broadcast_mac));
-    Send(header, keepAlive.GetPayload());
+    SendBroadcast(keepAlive.GetPayload());
 
     // Send needed subscription requests
     for(auto& peer : Peers)
@@ -170,10 +167,7 @@ void EspnowManager::SendCalculationSeries()
 
     EspnowMessageCalculation calculation;
 
-    uint8 broadcast_mac[6];
-    WifiDriver::broadcastMac.CopyTo(broadcast_mac);
-    Payload header(broadcast_mac, sizeof(broadcast_mac));
-    Send(header, calculation.GetPayload());
+    SendBroadcast(calculation.GetPayload());
 }
 
 std::string EspnowManager::GetMonitorData()

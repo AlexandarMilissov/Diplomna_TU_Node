@@ -8,6 +8,11 @@ void EspnowPeer::Send(const Payload address, const Payload payload)
     lowerLayer.Send(address, payload);
 }
 
+void EspnowPeer::SendBroadcast(const Payload payload)
+{
+    lowerLayer.SendBroadcast(payload);
+}
+
 void EspnowPeer::Receive(const Payload* header, const Payload* data)
 {
     Payload message_rssi = Payload(*data);

@@ -2,6 +2,7 @@
 #define PAYLOAD_HPP_
 
 #include "Common.hpp"
+#include "MacAddress.hpp"
 
 /**
  * @brief The Payload class represents a data payload.
@@ -43,6 +44,13 @@ class Payload
          * @param size The size of the payload.
          */
         Payload(const uint8*, const size_t);
+
+        /**
+         * @brief Construct a new Payload object.
+         *
+         * @param mac The MAC address of the payload.
+         */
+        Payload(const MacAddress&);
 
         /**
          * @brief Destructor for the Payload object.

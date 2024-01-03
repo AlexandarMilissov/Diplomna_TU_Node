@@ -3,9 +3,10 @@ idf_component_register(SRCS
                        INCLUDE_DIRS
                         "."
                        REQUIRES
-                        "Common"
-                        "Payload"
-                        "esp_wifi"
-                        "WifiDriver"
-                        "Interfaces"
+                        Common
+                        Payload
+                        esp_wifi
+                        WifiDriver
+                        Interfaces
+                        MacAddress
                        )

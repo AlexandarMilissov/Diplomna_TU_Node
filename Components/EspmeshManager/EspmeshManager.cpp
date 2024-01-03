@@ -63,6 +63,11 @@ void EspmeshManager::Send(const Payload address, const Payload data)
     driver.Send(address, data);
 }
 
+void EspmeshManager::SendBroadcast(const Payload data)
+{
+    driver.SendBroadcast(data);
+}
+
 void EspmeshManager::Receive(const Payload* address, const Payload* data)
 {
     Payload message_identifier = Payload(sizeof(EspMeshMessageType));

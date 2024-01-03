@@ -11,6 +11,11 @@ void EspmeshServer::Send(const Payload address, const Payload data)
     logManager.Log(V, "EspmeshServer", "Send\n");
 }
 
+void EspmeshServer::SendBroadcast(const Payload payload)
+{
+    logManager.Log(V, "EspmeshServer", "SendBroadcast\n");
+}
+
 void EspmeshServer::Receive(const Payload* address, const Payload* data)
 {
     logManager.Log(V, "EspmeshServer", "Receive\n");

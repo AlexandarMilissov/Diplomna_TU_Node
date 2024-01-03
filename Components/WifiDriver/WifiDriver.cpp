@@ -2,14 +2,19 @@
 #include "WifiDriver.hpp"
 #include "esp_wifi.h"
 
-MacAddress WifiDriver::myMac;
+MacAddress WifiDriver::myStaMac;
+MacAddress WifiDriver::myApMac;
 MacAddress WifiDriver::broadcastMac;
 
 WifiDriver::WifiDriver()
 {
     uint8 my_esp_now_mac[6];
-    esp_read_mac(my_esp_now_mac, ESPNOW_MAC);
-    myMac = MacAddress(my_esp_now_mac);
+    esp_read_mac(my_esp_now_mac, ESP_MAC_WIFI_STA);
+    myStaMac = MacAddress(my_esp_now_mac);
+
+    uint8 my_ap_mac[6];
+    esp_read_mac(my_ap_mac, ESP_MAC_WIFI_SOFTAP);
+    myApMac = MacAddress(my_ap_mac);
 
     uint8 broadcast_esp_now_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
     broadcastMac = MacAddress(broadcast_esp_now_mac);
@@ -37,4 +42,19 @@ void WifiDriver::Init()
 
     #define MAX_TX_POWER 80
     ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(MAX_TX_POWER));
+}
+
+MacAddress WifiDriver::GetBroadcastMac()
+{
+    return broadcastMac;
+}
+
+MacAddress WifiDriver::GetMyStaMac()
+{
+    return myStaMac;
+}
+
+MacAddress WifiDriver::GetMyApMac()
+{
+    return myApMac;
 }
