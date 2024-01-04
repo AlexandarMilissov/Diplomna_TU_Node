@@ -3,13 +3,14 @@
 
 #include "Common.hpp"
 #include "Payload.hpp"
+#include "MacAddress.hpp"
 
 class IMessageable
 {
 public:
-    virtual void Send(const Payload, const Payload) = 0;
+    virtual void Send(const MacAddress, const Payload) = 0;
     virtual void SendBroadcast(const Payload) = 0;
-    virtual void Receive(const Payload*, const Payload*) = 0;
+    virtual void Receive(const MacAddress, const Payload) = 0;
     virtual ~IMessageable() = default;
 };
 

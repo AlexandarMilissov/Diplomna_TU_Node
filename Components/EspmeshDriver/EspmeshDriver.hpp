@@ -36,9 +36,9 @@ public:
     void Init();
 
     void Subscribe(IMessageable& component);
-    void Send(const Payload, const Payload);
+    void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);
-    void Receive(const Payload*, const Payload*);
+    void Receive(const MacAddress, const Payload);
 
 };
 

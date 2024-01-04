@@ -3,7 +3,7 @@
 #include <string>
 #include <stdexcept>
 
-void EspnowPeer::Send(const Payload address, const Payload payload)
+void EspnowPeer::Send(const MacAddress address, const Payload payload)
 {
     lowerLayer.Send(address, payload);
 }
@@ -68,40 +68,34 @@ void EspnowPeer::SendSubscriptionRequest()
         return;
     }
     EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
-    Payload header(sourceAddress, sizeof(sourceAddress));
+    Payload header(sourceAddress);
     Send(header, RSSI_Message.GetPayload());
 }
 
 std::string EspnowPeer::GetMonitorData()
 {
-    std::string peerLog = "";
-    peerLog += std::to_string(sourceAddress[0]) + ":";
-    peerLog += std::to_string(sourceAddress[1]) + ":";
-    peerLog += std::to_string(sourceAddress[2]) + ":";
-    peerLog += std::to_string(sourceAddress[3]) + ":";
-    peerLog += std::to_string(sourceAddress[4]) + ":";
-    peerLog += std::to_string(sourceAddress[5]) + "\n";
+    std::string peerLog = sourceAddress.ToString() + "\n";
 
     peerLog += distance.GetMonitorData();
     return peerLog;
 }
 
 EspnowPeer::EspnowPeer(
-    const uint8_t* src_addr,
     IMessageable& messageable,
     IEspnowController& espnowController,
-    LogManager& logManager
+    LogManager& logManager,
+    const MacAddress sourceAddress
     ) :
     peerLife(peerBeginningLife),
     lowerLayer(messageable),
     espnowController(espnowController),
-    logManager(logManager)
+    logManager(logManager),
+    sourceAddress(sourceAddress)
 {
     if(false) // TODO: Validate
     {
         throw "Invalid input in constructor!\n";
     }
-    memcpy(sourceAddress, src_addr, 6);
     distance = Distance();
 }
 
@@ -117,9 +111,9 @@ EspnowPeer::~EspnowPeer()
     }
 }
 
-bool EspnowPeer::IsCorrectAddress(const uint8* src_addr)
+bool EspnowPeer::IsCorrectAddress(const MacAddress src_addr)
 {
-    if(0 == memcmp(sourceAddress, src_addr, 6))
+    if(sourceAddress == src_addr)
     {
         return true;
     }
@@ -160,7 +154,7 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 
     if(NULL != ackn)
     {
-        Payload header(sourceAddress, sizeof(sourceAddress));
+        Payload header(sourceAddress);
         Send(header, ackn->GetPayload());
         delete ackn;
     }

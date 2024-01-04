@@ -2,6 +2,9 @@
 #define MACADDRESS_HPP_
 
 #include "Common.hpp"
+#include <string>
+
+class Payload;
 
 #define MAC_ADDRESS_LENGTH 6
 class MacAddress
@@ -11,11 +14,16 @@ private:
 public:
     MacAddress() {}
     MacAddress(uint8*);
+    MacAddress(const Payload&);
 
     void CopyTo(uint8* destination) const;
 
     bool operator==(const MacAddress& other) const;
     bool operator!=(const MacAddress& other) const;
+
+
+
+    std::string ToString() const;
 };
 
 

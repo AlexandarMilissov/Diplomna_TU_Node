@@ -3,9 +3,8 @@
 
 typedef enum {
     MESH,
-    SERVER,
-    DEVICE
-}EspMeshMessageReceiver;
+    SERVER
+}EspMeshApplication;
 
 typedef enum {
     MESH_KEEP_ALIVE,

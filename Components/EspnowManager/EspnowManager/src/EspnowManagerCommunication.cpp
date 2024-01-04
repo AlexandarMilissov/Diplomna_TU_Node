@@ -6,7 +6,7 @@
 
 #include "EspnowManager.hpp"
 
-void EspnowManager::Send(const Payload address, const Payload payload)
+void EspnowManager::Send(const MacAddress address, const Payload payload)
 {
     driver.Send(address, payload);
 }
@@ -16,7 +16,7 @@ void EspnowManager::SendBroadcast(const Payload payload)
     driver.SendBroadcast(payload);
 }
 
-void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
+void EspnowManager::Receive(const MacAddress address, const Payload data)
 {
     if(internalState != NOW_RUN)
     {
@@ -42,8 +42,8 @@ void EspnowManager::Receive(const Payload *src_addr, const Payload* message)
     }
     Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
 
-    std::get<0>(*receivedMessageFromInterrupt) = new Payload(*src_addr);
-    std::get<1>(*receivedMessageFromInterrupt) = new Payload(*message);
+    std::get<0>(*receivedMessageFromInterrupt) = new Payload(address);
+    std::get<1>(*receivedMessageFromInterrupt) = new Payload(data);
 
     Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
     receivedMessagesQueue.push(receivedMessageFromInterrupt);
@@ -94,7 +94,7 @@ void EspnowManager::HandleReceivedMessage(const Payload* src_address, const Payl
 {
     EspnowPeer* sender = NULL;
 
-    Payload source_address = Payload(*(src_address));
+    MacAddress address = *(src_address);
     Payload message_identifier = Payload(MessageTypeSize);
     Payload message_data = Payload(*(msg_data));
 
@@ -104,7 +104,7 @@ void EspnowManager::HandleReceivedMessage(const Payload* src_address, const Payl
     Enter_Critical_Spinlock(peerListLock);
     for(EspnowPeer* peer : Peers)
     {
-        if(peer->IsCorrectAddress(source_address.data))
+        if(peer->IsCorrectAddress(address))
         {
             sender = peer;
             break;
@@ -113,7 +113,7 @@ void EspnowManager::HandleReceivedMessage(const Payload* src_address, const Payl
 
     if(NULL == sender)
     {
-        sender = new EspnowPeer(source_address.data, *this, *this, logManager);
+        sender = new EspnowPeer(*this, *this, logManager, address);
         Peers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListLock);

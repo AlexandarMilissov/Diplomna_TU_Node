@@ -58,7 +58,7 @@ void EspnowDriver::Subscribe(IMessageable& messageable)
     upperLayerMessageables.push_back(&messageable);
 }
 
-void EspnowDriver::Send(const Payload dst_addr, const Payload message)
+void EspnowDriver::Send(const MacAddress dst_addr, const Payload message)
 {
     esp_err_t err;
 
@@ -103,7 +103,7 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
         return;
     }
     MacAddress received_address(recv_info->src_addr);
-    if( received_address != communicationChannelEspnowMac)
+    if(received_address != communicationChannelEspnowMac)
     {
         // Received non broadcast mac
         return;
@@ -114,27 +114,27 @@ void EspnowDriver::InternalReceive(const esp_now_recv_info_t *recv_info, const u
     Payload destination_address = Payload(ESP_NOW_ETH_ALEN);
     received_message_data >>= destination_address;
 
-    MacAddress destination_mac_address(destination_address.data);
+    MacAddress destination_mac_address(destination_address);
 
     if(destination_mac_address == communicationChannelEspnowMac
     || destination_mac_address == myEspnowMac)
     {
-        Payload source_address = Payload(recv_info->src_addr, ESP_NOW_ETH_ALEN);
+        MacAddress source_address = MacAddress(recv_info->src_addr);
         RSSI_Type rssi = recv_info->rx_ctrl->rssi;
         Payload rssi_payload = Payload((uint8*)(&rssi), sizeof(RSSI_Type));
         received_message_data += rssi_payload;
 
         for (auto driver : drivers)
         {
-            driver->Receive(&source_address, &received_message_data);
+            driver->Receive(source_address, received_message_data);
         }
     }
 }
 
-void EspnowDriver::Receive(const Payload* src_addr, const Payload* message)
+void EspnowDriver::Receive(const MacAddress address, const Payload message)
 {
     for(auto messageable : upperLayerMessageables)
     {
-        messageable->Receive(src_addr, message);
+        messageable->Receive(address, message);
     }
 }

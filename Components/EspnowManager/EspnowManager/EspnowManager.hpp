@@ -71,9 +71,9 @@ public:
 
     void Init();
 
-    void Send(const Payload, const Payload);
+    void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);
-    void Receive(const Payload*, const Payload*);
+    void Receive(const MacAddress, const Payload);
 
     std::string GetMonitorData();
 };

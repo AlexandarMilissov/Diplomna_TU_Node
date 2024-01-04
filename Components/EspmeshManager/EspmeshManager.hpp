@@ -32,7 +32,7 @@ private:
     IScheduler& taskManager;
 
     std::atomic<EspmeshManagerState> internalState = MESH_NO_INIT;
-    uint8 rootAddress[6] = {0};
+    MacAddress rootAddress;
 
     void MainFunction();
 
@@ -52,9 +52,9 @@ public:
     ~EspmeshManager() {}
     void Init();
 
-    void Send(const Payload, const Payload);
+    void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);
-    void Receive(const Payload*, const Payload*);
+    void Receive(const MacAddress, const Payload);
 
     std::string GetMonitorData();
 };

@@ -2,7 +2,8 @@
 #define PAYLOAD_HPP_
 
 #include "Common.hpp"
-#include "MacAddress.hpp"
+
+class MacAddress;
 
 /**
  * @brief The Payload class represents a data payload.

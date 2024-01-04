@@ -1,6 +1,7 @@
 #include "Payload.hpp"
 #include <string.h>
 #include <stdexcept>
+#include "MacAddress.hpp"
 
 Payload::Payload(const Payload& original) : size(original.size)
 {
@@ -56,27 +57,30 @@ Payload& Payload::operator+=(const Payload &add)
 
 Payload& Payload::operator>>=(Payload &sub)
 {
-    if(size > sub.size)
+    if(sub.size > 0)
     {
-        uint8* temp;
-        temp = (uint8*)malloc(size - sub.size);
+        if(size > sub.size)
+        {
+            uint8* temp;
+            temp = (uint8*)malloc(size - sub.size);
 
-        memcpy(sub.data, data, sub.size);
-        size -= sub.size;
-        memcpy(temp, data + sub.size, size);
+            memcpy(sub.data, data, sub.size);
+            size -= sub.size;
+            memcpy(temp, data + sub.size, size);
 
-        free(data);
-        data = temp;
-    }
-    else if (size == sub.size)
-    {
-        memcpy(sub.data, data, size);
-        free(data);
-        size = 0;
-    }
-    else
-    {
-        throw std::invalid_argument("Cannot extract payload bigger than the current one.");
+            free(data);
+            data = temp;
+        }
+        else if (size == sub.size)
+        {
+            memcpy(sub.data, data, size);
+            free(data);
+            size = 0;
+        }
+        else
+        {
+            throw std::invalid_argument("Cannot extract payload bigger than the current one.");
+        }
     }
 
     return *this;

@@ -63,9 +63,9 @@ public:
      * @param payload The payload associated with the data.
      */
 
-    void Send(const Payload, const Payload);
+    void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);
-    void Receive(const Payload*, const Payload*);
+    void Receive(const MacAddress, const Payload);
 };
 
 #endif // ESPNOWDRIVER_HPP_

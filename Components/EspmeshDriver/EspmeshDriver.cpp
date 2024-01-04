@@ -154,12 +154,12 @@ void EspmeshDriver::Subscribe(IMessageable& component)
     upperLayerMessageables.push_back(&component);
 }
 
-void EspmeshDriver::Send(const Payload address, const Payload data)
+void EspmeshDriver::Send(const MacAddress address, const Payload data)
 {
     esp_err_t err;
     mesh_addr_t to;
     mesh_data_t mesh_data;
-    memcpy(to.addr, address.data, 6);
+    address.CopyTo(to.addr);
     mesh_data.data = data.data;
     mesh_data.size = data.GetSize();
     mesh_data.proto = MESH_PROTO_BIN;
@@ -177,23 +177,23 @@ void EspmeshDriver::SendBroadcast(const Payload data)
 
 }
 
-void EspmeshDriver::Receive(const Payload*, const Payload*)
+void EspmeshDriver::Receive(const MacAddress, const Payload)
 {
     mesh_rx_pending_t pending;
-    mesh_addr_t address;
+    mesh_addr_t meshAddress;
     esp_mesh_get_rx_pending(&pending);
     int flags = MESH_DATA_FROMDS;
     for(int i = 0; i < pending.toDS; i++)
     {
-        mesh_data_t data;
-        esp_err_t err = esp_mesh_recv(&address, &data, 0, &flags, NULL, 0);
+        mesh_data_t meshData;
+        esp_err_t err = esp_mesh_recv(&meshAddress, &meshData, 0, &flags, NULL, 0);
         if(err == ESP_OK)
         {
-            Payload addressPayload(address.addr, sizeof(address.addr));
-            Payload dataPayload(data.data, data.size);
+            MacAddress address(meshAddress.addr);
+            Payload data(meshData.data, meshData.size);
             for(IMessageable* messageable : upperLayerMessageables)
             {
-                messageable->Receive(&addressPayload, &dataPayload);
+                messageable->Receive(address, data);
             }
         }
         else
@@ -318,7 +318,7 @@ void EspmeshDriver::ReceiveMeshEventRootAddress(void *arg, esp_event_base_t even
     dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
     for(IMessageable* messageable : upperLayerMessageables)
     {
-        messageable->Receive(&addressPayload, &dataPayload);
+        messageable->Receive(addressPayload, dataPayload);
     }
 }
 
