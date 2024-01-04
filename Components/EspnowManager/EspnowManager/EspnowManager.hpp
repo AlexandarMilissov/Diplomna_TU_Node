@@ -3,7 +3,6 @@
 
 #include "Common.hpp"
 #include "Payload.hpp"
-#include "EspnowPeer.hpp"
 #include "EspnowDriver.hpp"
 #include <stdatomic.h>
 #include <queue>
@@ -11,13 +10,16 @@
 #include <tuple>
 
 #include "IComponent.hpp"
-#include "IMessageable.hpp"
-#include "IDriver.hpp"
+#include "IEspnowController.hpp"
+#include "IMessageSender.hpp"
+#include "IMessageReceiver.hpp"
 #include "IMonitorable.hpp"
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 
 #include "Monitor.hpp"
+
+class EspnowPeer;
 
 typedef enum
 {
@@ -26,38 +28,27 @@ typedef enum
     NOW_RUN,        // Network is active
 }EspnowManagerState;
 
-class EspnowManager : public IComponent, public IEspnowController, public IMessageable, public IMonitorable
+class EspnowManager : public IComponent, public IEspnowController, public IMessageSender, public IMessageReceiver, public IMonitorable
 {
 private:
     std::atomic<EspnowManagerState> internalState = NOW_NO_INIT;
     std::atomic<uint16> calculationSubscribers = 0;
 
-    uint64 handledMessagesCounter  = 0;
-    uint64 receivedMessagesCounter = 0;
-
-    uint16 tuplePoolSize = 10;
-    std::queue<std::tuple<Payload*, Payload*>*> tuplePool;
-    std::queue<std::tuple<Payload*, Payload*>*> receivedMessagesQueue;
-    Spinlock receivedMessagesQueueSpinlock = Spinlock_Init;
-
     std::vector<EspnowPeer*> Peers;
     Spinlock peerListLock = Spinlock_Init;
-    void HandleReceivedMessages();
-    void HandleReceivedMessage(const Payload*, const Payload*);
 
-    IDriver& driver;
+    IMessageSender& lowerLayer;
     LogManager& logManager;
     IScheduler& taskManager;
 
     void MainFunctionUpdatePeers();
     void MainFunctionSendCyclicKeepAlive();
     void MainFunctionSeriesBegin();
-    void MainFunctionHandleReceivedMessages();
     void SendCalculationSeries();
 
 public:
     EspnowManager(
-        IDriver& driver,
+        IMessageSender& lowerLayer,
         LogManager& logManager,
         IScheduler& taskManager
     );

@@ -12,11 +12,11 @@ idf_component_register( SRCS
                         "Messages/src/EspnowMessageKeepAlive.cpp"
                         INCLUDE_DIRS
                         "./EspnowManager"
+                        PRIV_INCLUDE_DIRS
                         "./EspnowPeer"
                         "./Distance"
                         "./Series"
                         "./Messages/include"
-                        PRIV_INCLUDE_DIRS
                         REQUIRES
                         Common
                         TaskManager

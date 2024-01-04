@@ -7,7 +7,7 @@
 #include "EspnowMessageCalculation.hpp"
 #include "EspnowMessageKeepAlive.hpp"
 #include "EspnowMessageAcknowledge.hpp"
-#include "IMessageable.hpp"
+#include "IMessageSender.hpp"
 #include "IEspnowController.hpp"
 #include "IMonitorable.hpp"
 #include "LogManager.hpp"
@@ -27,7 +27,7 @@ class EspnowPeer : public IMonitorable
         static const uint8 seriesBeginningLife = CONFIG_LIFE_OF_SERIES;
         static const uint8 peerBeginningLife = CONFIG_LIFE_OF_PEERS;
         std::atomic<uint8> peerLife;
-        IMessageable& lowerLayer;
+        IMessageSender& lowerLayer;
         IEspnowController& espnowController;
         LogManager logManager;
         Distance distance;
@@ -43,7 +43,7 @@ class EspnowPeer : public IMonitorable
         void ReceiveMessage(EspnowMessageKeepAlive   message);
         void ReceiveMessage(EspnowMessageAcknowledge message);
     public:
-        EspnowPeer(IMessageable&, IEspnowController&, LogManager&, const MacAddress);
+        EspnowPeer(IMessageSender&, IEspnowController&, LogManager&, const MacAddress);
         ~EspnowPeer();
         bool IsCorrectAddress(const MacAddress);
         bool IsAlive();

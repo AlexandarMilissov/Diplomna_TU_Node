@@ -5,15 +5,16 @@
 #include <string.h>
 
 #include "EspnowManager.hpp"
+#include "EspnowPeer.hpp"
 
 void EspnowManager::Send(const MacAddress address, const Payload payload)
 {
-    driver.Send(address, payload);
+    lowerLayer.Send(address, payload);
 }
 
 void EspnowManager::SendBroadcast(const Payload payload)
 {
-    driver.SendBroadcast(payload);
+    lowerLayer.SendBroadcast(payload);
 }
 
 void EspnowManager::Receive(const MacAddress address, const Payload data)
@@ -22,81 +23,10 @@ void EspnowManager::Receive(const MacAddress address, const Payload data)
     {
         return;
     }
-
-    std::tuple<Payload*, Payload*>* receivedMessageFromInterrupt;
-    // Memory allocation during ISR is not recommended.
-    // We use a pool of tuples to avoid memory allocation during ISR.
-    // But if the pool is empty, we have to allocate memory.
-    // Memory allocation for the payloads can't be avoided.
-
-    Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
-    if(!tuplePool.empty())
-    {
-        receivedMessageFromInterrupt = tuplePool.front();
-        tuplePool.pop();
-    }
-    else
-    {
-        receivedMessageFromInterrupt = new std::tuple<Payload*, Payload*>(NULL, NULL);
-        tuplePoolSize++;
-    }
-    Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
-
-    std::get<0>(*receivedMessageFromInterrupt) = new Payload(address);
-    std::get<1>(*receivedMessageFromInterrupt) = new Payload(data);
-
-    Enter_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
-    receivedMessagesQueue.push(receivedMessageFromInterrupt);
-    receivedMessagesCounter++;
-    Exit_Critical_Spinlock_ISR(receivedMessagesQueueSpinlock);
-}
-
-void EspnowManager::HandleReceivedMessages()
-{
-    std::tuple<Payload*, Payload*>* message_handle = NULL;
-    uint8 maximumOperationMainFunction = 0xFF;
-
-    while (maximumOperationMainFunction > 0)
-    {
-        message_handle = NULL;
-
-        Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
-        if(!receivedMessagesQueue.empty())
-        {
-            handledMessagesCounter++;
-            message_handle = receivedMessagesQueue.front();
-            receivedMessagesQueue.pop();
-        }
-        Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
-
-        if(NULL == message_handle)
-        {
-            break;
-        }
-
-        Payload* src_addr = std::get<0>(*message_handle);
-        Payload* message = std::get<1>(*message_handle);
-
-        HandleReceivedMessage(src_addr, message);
-
-        delete src_addr;
-        delete message;
-
-        Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
-        tuplePool.push(message_handle);
-        Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
-
-        maximumOperationMainFunction--;
-    }
-}
-
-void EspnowManager::HandleReceivedMessage(const Payload* src_address, const Payload* msg_data)
-{
     EspnowPeer* sender = NULL;
 
-    MacAddress address = *(src_address);
     Payload message_identifier = Payload(MessageTypeSize);
-    Payload message_data = Payload(*(msg_data));
+    Payload message_data = Payload(data);
 
     message_data >>= message_identifier;
 

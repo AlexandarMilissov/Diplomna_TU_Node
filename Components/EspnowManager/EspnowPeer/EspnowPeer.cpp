@@ -81,7 +81,7 @@ std::string EspnowPeer::GetMonitorData()
 }
 
 EspnowPeer::EspnowPeer(
-    IMessageable& messageable,
+    IMessageSender& messageable,
     IEspnowController& espnowController,
     LogManager& logManager,
     const MacAddress sourceAddress

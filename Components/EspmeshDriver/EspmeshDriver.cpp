@@ -149,7 +149,7 @@ void EspmeshDriver::Init()
     scheduler.RequestTask(taskConfig);
 }
 
-void EspmeshDriver::Subscribe(IMessageable& component)
+void EspmeshDriver::Subscribe(IMessageReceiver& component)
 {
     upperLayerMessageables.push_back(&component);
 }
@@ -191,7 +191,7 @@ void EspmeshDriver::Receive(const MacAddress, const Payload)
         {
             MacAddress address(meshAddress.addr);
             Payload data(meshData.data, meshData.size);
-            for(IMessageable* messageable : upperLayerMessageables)
+            for(auto messageable : upperLayerMessageables)
             {
                 messageable->Receive(address, data);
             }
@@ -316,7 +316,7 @@ void EspmeshDriver::ReceiveMeshEventRootAddress(void *arg, esp_event_base_t even
     Payload addressPayload = Payload(root_address, sizeof(root_address));
     Payload dataPayload = Payload((uint8*)(&messageType), sizeof(messageType));
     dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
-    for(IMessageable* messageable : upperLayerMessageables)
+    for(auto messageable : upperLayerMessageables)
     {
         messageable->Receive(addressPayload, dataPayload);
     }

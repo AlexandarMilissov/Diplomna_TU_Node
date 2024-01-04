@@ -3,12 +3,13 @@
 
 #include "Common.hpp"
 #include "IComponent.hpp"
-#include "IDriver.hpp"
+#include "IMessageSender.hpp"
+#include "IMessageReceiver.hpp"
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "NvsManager.hpp"
 
-class EspmeshDriver : public IComponent, public IDriver
+class EspmeshDriver : public IComponent, public IMessageSender, public IMessageReceiver
 {
 private:
     NvsManager& nvsManager;
@@ -17,7 +18,7 @@ private:
 
     static std::vector<EspmeshDriver*> drivers;
 
-    std::vector<IMessageable*> upperLayerMessageables;
+    std::vector<IMessageReceiver*> upperLayerMessageables;
 
     static void ReceiveMeshEvent(void*, esp_event_base_t, sint32, void*);
     void DistributeMeshEvents(void*, esp_event_base_t, sint32, void*);
@@ -26,6 +27,7 @@ private:
 
     void ConnectRouterless();
     void ConnectRouter();
+
 public:
     EspmeshDriver(
         NvsManager& nvsManager,
@@ -35,11 +37,10 @@ public:
 
     void Init();
 
-    void Subscribe(IMessageable& component);
+    void Subscribe(IMessageReceiver& component);
     void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);
     void Receive(const MacAddress, const Payload);
-
 };
 
 

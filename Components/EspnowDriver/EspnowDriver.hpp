@@ -5,63 +5,47 @@
 #include "Payload.hpp"
 #include "esp_now.h"
 #include <vector>
+#include <queue>
 #include "IComponent.hpp"
-#include "IMessageable.hpp"
-#include "IDriver.hpp"
+#include "IMessageSender.hpp"
+#include "IMessageReceiver.hpp"
 #include "LogManager.hpp"
 #include "MacAddress.hpp"
+#include "TaskManager.hpp"
 
+typedef std::tuple<esp_now_recv_info_t*, uint8*, int> ReceivedMessageTuple;
 
 /**
  * @brief The EspnowDriver class provides functionality for initializing and sending data using ESP-NOW protocol.
  */
-class EspnowDriver : public IComponent, public IDriver
+class EspnowDriver : public IComponent, public IMessageSender, public IMessageReceiver
 {
 private:
     static MacAddress myEspnowMac;
     static MacAddress broadcastEspnowMac;
     static MacAddress communicationChannelEspnowMac;
-    /**< The spinlock used for thread-safe sending of data. */
-    static Spinlock sendLock;
-    /**< The vector that stores the instances of all EspnowDrivers. */
-    static std::vector<EspnowDriver*> drivers;
-    /**< The internal function for receiving data. */
-    static void InternalReceive(const esp_now_recv_info_t*, const uint8*, int);
-    /**< The vector that stores the callbacks for the received functions. */
-    std::vector<IMessageable*> upperLayerMessageables;
 
+    static Spinlock sendLock;
+    static std::vector<EspnowDriver*> drivers;
+
+    static void InterruptReceive(const esp_now_recv_info_t*, const uint8*, int);
+    static void CyclicReceive();
+
+    static uint16 tuplePoolSize;
+    static std::queue<ReceivedMessageTuple*> tuplePool;
+    static std::queue<ReceivedMessageTuple*> receivedMessagesQueue;
+    static Spinlock receivedMessagesQueueSpinlock;
+
+    std::vector<IMessageReceiver*> upperLayerMessageables;
     LogManager& logManager;
+    TaskManager& taskManager;
 public:
-    /**
-     * @brief This class represents the EspnowDriver.
-     *
-     * The EspnowDriver class is responsible for low level handling communication
-     * using the ESP-NOW protocol.
-     */
-    EspnowDriver(LogManager&);
+    EspnowDriver(LogManager&, TaskManager&);
     ~EspnowDriver();
 
-    /**
-     * @brief Initializes the EspnowDriver.
-     *
-     * This function initializes the EspnowDriver with the provided data.
-     *
-     * @param data A pointer to the data needed for initialization.
-     */
     void Init();
 
-    /**
-     * @brief Subscribes a callback function to be called when an ESP-NOW message is received.
-     *
-     * @param callback The callback function to be subscribed.
-     */
-
-    void Subscribe(IMessageable&);
-    /**
-     * @brief Sends data using the ESP-NOW protocol.
-     * @param data The data to be sent.
-     * @param payload The payload associated with the data.
-     */
+    void Subscribe(IMessageReceiver&);
 
     void Send(const MacAddress, const Payload);
     void SendBroadcast(const Payload);

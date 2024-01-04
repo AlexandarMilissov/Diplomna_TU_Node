@@ -3,34 +3,32 @@
 
 #include "Common.hpp"
 #include "IComponent.hpp"
-#include "IDriver.hpp"
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "IMonitorable.hpp"
-#include "IMessageable.hpp"
+#include "IMessageSender.hpp"
+#include "IMessageReceiver.hpp"
 
-class EspmeshServer : public IComponent, public IMessageable, public IMonitorable
+class EspmeshServer : public IComponent, public IMessageReceiver, public IMonitorable
 {
 private:
-    IDriver& driver;
+    IMessageSender& lowerLayer;
     LogManager& logManager;
     IScheduler& taskManager;
 
 public:
     EspmeshServer(
-        IDriver& driver,
+        IMessageSender& lowerLayer,
         LogManager& logManager,
         IScheduler& taskManager
         ) :
-        driver(driver),
+        lowerLayer(lowerLayer),
         logManager(logManager),
         taskManager(taskManager)
     {}
 
     void Init();
 
-    void Send(const MacAddress, const Payload);
-    void SendBroadcast(const Payload);
     void Receive(const MacAddress, const Payload);
 
     std::string GetMonitorData();

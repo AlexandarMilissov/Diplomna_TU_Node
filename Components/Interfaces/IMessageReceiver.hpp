@@ -5,13 +5,11 @@
 #include "Payload.hpp"
 #include "MacAddress.hpp"
 
-class IMessageable
+class IMessageReceiver
 {
 public:
-    virtual void Send(const MacAddress, const Payload) = 0;
-    virtual void SendBroadcast(const Payload) = 0;
     virtual void Receive(const MacAddress, const Payload) = 0;
-    virtual ~IMessageable() = default;
+    virtual ~IMessageReceiver() = default;
 };
 
 #endif // IMESSAGEABLE_HPP_

@@ -8,8 +8,6 @@
 
 void EspmeshManager::Init()
 {
-    driver.Subscribe(*this);
-
     TaskConfig config = TaskConfig(
         "EspmeshManager",
         [this]() { MainFunction(); },
@@ -48,7 +46,7 @@ void EspmeshManager::MainFunctionSendKeepAlive()
         EspMeshMessageType messageType = MESH_KEEP_ALIVE;
         Payload data = Payload((uint8*)(&target), sizeof(target));
         data += Payload((uint8*)(&messageType), sizeof(messageType));
-        Send(rootAddress, data);
+        lowerLayer.Send(rootAddress, data);
         break;
     }
     case NOW_NO_INIT:
@@ -57,16 +55,6 @@ void EspmeshManager::MainFunctionSendKeepAlive()
     default:
         break;
     }
-}
-
-void EspmeshManager::Send(const MacAddress address, const Payload data)
-{
-    driver.Send(address, data);
-}
-
-void EspmeshManager::SendBroadcast(const Payload data)
-{
-    driver.SendBroadcast(data);
 }
 
 void EspmeshManager::Receive(const MacAddress address, const Payload data)

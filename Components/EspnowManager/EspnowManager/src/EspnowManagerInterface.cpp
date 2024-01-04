@@ -2,46 +2,27 @@
 #include <stdatomic.h>
 
 #include "EspnowManager.hpp"
+#include "EspnowPeer.hpp"
 
 EspnowManager::EspnowManager(
-    IDriver& driver,
+    IMessageSender& lowerLayer,
     LogManager& logManager,
     IScheduler& taskManager
 ) :
-    driver(driver),
+    lowerLayer(lowerLayer),
     logManager(logManager),
     taskManager(taskManager)
-{
-    for(uint16 i = 0; i < tuplePoolSize; i++)
-    {
-        tuplePool.push(new std::tuple<Payload*, Payload*>(NULL, NULL));
-    }
-}
+{}
 
 EspnowManager::~EspnowManager()
 {
-    Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
+    Enter_Critical_Spinlock(peerListLock);
     for(auto& peer : Peers)
     {
         delete peer;
     }
-    while (!tuplePool.empty())
-    {
-        auto tuple = tuplePool.front();
-        delete std::get<0>(*tuple);
-        delete std::get<1>(*tuple);
-        delete tuple;
-        tuplePool.pop();
-    }
-    while (!receivedMessagesQueue.empty())
-    {
-        auto tuple = receivedMessagesQueue.front();
-        delete std::get<0>(*tuple);
-        delete std::get<1>(*tuple);
-        delete tuple;
-        receivedMessagesQueue.pop();
-    }
-    Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
+    Peers.clear();
+    Exit_Critical_Spinlock(peerListLock);
 }
 
 void EspnowManager::ActivateNetwork()

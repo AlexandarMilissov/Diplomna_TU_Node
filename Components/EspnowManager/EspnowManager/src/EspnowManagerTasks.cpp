@@ -3,6 +3,7 @@
 #include "Payload.hpp"
 #include "OpenSeries.hpp"
 #include <string>
+#include "EspnowPeer.hpp"
 
 #include "EspnowManager.hpp"
 #include "WifiDriver.hpp"
@@ -22,11 +23,8 @@
 void EspnowManager::Init()
 {
     Peers = {};
-    receivedMessagesQueue = {};
 
     logManager.SetMinimalLevel("EspnowManager", I);
-
-    driver.Subscribe(*this);
 
     TaskConfig updatePeersTaskConfig = TaskConfig(
         "Update Series",
@@ -52,27 +50,10 @@ void EspnowManager::Init()
         8192,
         10
     );
-    TaskConfig HandleReceivedMessages0TaskConfig = TaskConfig(
-        "Handle Received Messages on Core 0",
-        [this]() { MainFunctionHandleReceivedMessages(); },
-        CONFIG_HANDLE_RECEIVED_MESSAGES_INTERVAL,
-        CORE_0,
-        8192,
-        10
-    );
-    TaskConfig HandleReceivedMessages1TaskConfig = TaskConfig(
-        "Handle Received Messages on Core 1",
-        [this]() { MainFunctionHandleReceivedMessages(); },
-        CONFIG_HANDLE_RECEIVED_MESSAGES_INTERVAL,
-        CORE_1,
-        8192,
-        10
-    );
+
     taskManager.RequestTask(updatePeersTaskConfig);
     taskManager.RequestTask(sendKeepAliveTaskConfig);
     taskManager.RequestTask(sendCalculationTaskConfig);
-    taskManager.RequestTask(HandleReceivedMessages0TaskConfig);
-    taskManager.RequestTask(HandleReceivedMessages1TaskConfig);
 
     internalState = NOW_INIT;
 }
@@ -148,16 +129,6 @@ void EspnowManager::MainFunctionSeriesBegin()
     }
 }
 
-void EspnowManager::MainFunctionHandleReceivedMessages()
-{
-    if(NOW_RUN != internalState)
-    {
-        return;
-    }
-
-    HandleReceivedMessages();
-}
-
 void EspnowManager::SendCalculationSeries()
 {
     if(NOW_RUN != internalState)
@@ -172,24 +143,7 @@ void EspnowManager::SendCalculationSeries()
 
 std::string EspnowManager::GetMonitorData()
 {
-    static std::string messagesLog;
-    size_t operations;
-    uint64 localHandledMessagesCounter;
-    uint64 localReceivedMessagesCounter;
-    uint16 localTuplePoolSize;
-
-    Enter_Critical_Spinlock(receivedMessagesQueueSpinlock);
-    operations = receivedMessagesQueue.size();
-    localHandledMessagesCounter = handledMessagesCounter;
-    localReceivedMessagesCounter = receivedMessagesCounter;
-    localTuplePoolSize = tuplePoolSize;
-    Exit_Critical_Spinlock(receivedMessagesQueueSpinlock);
-
-    messagesLog = "\n";
-    messagesLog += "[" + std::to_string(localTuplePoolSize          ) + "] tuple queue size\n"  ;
-    messagesLog += "[" + std::to_string(operations                  ) + "] queued messages\n"   ;
-    messagesLog += "[" + std::to_string(localHandledMessagesCounter ) + "] handled messages\n"  ;
-    messagesLog += "[" + std::to_string(localReceivedMessagesCounter) + "] received messages\n" ;
+    std::string messagesLog = "";
 
     for(auto& peer : Peers)
     {

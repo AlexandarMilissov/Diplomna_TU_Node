@@ -162,6 +162,7 @@
         "ifidx",
         "ILOGMANAGER",
         "IMESSAGEABLE",
+        "IMESSAGESENDER",
         "IMONITORABLE",
         "iperf",
         "irms",

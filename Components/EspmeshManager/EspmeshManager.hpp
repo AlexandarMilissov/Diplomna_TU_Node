@@ -6,8 +6,8 @@
 #include "IScheduler.hpp"
 #include "IComponent.hpp"
 #include "IEspnowController.hpp"
-#include "IMessageable.hpp"
-#include "IDriver.hpp"
+#include "IMessageSender.hpp"
+#include "IMessageReceiver.hpp"
 #include "IMonitorable.hpp"
 #include "IScheduler.hpp"
 #include "LogManager.hpp"
@@ -23,10 +23,10 @@ typedef enum
     MESH_NON_ROOT    // Network is active and this node is not the root
 }EspmeshManagerState;
 
-class EspmeshManager : public IComponent, public IMessageable, public IMonitorable
+class EspmeshManager : public IComponent, public IMessageReceiver, public IMonitorable
 {
 private:
-    IDriver& driver;
+    IMessageSender& lowerLayer;
     IEspnowController& espnowController;
     LogManager& logManager;
     IScheduler& taskManager;
@@ -39,12 +39,12 @@ private:
     void MainFunctionSendKeepAlive();
 public:
     EspmeshManager(
-        IDriver& driver,
+        IMessageSender& lowerLayer,
         IEspnowController& espnowController,
         LogManager& logManager,
         IScheduler& taskManager
         ) :
-        driver(driver),
+        lowerLayer(lowerLayer),
         espnowController(espnowController),
         logManager(logManager),
         taskManager(taskManager)
@@ -52,8 +52,6 @@ public:
     ~EspmeshManager() {}
     void Init();
 
-    void Send(const MacAddress, const Payload);
-    void SendBroadcast(const Payload);
     void Receive(const MacAddress, const Payload);
 
     std::string GetMonitorData();
