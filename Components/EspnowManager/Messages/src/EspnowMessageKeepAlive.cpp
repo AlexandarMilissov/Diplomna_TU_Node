@@ -1,25 +1,23 @@
 #include "EspnowMessageKeepAlive.hpp"
 #include "EspnowManager.hpp"
 
-uint8 EspnowMessageKeepAlive::GetElementsSize()
-{
-    return 0;
-}
 
-// On receive
-EspnowMessageKeepAlive::EspnowMessageKeepAlive(Payload Payload)
+EspnowMessageKeepAlive::EspnowMessageKeepAlive(std::queue<Payload> payload)
 {
-    DUMMY_STATEMENT(Payload);
+    DUMMY_STATEMENT(payload);
 }
 
 EspnowMessageKeepAlive::EspnowMessageKeepAlive()
 {
 }
 
-Payload EspnowMessageKeepAlive::GetPayload() const
+std::stack<Payload> EspnowMessageKeepAlive::GetPayload() const
 {
-    Payload header(MessageTypeSize);
-    *(header.data) = NOW_KEEP_ALIVE;
+    EspnowMessageType messageType = NOW_KEEP_ALIVE;
+    Payload messageIdentifier((uint8*)(&messageType), sizeof(messageType));
 
-    return header;
+    std::stack<Payload> payloadStack;
+    payloadStack.push(messageIdentifier);
+
+    return payloadStack;
 }

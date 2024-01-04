@@ -10,12 +10,11 @@ typedef enum EspnowMessageType
     NOW_KEEP_ALIVE,
     NOW_ACKNOWLEDGE
 }EspnowMessageType;
-#define MessageTypeSize 1
 
 class IEspnowMessage
 {
     public:
-        virtual Payload GetPayload() const = 0;
+        virtual std::stack<Payload> GetPayload() const = 0;
         virtual ~IEspnowMessage() = default;
 };
 

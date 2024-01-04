@@ -17,11 +17,10 @@ public:
     MacAddress(const Payload&);
 
     void CopyTo(uint8* destination) const;
+    uint8* GetAddress() const;
 
     bool operator==(const MacAddress& other) const;
     bool operator!=(const MacAddress& other) const;
-
-
 
     std::string ToString() const;
 };

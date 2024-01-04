@@ -9,7 +9,7 @@
 #include "IScheduler.hpp"
 #include "NvsManager.hpp"
 
-class EspmeshDriver : public IComponent, public IMessageSender, public IMessageReceiver
+class EspmeshDriver : public IComponent, public IMessageSender
 {
 private:
     NvsManager& nvsManager;
@@ -28,6 +28,7 @@ private:
     void ConnectRouterless();
     void ConnectRouter();
 
+    void Receive();
 public:
     EspmeshDriver(
         NvsManager& nvsManager,
@@ -38,9 +39,8 @@ public:
     void Init();
 
     void Subscribe(IMessageReceiver& component);
-    void Send(const MacAddress, const Payload);
-    void SendBroadcast(const Payload);
-    void Receive(const MacAddress, const Payload);
+    void Send(const MacAddress, const std::stack<Payload>);
+    void SendBroadcast(const std::stack<Payload>);
 };
 
 

@@ -13,6 +13,7 @@
 #include "LogManager.hpp"
 #include <list>
 #include <atomic>
+#include <queue>
 
 // TODO: Replace with tuple
 typedef struct SeriesLife
@@ -50,9 +51,7 @@ class EspnowPeer : public IMonitorable
         void Refresh();
         void SendSubscriptionRequest();
 
-        void Send(const MacAddress, const Payload);
-        void SendBroadcast(const Payload);
-        void Receive(const Payload*, const Payload*);
+        void Receive(const std::queue<Payload>);
 
         std::string GetMonitorData();
 };

@@ -7,13 +7,11 @@
 
 class EspnowMessageKeepAlive: public IEspnowMessage
 {
-private:
-    static uint8 GetElementsSize();
 public:
-    EspnowMessageKeepAlive(Payload);
+    EspnowMessageKeepAlive(std::queue<Payload>);
     EspnowMessageKeepAlive();
 
-    Payload GetPayload() const;
+    std::stack<Payload> GetPayload() const;
 };
 
 #endif // RSSI_MESSAGE_KEEP_ALIVE_HPP_

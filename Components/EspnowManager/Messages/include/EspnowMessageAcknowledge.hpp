@@ -10,10 +10,10 @@ private:
     bool status;
     static uint8 GetElementsSize();
 public:
-    EspnowMessageAcknowledge(Payload);
+    EspnowMessageAcknowledge(std::queue<Payload>);
     EspnowMessageAcknowledge(bool);
     bool GetStatus();
-    Payload GetPayload() const;
+    std::stack<Payload> GetPayload() const;
 };
 
 #endif // RSSI_MESSAGE_ACKNOWLEDGE_HPP_

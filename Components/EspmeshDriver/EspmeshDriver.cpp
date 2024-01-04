@@ -139,7 +139,7 @@ void EspmeshDriver::Init()
 
     TaskConfig taskConfig(
         "EspmeshDriver Receive",
-        [this](){ Receive(NULL, NULL); },
+        [this](){ Receive(); },
         10,
         0,
         4096,
@@ -154,30 +154,30 @@ void EspmeshDriver::Subscribe(IMessageReceiver& component)
     upperLayerMessageables.push_back(&component);
 }
 
-void EspmeshDriver::Send(const MacAddress address, const Payload data)
+void EspmeshDriver::Send(const MacAddress address, const std::stack<Payload> data)
 {
-    esp_err_t err;
-    mesh_addr_t to;
-    mesh_data_t mesh_data;
-    address.CopyTo(to.addr);
-    mesh_data.data = data.data;
-    mesh_data.size = data.GetSize();
-    mesh_data.proto = MESH_PROTO_BIN;
-    mesh_data.tos = MESH_TOS_P2P;
-    int flags = 0;
-    err = esp_mesh_send(NULL, &mesh_data, flags, NULL, 0);
-    if(err != ESP_OK)
-    {
-        logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
-    }
+    // esp_err_t err;
+    // mesh_addr_t to;
+    // mesh_data_t mesh_data;
+    // address.CopyTo(to.addr);
+    // mesh_data.data = data.data;
+    // mesh_data.size = data.GetSize();
+    // mesh_data.proto = MESH_PROTO_BIN;
+    // mesh_data.tos = MESH_TOS_P2P;
+    // int flags = 0;
+    // err = esp_mesh_send(NULL, &mesh_data, flags, NULL, 0);
+    // if(err != ESP_OK)
+    // {
+    //     logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
+    // }
 }
 
-void EspmeshDriver::SendBroadcast(const Payload data)
+void EspmeshDriver::SendBroadcast(const std::stack<Payload> data)
 {
 
 }
 
-void EspmeshDriver::Receive(const MacAddress, const Payload)
+void EspmeshDriver::Receive()
 {
     mesh_rx_pending_t pending;
     mesh_addr_t meshAddress;
@@ -190,10 +190,12 @@ void EspmeshDriver::Receive(const MacAddress, const Payload)
         if(err == ESP_OK)
         {
             MacAddress address(meshAddress.addr);
-            Payload data(meshData.data, meshData.size);
+            Payload payload(meshData.data, meshData.size);
+            std::queue<Payload> payloadQueue;
+            payloadQueue.push(payload);
             for(auto messageable : upperLayerMessageables)
             {
-                messageable->Receive(address, data);
+                messageable->Receive(address, payloadQueue);
             }
         }
         else
@@ -313,13 +315,13 @@ void EspmeshDriver::ReceiveMeshEventRootAddress(void *arg, esp_event_base_t even
         std::memcpy(&root_address, root_address->addr, sizeof(root_address));
     }
 
-    Payload addressPayload = Payload(root_address, sizeof(root_address));
-    Payload dataPayload = Payload((uint8*)(&messageType), sizeof(messageType));
-    dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
-    for(auto messageable : upperLayerMessageables)
-    {
-        messageable->Receive(addressPayload, dataPayload);
-    }
+    // Payload addressPayload = Payload(root_address, sizeof(root_address));
+    // Payload dataPayload = Payload((uint8*)(&messageType), sizeof(messageType));
+    // dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
+    // for(auto messageable : upperLayerMessageables)
+    // {
+    //     messageable->Receive(addressPayload, dataPayload);
+    // }
 }
 
 void EspmeshDriver::ReceiveMeshEventChildDisconnected(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)

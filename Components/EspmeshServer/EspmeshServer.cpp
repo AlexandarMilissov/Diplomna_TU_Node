@@ -5,7 +5,7 @@ void EspmeshServer::Init()
     logManager.Log(V, "EspmeshServer", "Init\n");
 }
 
-void EspmeshServer::Receive(const MacAddress address, const Payload data)
+void EspmeshServer::Receive(const MacAddress address, const std::queue<Payload> payloadQueue)
 {
     logManager.Log(V, "EspmeshServer", "Receive\n");
 }

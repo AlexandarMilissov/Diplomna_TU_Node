@@ -7,28 +7,23 @@
 #include "EspnowManager.hpp"
 #include "EspnowPeer.hpp"
 
-void EspnowManager::Send(const MacAddress address, const Payload payload)
+void EspnowManager::Send(const MacAddress address, const std::stack<Payload> payloadStack)
 {
-    lowerLayer.Send(address, payload);
+    lowerLayer.Send(address, payloadStack);
 }
 
-void EspnowManager::SendBroadcast(const Payload payload)
+void EspnowManager::SendBroadcast(const std::stack<Payload> payloadStack)
 {
-    lowerLayer.SendBroadcast(payload);
+    lowerLayer.SendBroadcast(payloadStack);
 }
 
-void EspnowManager::Receive(const MacAddress address, const Payload data)
+void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> payloadQueue)
 {
     if(internalState != NOW_RUN)
     {
         return;
     }
     EspnowPeer* sender = NULL;
-
-    Payload message_identifier = Payload(MessageTypeSize);
-    Payload message_data = Payload(data);
-
-    message_data >>= message_identifier;
 
     // Identify the sender
     Enter_Critical_Spinlock(peerListLock);
@@ -48,5 +43,5 @@ void EspnowManager::Receive(const MacAddress address, const Payload data)
     }
     Exit_Critical_Spinlock(peerListLock);
 
-    sender->Receive(&message_identifier, &message_data);
+    sender->Receive(payloadQueue);
 }

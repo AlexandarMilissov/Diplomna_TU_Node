@@ -3,6 +3,7 @@
 #include <string.h>
 #include <cstring>
 #include <algorithm>
+#include <stdexcept>
 /* ESPNOW can work in both station and softap mode. */
 #if CONFIG_WIFI_AP_ENABLED
 #define ESPNOW_WIFI_IF   ESP_IF_WIFI_AP
@@ -113,28 +114,30 @@ void EspnowDriver::Init()
 
 void EspnowDriver::Subscribe(IMessageReceiver& messageable)
 {
-    upperLayerMessageables.push_back(&messageable);
+    upperLayer.push_back(&messageable);
 }
 
-void EspnowDriver::Send(const MacAddress dst_addr, const Payload message)
+void EspnowDriver::Send(const MacAddress dst_addr, const std::stack<Payload> payloadStackOriginal)
 {
     esp_err_t err;
+    // Copy the payload stack to avoid modifying the original
+    std::stack<Payload> payloadStack = payloadStackOriginal;
 
-    Payload package = Payload(dst_addr);
-    package += message;
+    // Add the destination address to the payload
+    payloadStack.push(Payload(dst_addr));
 
+
+    // Combine the payloads into one data array
+    Payload data = Payload::Compose(payloadStack);
+
+    // Send the message
     // Forums said locking the send should help reduce errors
     // https://esp32.com/viewtopic.php?t=17592
-
-    uint8 communication_channel_mac[6];
-    communicationChannelEspnowMac.CopyTo(communication_channel_mac);
-
     Enter_Critical_Spinlock(sendLock);
-
-    err = esp_now_send(communication_channel_mac, package.data, package.GetSize());
-
+    err = esp_now_send(communicationChannelEspnowMac.GetAddress(), data.data, data.GetSize());
     Exit_Critical_Spinlock(sendLock);
 
+    // Check if the message was sent successfully
     if(ESP_OK != err)
     {
         if(ESP_ERR_ESPNOW_NO_MEM == err)
@@ -146,11 +149,12 @@ void EspnowDriver::Send(const MacAddress dst_addr, const Payload message)
             ESP_ERROR_CHECK(err);
         }
     }
+
 }
 
-void EspnowDriver::SendBroadcast(const Payload message)
+void EspnowDriver::SendBroadcast(const std::stack<Payload> payloadStack)
 {
-    Send(broadcastEspnowMac, message);
+    Send(broadcastEspnowMac, payloadStack);
 }
 
 void EspnowDriver::InterruptReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
@@ -252,39 +256,71 @@ void EspnowDriver::CyclicReceive()
             break;
         }
 
-        // Handle the data
-        // TODO: FIX THIS
-
-        Payload received_message_data = Payload(data, len);
-
-        Payload destination_address = Payload(ESP_NOW_ETH_ALEN);
-        received_message_data >>= destination_address;
-
-        MacAddress destination_mac_address(destination_address);
-
-        if(destination_mac_address == communicationChannelEspnowMac
-        || destination_mac_address == myEspnowMac)
+        // Distribute the message to the drivers
+        for(auto driver : drivers)
         {
-            MacAddress source_address = MacAddress(recv_info->src_addr);
-            RSSI_Type rssi = recv_info->rx_ctrl->rssi;
-            Payload rssi_payload = Payload((uint8*)(&rssi), sizeof(RSSI_Type));
-            received_message_data += rssi_payload;
-
-            for (auto driver : drivers)
-            {
-                driver->Receive(source_address, received_message_data);
-            }
+            driver->Receive(recv_info, data, len);
         }
+
+        // Payload received_message_data = Payload(data, len);
+
+        // Payload destination_address = Payload(ESP_NOW_ETH_ALEN);
+        // received_message_data >>= destination_address;
+
+        // MacAddress destination_mac_address(destination_address);
+
+        // if(destination_mac_address == broadcastEspnowMac
+        // || destination_mac_address == myEspnowMac)
+        // {
+        //     MacAddress source_address = MacAddress(recv_info->src_addr);
+        //     RSSI_Type rssi = recv_info->rx_ctrl->rssi;
+        //     Payload rssi_payload = Payload((uint8*)(&rssi), sizeof(RSSI_Type));
+        //     received_message_data += rssi_payload;
+
+        //     for (auto driver : drivers)
+        //     {
+        //         driver->Receive(source_address, received_message_data);
+        //     }
+        // }
 
         free(data);
     }
     free(recv_info);
 }
 
-void EspnowDriver::Receive(const MacAddress address, const Payload message)
+void EspnowDriver::Receive(const esp_now_recv_info_t* recv_info, const uint8* data, int len)
 {
-    for(auto messageable : upperLayerMessageables)
+    // Extract payloads from the data
+    std::queue<Payload> payloadQueue = Payload::Decompose(Payload(data, len));
+
+    // Check if the queue is empty
+    if(payloadQueue.empty())
     {
-        messageable->Receive(address, message);
+        return;
+    }
+
+    // Get the destination address
+    MacAddress destinationAddress = payloadQueue.front();
+    payloadQueue.pop();
+
+    // Check if the destination address is our address or the broadcast address
+    if(destinationAddress == broadcastEspnowMac
+    || destinationAddress == myEspnowMac)
+    {
+        // Extract the source address
+        MacAddress sourceAddress(recv_info->src_addr);
+
+        // Extract the RSSI
+        RSSI_Type rssi = recv_info->rx_ctrl->rssi;
+        Payload rssiPayload = Payload((uint8*)(&rssi), sizeof(RSSI_Type));
+
+        // Add the RSSI to the payload queue
+        payloadQueue.push(rssiPayload);
+
+        // Send the message to the upper layer
+        for(auto messageable : upperLayer)
+        {
+            messageable->Receive(sourceAddress, payloadQueue);
+        }
     }
 }

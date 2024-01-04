@@ -2,6 +2,8 @@
 #define PAYLOAD_HPP_
 
 #include "Common.hpp"
+#include <stack>
+#include <queue>
 
 class MacAddress;
 
@@ -87,6 +89,17 @@ class Payload
          * @return The size of the payload.
          */
         size_t GetSize() const;
+
+        /**
+         * @brief Get the size of the payload size.
+         *
+         * @return The size of the payload size.
+         */
+        static size_t GetSizeOfSize();
+
+        static Payload Compose(std::stack<Payload>);
+
+        static std::queue<Payload> Decompose(const Payload&);
 };
 
 #endif // PAYLOAD_HPP_

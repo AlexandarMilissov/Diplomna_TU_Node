@@ -2,17 +2,14 @@
 #include "EspnowManager.hpp"
 #include <stdexcept>
 
-uint8 EspnowMessageAcknowledge::GetElementsSize()
+EspnowMessageAcknowledge::EspnowMessageAcknowledge(std::queue<Payload> payloadQueue)
 {
-    return sizeof(status);
-}
-
-EspnowMessageAcknowledge::EspnowMessageAcknowledge(Payload message)
-{
-    if(message.GetSize() != GetElementsSize())
+    if(payloadQueue.empty())
     {
-        throw std::invalid_argument(std::string("Wrong message size for ") + __FUNCTION__);
+        throw std::invalid_argument(std::string("Payload queue is empty!\n"));
     }
+
+    Payload message = payloadQueue.front();
     status = (bool)(message.data);
 }
 
@@ -26,15 +23,16 @@ bool EspnowMessageAcknowledge::GetStatus()
     return status;
 }
 
-Payload EspnowMessageAcknowledge::GetPayload() const
+std::stack<Payload> EspnowMessageAcknowledge::GetPayload() const
 {
-    Payload data(GetElementsSize());
+    Payload data((uint8*)(&status), sizeof(status));
 
-    *(data.data) = status;
+    EspnowMessageType messageType = NOW_ACKNOWLEDGE;
+    Payload message((uint8*)(&messageType), sizeof(messageType));
 
-    Payload message(MessageTypeSize);
-    *(message.data) = NOW_ACKNOWLEDGE;
+    std::stack<Payload> payloadStack;
+    payloadStack.push(data);
+    payloadStack.push(message);
 
-    message += data;
-    return message;
+    return payloadStack;
 }

@@ -18,7 +18,7 @@ typedef std::tuple<esp_now_recv_info_t*, uint8*, int> ReceivedMessageTuple;
 /**
  * @brief The EspnowDriver class provides functionality for initializing and sending data using ESP-NOW protocol.
  */
-class EspnowDriver : public IComponent, public IMessageSender, public IMessageReceiver
+class EspnowDriver : public IComponent, public IMessageSender
 {
 private:
     static MacAddress myEspnowMac;
@@ -36,9 +36,11 @@ private:
     static std::queue<ReceivedMessageTuple*> receivedMessagesQueue;
     static Spinlock receivedMessagesQueueSpinlock;
 
-    std::vector<IMessageReceiver*> upperLayerMessageables;
+    std::vector<IMessageReceiver*> upperLayer;
     LogManager& logManager;
     TaskManager& taskManager;
+
+    void Receive(const esp_now_recv_info_t*, const uint8*, int);
 public:
     EspnowDriver(LogManager&, TaskManager&);
     ~EspnowDriver();
@@ -47,9 +49,8 @@ public:
 
     void Subscribe(IMessageReceiver&);
 
-    void Send(const MacAddress, const Payload);
-    void SendBroadcast(const Payload);
-    void Receive(const MacAddress, const Payload);
+    void Send(const MacAddress, const std::stack<Payload>);
+    void SendBroadcast(const std::stack<Payload>);
 };
 
 #endif // ESPNOWDRIVER_HPP_

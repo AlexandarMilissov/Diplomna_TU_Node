@@ -97,7 +97,8 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive()
 
     // Send keep alive messages
     EspnowMessageKeepAlive keepAlive;
-    SendBroadcast(keepAlive.GetPayload());
+    std::stack<Payload> payloadStack = keepAlive.GetPayload();
+    SendBroadcast(payloadStack);
 
     // Send needed subscription requests
     for(auto& peer : Peers)
@@ -138,7 +139,9 @@ void EspnowManager::SendCalculationSeries()
 
     EspnowMessageCalculation calculation;
 
-    SendBroadcast(calculation.GetPayload());
+    std::stack<Payload> payloadStack = calculation.GetPayload();
+
+    SendBroadcast(payloadStack);
 }
 
 std::string EspnowManager::GetMonitorData()

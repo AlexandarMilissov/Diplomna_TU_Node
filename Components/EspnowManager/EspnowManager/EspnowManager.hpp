@@ -62,9 +62,9 @@ public:
 
     void Init();
 
-    void Send(const MacAddress, const Payload);
-    void SendBroadcast(const Payload);
-    void Receive(const MacAddress, const Payload);
+    void Send(const MacAddress, const std::stack<Payload>);
+    void SendBroadcast(const std::stack<Payload>);
+    void Receive(const MacAddress, const std::queue<Payload>);
 
     std::string GetMonitorData();
 };

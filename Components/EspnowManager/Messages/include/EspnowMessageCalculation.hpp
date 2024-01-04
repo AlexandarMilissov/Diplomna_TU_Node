@@ -14,13 +14,13 @@ private:
     static Message_Position_Id send_message_Position_Id;
     static uint8 GetElementsSize();
 public:
-    EspnowMessageCalculation(RSSI_Type, Payload);
+    EspnowMessageCalculation(std::queue<Payload>);
     EspnowMessageCalculation();
     Series_Id GetSeriesID();
     Message_Position_Id GetMessagePosition();
     RSSI_Type GetRSSI();
 
-    Payload GetPayload() const;
+    std::stack<Payload> GetPayload() const;
 };
 
 

@@ -3,51 +3,47 @@
 #include <string>
 #include <stdexcept>
 
-void EspnowPeer::Send(const MacAddress address, const Payload payload)
+void EspnowPeer::Receive(const std::queue<Payload> payloadQueueOriginal)
 {
-    lowerLayer.Send(address, payload);
-}
+    // Copy the queue to not modify the original
+    std::queue<Payload> payloadQueue = payloadQueueOriginal;
 
-void EspnowPeer::SendBroadcast(const Payload payload)
-{
-    lowerLayer.SendBroadcast(payload);
-}
+    if(payloadQueue.empty())
+    {
+        throw std::invalid_argument("Payload queue is empty!\n");
+    }
 
-void EspnowPeer::Receive(const Payload* header, const Payload* data)
-{
-    Payload message_rssi = Payload(*data);
-    Payload message_data = Payload(message_rssi.GetSize() - sizeof(RSSI_Type));
-    message_rssi >>= message_data;
+    // Get the message identifier
+    Payload messageIdentifierPayload = payloadQueue.front();
+    payloadQueue.pop();
+    EspnowMessageType messageIdentifier = *((EspnowMessageType*)messageIdentifierPayload.data);
 
-    EspnowMessageType message_identifier;
-    memcpy(&message_identifier, header->data, MessageTypeSize);
-    RSSI_Type* message_rssi_value = (RSSI_Type*)(message_rssi.data);
-    // Proccess the message
     try
     {
-        switch (message_identifier)
+        // Call the correct function for the message based on the identifier
+        switch (messageIdentifier)
         {
         case NOW_REQUEST:
         {
-            EspnowMessageRequest RSSI_Message = EspnowMessageRequest(message_data);
+            EspnowMessageRequest RSSI_Message = EspnowMessageRequest(payloadQueue);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
         case NOW_CALCULATION:
         {
-            EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(*message_rssi_value, message_data);
+            EspnowMessageCalculation RSSI_Message = EspnowMessageCalculation(payloadQueue);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
         case NOW_KEEP_ALIVE:
         {
-            EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(message_data);
+            EspnowMessageKeepAlive RSSI_Message = EspnowMessageKeepAlive(payloadQueue);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
         case NOW_ACKNOWLEDGE:
         {
-            EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(message_data);
+            EspnowMessageAcknowledge RSSI_Message = EspnowMessageAcknowledge(payloadQueue);
             this->ReceiveMessage(RSSI_Message);
         }
         break;
@@ -68,8 +64,8 @@ void EspnowPeer::SendSubscriptionRequest()
         return;
     }
     EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
-    Payload header(sourceAddress);
-    Send(header, RSSI_Message.GetPayload());
+    std::stack<Payload> payloadStack = RSSI_Message.GetPayload();
+    lowerLayer.Send(sourceAddress, payloadStack);
 }
 
 std::string EspnowPeer::GetMonitorData()
@@ -154,8 +150,8 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 
     if(NULL != ackn)
     {
-        Payload header(sourceAddress);
-        Send(header, ackn->GetPayload());
+        std::stack<Payload> payloadStack = ackn->GetPayload();
+        lowerLayer.Send(sourceAddress, payloadStack);
         delete ackn;
     }
 

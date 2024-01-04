@@ -23,6 +23,11 @@ void MacAddress::CopyTo(uint8* destination) const
     memcpy(destination, this->address, MAC_ADDRESS_LENGTH);
 }
 
+uint8* MacAddress::GetAddress() const
+{
+    return (uint8*)this->address;
+}
+
 bool MacAddress::operator==(const MacAddress& other) const
 {
     return memcmp(this->address, other.address, MAC_ADDRESS_LENGTH) == 0;

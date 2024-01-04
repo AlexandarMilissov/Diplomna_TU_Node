@@ -12,14 +12,12 @@ class EspnowMessageRequest : public IEspnowMessage
 {
 private:
     bool subscriptionStatus = UNSUBSCRIBE;
-    static uint8 GetElementsSize();
 public:
-    EspnowMessageRequest(Payload);
+    EspnowMessageRequest(std::queue<Payload>);
     EspnowMessageRequest(bool);
-    ~EspnowMessageRequest();
     bool GetSubscriptionStatus();
 
-    Payload GetPayload() const;
+    std::stack<Payload> GetPayload() const;
 };
 
 

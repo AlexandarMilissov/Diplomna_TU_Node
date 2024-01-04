@@ -41,12 +41,12 @@ void EspmeshManager::MainFunctionSendKeepAlive()
     {
     case MESH_NON_ROOT:
     {
-        logManager.Log(W, "EspmeshManager", "Sending MESH_KEEP_ALIVE\n");
-        EspMeshApplication target = MESH;
-        EspMeshMessageType messageType = MESH_KEEP_ALIVE;
-        Payload data = Payload((uint8*)(&target), sizeof(target));
-        data += Payload((uint8*)(&messageType), sizeof(messageType));
-        lowerLayer.Send(rootAddress, data);
+        // logManager.Log(W, "EspmeshManager", "Sending MESH_KEEP_ALIVE\n");
+        // EspMeshApplication target = MESH;
+        // EspMeshMessageType messageType = MESH_KEEP_ALIVE;
+        // Payload data = Payload((uint8*)(&target), sizeof(target));
+        // data += Payload((uint8*)(&messageType), sizeof(messageType));
+        // lowerLayer.Send(rootAddress, data);
         break;
     }
     case NOW_NO_INIT:
@@ -57,61 +57,61 @@ void EspmeshManager::MainFunctionSendKeepAlive()
     }
 }
 
-void EspmeshManager::Receive(const MacAddress address, const Payload data)
+void EspmeshManager::Receive(const MacAddress address, const std::queue<Payload> payloadQueue)
 {
-    Payload payloadMessage = Payload(data);
-    Payload payloadApplicationIdentifier = Payload(sizeof(EspMeshApplication));
-    Payload payloadMessageIdentifier = Payload(sizeof(EspMeshMessageType));
-    Payload payloadData = Payload(payloadMessage.GetSize() - (payloadApplicationIdentifier.GetSize() + payloadMessageIdentifier.GetSize()));
+    // Payload payloadMessage = Payload(data);
+    // Payload payloadApplicationIdentifier = Payload(sizeof(EspMeshApplication));
+    // Payload payloadMessageIdentifier = Payload(sizeof(EspMeshMessageType));
+    // Payload payloadData = Payload(payloadMessage.GetSize() - (payloadApplicationIdentifier.GetSize() + payloadMessageIdentifier.GetSize()));
 
-    payloadMessage >>= payloadData;
-    payloadMessage >>= payloadMessageIdentifier;
-    payloadMessage >>= payloadApplicationIdentifier;
+    // payloadMessage >>= payloadData;
+    // payloadMessage >>= payloadMessageIdentifier;
+    // payloadMessage >>= payloadApplicationIdentifier;
 
-    EspMeshMessageType messageType;
-    EspMeshApplication application;
-    std::memcpy(&application, payloadApplicationIdentifier.data, sizeof(messageType));
-    std::memcpy(&messageType, payloadMessageIdentifier.data, sizeof(messageType));
+    // EspMeshMessageType messageType;
+    // EspMeshApplication application;
+    // std::memcpy(&application, payloadApplicationIdentifier.data, sizeof(messageType));
+    // std::memcpy(&messageType, payloadMessageIdentifier.data, sizeof(messageType));
 
-    if(application != MESH)
-    {
-        return;
-    }
+    // if(application != MESH)
+    // {
+    //     return;
+    // }
 
-    switch (messageType)
-    {
-    case MESH_ROOT_UPDATED:
-    {
-        bool isRoot;
-        std::memcpy(&isRoot, payloadMessage.data, sizeof(isRoot));
-        if(isRoot)
-        {
-            internalState = MESH_ROOT;
-        }
-        else
-        {
-            internalState = MESH_NON_ROOT;
-        }
-        rootAddress = address;
-        std::string textMessage = "Root address acquired. ";
-        if(isRoot)
-        {
-            textMessage += "We are root.";
-        }
-        else
-        {
-            textMessage += "Root is ";
-            textMessage += rootAddress.ToString();
-        }
-        logManager.Log(W, "EspmeshDriver", textMessage.c_str());
+    // switch (messageType)
+    // {
+    // case MESH_ROOT_UPDATED:
+    // {
+    //     bool isRoot;
+    //     std::memcpy(&isRoot, payloadMessage.data, sizeof(isRoot));
+    //     if(isRoot)
+    //     {
+    //         internalState = MESH_ROOT;
+    //     }
+    //     else
+    //     {
+    //         internalState = MESH_NON_ROOT;
+    //     }
+    //     rootAddress = address;
+    //     std::string textMessage = "Root address acquired. ";
+    //     if(isRoot)
+    //     {
+    //         textMessage += "We are root.";
+    //     }
+    //     else
+    //     {
+    //         textMessage += "Root is ";
+    //         textMessage += rootAddress.ToString();
+    //     }
+    //     logManager.Log(W, "EspmeshDriver", textMessage.c_str());
 
-        break;
-    }
-    case MESH_KEEP_ALIVE:
-        logManager.Log(W, "EspmeshManager", "MESH_KEEP_ALIVE received\n");
-    default:
-        break;
-    }
+    //     break;
+    // }
+    // case MESH_KEEP_ALIVE:
+    //     logManager.Log(W, "EspmeshManager", "MESH_KEEP_ALIVE received\n");
+    // default:
+    //     break;
+    // }
 }
 
 std::string EspmeshManager::GetMonitorData()

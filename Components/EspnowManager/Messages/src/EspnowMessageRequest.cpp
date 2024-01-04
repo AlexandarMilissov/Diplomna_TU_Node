@@ -3,13 +3,15 @@
 #include <stdexcept>
 
 // Functions for receiving messages
-EspnowMessageRequest::EspnowMessageRequest(Payload message)
+EspnowMessageRequest::EspnowMessageRequest(std::queue<Payload> payloadQueue)
 {
-    if(message.GetSize() != GetElementsSize())
+    if(payloadQueue.empty())
     {
-        throw std::invalid_argument(std::string("Wrong message size for ") + __FUNCTION__);
+        throw std::invalid_argument(std::string("Payload queue is empty!\n"));
     }
-    subscriptionStatus = *((uint8*)message.data);
+
+    Payload message = payloadQueue.front();
+    subscriptionStatus = *(message.data);
 }
 
 // Functions for sending messages
@@ -17,27 +19,19 @@ EspnowMessageRequest::EspnowMessageRequest(bool value)
 {
     subscriptionStatus = value;
 }
-Payload EspnowMessageRequest::GetPayload() const
+
+std::stack<Payload> EspnowMessageRequest::GetPayload() const
 {
-    Payload data(GetElementsSize());
-    *(data.data) = subscriptionStatus;
+    Payload data((uint8*)(&subscriptionStatus), sizeof(subscriptionStatus));
 
-    Payload message(MessageTypeSize);
-    *(message.data) = NOW_REQUEST;
+    EspnowMessageType messageType = NOW_REQUEST;
+    Payload message((uint8*)(&messageType), sizeof(messageType));
 
-    message += data;
-    return message;
-}
+    std::stack<Payload> payloadStack;
+    payloadStack.push(data);
+    payloadStack.push(message);
 
-// Other functions
-
-uint8 EspnowMessageRequest::GetElementsSize()
-{
-    return sizeof(subscriptionStatus);
-}
-
-EspnowMessageRequest::~EspnowMessageRequest()
-{
+    return payloadStack;
 }
 
 bool EspnowMessageRequest::GetSubscriptionStatus()

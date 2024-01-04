@@ -29,7 +29,7 @@ public:
 
     void Init();
 
-    void Receive(const MacAddress, const Payload);
+    void Receive(const MacAddress, const std::queue<Payload>);
 
     std::string GetMonitorData();
 };
