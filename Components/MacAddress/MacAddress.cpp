@@ -4,6 +4,11 @@
 
 #include "Payload.hpp"
 
+MacAddress::MacAddress()
+{
+    memset(this->address, 0, MAC_ADDRESS_LENGTH);
+}
+
 MacAddress::MacAddress(uint8* address)
 {
     memcpy(this->address, address, MAC_ADDRESS_LENGTH);
@@ -28,12 +33,27 @@ uint8* MacAddress::GetAddress() const
     return (uint8*)this->address;
 }
 
+void MacAddress::SetAddress(uint8* address)
+{
+    memcpy(this->address, address, MAC_ADDRESS_LENGTH);
+}
+
 bool MacAddress::operator==(const MacAddress& other) const
 {
     return memcmp(this->address, other.address, MAC_ADDRESS_LENGTH) == 0;
 }
 
+bool MacAddress::operator==(const uint8* other) const
+{
+    return memcmp(this->address, other, MAC_ADDRESS_LENGTH) == 0;
+}
+
 bool MacAddress::operator!=(const MacAddress& other) const
+{
+    return !(*this == other);
+}
+
+bool MacAddress::operator!=(const uint8* other) const
 {
     return !(*this == other);
 }

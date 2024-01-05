@@ -28,7 +28,7 @@ typedef enum
     NOW_RUN,        // Network is active
 }EspnowManagerState;
 
-class EspnowManager : public IComponent, public IEspnowController, public IMessageSender, public IMessageReceiver, public IMonitorable
+class EspnowManager : public IComponent, public IEspnowController, public IMessageReceiver, public IMonitorable
 {
 private:
     std::atomic<EspnowManagerState> internalState = NOW_NO_INIT;
@@ -62,8 +62,6 @@ public:
 
     void Init();
 
-    void Send(const MacAddress, const std::stack<Payload>);
-    void SendBroadcast(const std::stack<Payload>);
     void Receive(const MacAddress, const std::queue<Payload>);
 
     std::string GetMonitorData();

@@ -13,7 +13,7 @@
 #include "MacAddress.hpp"
 #include "TaskManager.hpp"
 
-typedef std::tuple<esp_now_recv_info_t*, uint8*, int> ReceivedMessageTuple;
+typedef std::tuple<MacAddress, RSSI_Type , int, uint8*> ReceivedMessageTuple;
 
 /**
  * @brief The EspnowDriver class provides functionality for initializing and sending data using ESP-NOW protocol.
@@ -29,7 +29,7 @@ private:
     static std::vector<EspnowDriver*> drivers;
 
     static void InterruptReceive(const esp_now_recv_info_t*, const uint8*, int);
-    static void CyclicReceive();
+    void CyclicReceive();
 
     static uint16 tuplePoolSize;
     static std::queue<ReceivedMessageTuple*> tuplePool;
@@ -40,7 +40,7 @@ private:
     LogManager& logManager;
     TaskManager& taskManager;
 
-    void Receive(const esp_now_recv_info_t*, const uint8*, int);
+    void Receive(const MacAddress, const RSSI_Type, const uint8*, int);
 public:
     EspnowDriver(LogManager&, TaskManager&);
     ~EspnowDriver();

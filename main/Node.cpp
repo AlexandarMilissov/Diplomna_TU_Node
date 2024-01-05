@@ -31,20 +31,21 @@ extern "C" void app_main(void)
 
     monitor->Subscribe(monitor);
     monitor->Subscribe(espnowManager);
-    monitor->Subscribe(espmeshManager);
-    monitor->Subscribe(espmeshServer);
+    // monitor->Subscribe(espmeshManager);
+    // monitor->Subscribe(espmeshServer);
 
     espnowDriver->Subscribe(*espnowManager);
+
     espmeshDriver->Subscribe(*espmeshManager);
     espmeshDriver->Subscribe(*espmeshServer);
 
     components->push_back(logManager);
     components->push_back(nvsManager);
     components->push_back(taskManager);
-    // components->push_back(monitor);
+    components->push_back(monitor);
     components->push_back(wifiManager);
     components->push_back(espnowDriver);
-    components->push_back(espmeshDriver);
+    // components->push_back(espmeshDriver);
     components->push_back(espnowManager);
     components->push_back(espmeshManager);
 
@@ -52,6 +53,8 @@ extern "C" void app_main(void)
     {
         component->Init();
     }
+
+    espnowManager->ActivateNetwork();
 
     logManager->Log(E, "System", "This is %s. End of Init.\n", nvsManager->GetVar<std::string>("Info", "name", "Default").c_str());
 }
