@@ -28,6 +28,11 @@ void Monitor::Init()
 
 void Monitor::MainFunction()
 {
+    if(monitorables.size() == 0)
+    {
+        return;
+    }
+
     std::string monitorLog = "";
     monitorLog += "\n=========BEGIN=========\n";
     monitorLog += "Counter: " + std::to_string(counter) + "\n";
