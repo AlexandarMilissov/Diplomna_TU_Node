@@ -9,14 +9,12 @@
 #include "IScheduler.hpp"
 #include "IMonitorable.hpp"
 
-class Monitor : public IComponent, public IMonitorable
+class Monitor : public IComponent
 {
 private:
     std::vector<IMonitorable*> monitorables;
     static size_t maximum_heap_regions;
     static size_t free_heap_regions;
-    static std::string MonitorMemory();
-    static std::string MonitorCPU();
     LogManager& logManager;
     IScheduler& scheduler;
 
@@ -34,7 +32,6 @@ public:
     void MainFunction();
     void Subscribe(IMonitorable*);
     void Unsubscribe(IMonitorable*);
-    std::string GetMonitorData();
 };
 
 #endif // MONITOR_HPP_

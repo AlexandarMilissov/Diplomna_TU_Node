@@ -4,7 +4,6 @@
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "esp_task_wdt.h"
-#include "esp_heap_caps.h"
 #include <string>
 #include <cstring>
 #include <vector>

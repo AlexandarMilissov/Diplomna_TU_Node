@@ -9,6 +9,8 @@
 #include "EspmeshServer.hpp"
 #include "WifiDriver.hpp"
 #include "NvsManager.hpp"
+#include "CpuMonitor.hpp"
+#include "RamMonitor.hpp"
 #include "Monitor.hpp"
 
 #include <vector>
@@ -21,6 +23,8 @@ extern "C" void app_main(void)
     LogManager* logManager = new LogManager();
     NvsManager* nvsManager = new NvsManager(*logManager);
     TaskManager* taskManager = new TaskManager(*logManager);
+    CpuMonitor* cpuMonitor = new CpuMonitor();
+    RamMonitor* ramMonitor = new RamMonitor();
     Monitor* monitor = new Monitor(*logManager, *taskManager);
     WifiDriver* wifiManager = new WifiDriver();
     EspnowDriver* espnowDriver = new EspnowDriver(*logManager, *taskManager);
@@ -29,7 +33,8 @@ extern "C" void app_main(void)
     EspmeshManager* espmeshManager = new EspmeshManager(*espmeshDriver, *espnowManager, *logManager, *taskManager);
     EspmeshServer* espmeshServer = new EspmeshServer(*espmeshDriver, *logManager, *taskManager);
 
-    monitor->Subscribe(monitor);
+    // monitor->Subscribe(cpuMonitor);
+    monitor->Subscribe(ramMonitor);
     monitor->Subscribe(espnowManager);
     // monitor->Subscribe(espmeshManager);
     // monitor->Subscribe(espmeshServer);
@@ -42,6 +47,8 @@ extern "C" void app_main(void)
     components->push_back(logManager);
     components->push_back(nvsManager);
     components->push_back(taskManager);
+    components->push_back(cpuMonitor);
+    components->push_back(ramMonitor);
     components->push_back(monitor);
     components->push_back(wifiManager);
     components->push_back(espnowDriver);
