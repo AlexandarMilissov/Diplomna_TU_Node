@@ -4,7 +4,6 @@ idf_component_register( SRCS
                         "EspnowManager/src/EspnowManagerCommunication.cpp"
                         "EspnowPeer/EspnowPeer.cpp"
                         "Series/OpenSeries.cpp"
-                        "Series/ClosedSeries.cpp"
                         "Distance/Distance.cpp"
                         "Messages/src/EspnowMessageRequest.cpp"
                         "Messages/src/EspnowMessageAcknowledge.cpp"

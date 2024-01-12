@@ -27,6 +27,7 @@ class EspnowPeer : public IMonitorable
         Distance distance;
         MacAddress sourceAddress;
         std::vector<std::tuple<OpenSeries*, uint8>*> openSeries;
+        uint16 failedSeries = 0;
         Spinlock subscriptionStateLock = Spinlock_Init;
         Spinlock calculationDataLock = Spinlock_Init;
         std::atomic<bool> isPeerSubscribedToUs   = false;

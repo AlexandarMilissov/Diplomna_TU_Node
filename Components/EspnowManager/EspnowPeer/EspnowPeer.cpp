@@ -73,6 +73,11 @@ std::string EspnowPeer::GetMonitorData()
     std::string peerLog = sourceAddress.ToString() + "\n";
 
     peerLog += distance.GetMonitorData();
+
+    float failure_rate = ((float)(failedSeries * 100)) / ((float)(failedSeries + distance.GetValuesCount()));
+    peerLog += std::to_string(failedSeries) + " failed series.\n";
+    peerLog += std::to_string(failure_rate) + "% failure rate.\n";
+
     return peerLog;
 }
 
@@ -238,9 +243,14 @@ void EspnowPeer::Refresh()
         life--;
         if(0 == life)
         {
-            ClosedSeries* cs = series->CloseSeries();
-            distance.AddSeries(cs);
-            delete cs;
+            try {
+                distance.AddValue(series->CloseSeries());
+            }
+            catch(const std::exception& e)
+            {
+                failedSeries++;
+            }
+
             delete series;
             delete *it;
             it = openSeries.erase(it);

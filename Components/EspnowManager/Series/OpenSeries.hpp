@@ -2,8 +2,20 @@
 #define SERIES_HPP_
 
 #include "Common.hpp"
-#include "SeriesCommon.hpp"
-#include "ClosedSeries.hpp"
+
+typedef sint32 DistanceUnits;
+
+/**
+ * @typedef SeriesId
+ * @brief Represents a unique identifier for the series that a given node is sending.
+ */
+typedef uint32 SeriesId;
+
+/**
+ * @typedef MessagePositionId
+ * @brief Represents a unique identifier for the position of a message in a series.
+ */
+typedef uint8 MessagePositionId;
 
 class OpenSeries
 {
@@ -21,7 +33,7 @@ class OpenSeries
         static uint8 GetNumberOfMessagesPerSeries();
         void AddValue(MessagePositionId, RSSI_Type);
         bool IsCorrectId(SeriesId);
-        ClosedSeries* CloseSeries();
+        DistanceUnits CloseSeries();
 };
 
 #endif // SERIES_HPP_

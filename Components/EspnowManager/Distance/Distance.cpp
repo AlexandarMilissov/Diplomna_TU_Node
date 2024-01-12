@@ -8,47 +8,47 @@
 #define FORMULA_CONSTANT 10
 const float minimumConfidenceInterval = (float)CONFIG_MINIMUM_CONFIDENCE_INTERVAL / 2.0;
 
-void Distance::AddSeriesSafe(ClosedSeries *cs)
+void Distance::AddValue(DistanceUnits distance)
 {
     // Add the value to the map
     // If the value has been added before
     // Increase the number of occurrences by 1
     // If its the first time we see the value
     // Add it and set the number of occurrences to 1
-    if (values.count(*cs))
+    if (values.count(distance))
     {
-        values[*cs]++;
+        values[distance]++;
     }
     else
     {
-        values[*cs] = 1;
+        values[distance] = 1;
     }
     valuesCount++;
-    sumOfAll += *cs;
+    sumOfAll += distance;
 
-    AssignMostCommon(*cs);
+    AssignMostCommon(distance);
 }
 
-void Distance::AssignMostCommon(ClosedSeries cs)
+void Distance::AssignMostCommon(DistanceUnits distance)
 {
-    // If this is the first value assign it
+    // If this is the first value - assign it
     if (0 == mostCommonCount)
     {
-        mostCommon = cs;
+        mostCommon = distance;
         mostCommonCount++;
     }
     // If this is the same value as the most most common
     // Increase the mostCommonCount
-    else if (cs == mostCommon)
+    else if (distance == mostCommon)
     {
-        mostCommonCount = values[cs];
+        mostCommonCount = values[distance];
     }
     // If this series has more values than the most common
     // Assign it as the most common
-    else if (values[cs] > mostCommonCount)
+    else if (values[distance] > mostCommonCount)
     {
-        mostCommon = cs;
-        mostCommonCount = values[cs];
+        mostCommon = distance;
+        mostCommonCount = values[distance];
     }
 }
 
@@ -109,21 +109,7 @@ bool Distance::IsCalculationRequired()
     return ret;
 }
 
-void Distance::AddSeries(ClosedSeries *cs)
-{
-    // Check if the added value is valid
-    // If it's not then discard it
-    if (cs->IsDefault())
-    {
-        failedSeries++;
-    }
-    else
-    {
-        AddSeriesSafe(cs);
-    }
-}
-
-uint32 Distance::GetSeriesCount()
+uint32 Distance::GetValuesCount()
 {
     return valuesCount;
 }
@@ -204,10 +190,7 @@ std::string Distance::GetMonitorData()
 
 
     // Additional information
-    float failure_rate = ((float)(failedSeries * 100)) / ((float)(failedSeries + valuesCount));
-    distanceLog += std::to_string(failedSeries) + " failed series.\n";
-    distanceLog += std::to_string(valuesCount ) + " successful series.\n";
-    distanceLog += std::to_string(failure_rate) + "% failure rate.\n";
+    distanceLog += std::to_string(valuesCount ) + " total values.\n";
 
     if (IsCalculationRequired() != 0)
     {

@@ -1,7 +1,7 @@
 #ifndef RSSI_MESSAGE_CALCULATION_HPP_
 #define RSSI_MESSAGE_CALCULATION_HPP_
 
-#include "SeriesCommon.hpp"
+#include "OpenSeries.hpp"
 #include "IEspnowMessage.hpp"
 
 class EspnowMessageCalculation: public IEspnowMessage
@@ -12,7 +12,6 @@ private:
     MessagePositionId messagePositionId;
     static SeriesId send_series_Id;
     static MessagePositionId send_message_Position_Id;
-    static uint8 GetElementsSize();
 public:
     EspnowMessageCalculation(std::queue<Payload>);
     EspnowMessageCalculation();

@@ -18,29 +18,26 @@ class Distance : public IMonitorable
         static const uint32 maxNumberOfValues = CONFIG_MAXIMUM_NUMBER_OF_VALUES;
         static const uint16 resolution = CONFIG_RESOLUTION;
 
-        std::map<ClosedSeries, int> values;
+        std::map<DistanceUnits, int> values;
         uint16 valuesCount = 0;
         uint16 valuesCountOld = 0;
         sint64 sumOfAll = 0;
         float mean = 0; // Average
         float standardDeviation = 0;
 
-        ClosedSeries mostCommon;
+        DistanceUnits mostCommon;
         uint16 mostCommonCount = 0;
         float confidenceInterval = 0;
 
-        uint16 failedSeries = 0;
-
-        void AddSeriesSafe(ClosedSeries*);
-        void AssignMostCommon(ClosedSeries);
+        void AssignMostCommon(DistanceUnits);
         void CalculateStandardDeviation();
         void CalculateConfidenceInterval();
     public:
         Distance();
         ~Distance();
         bool IsCalculationRequired();
-        void AddSeries(ClosedSeries*);
-        uint32 GetSeriesCount();
+        void AddValue(DistanceUnits);
+        uint32 GetValuesCount();
         void Recalculate();
         static uint8 GetRequestedRepetitions();
         static DistanceUnits Float_To_DistanceUnits(float);

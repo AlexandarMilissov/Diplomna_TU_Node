@@ -1,5 +1,7 @@
 #include "OpenSeries.hpp"
 #include "Distance.hpp"
+#include <stdexcept>
+
 
 OpenSeries::OpenSeries(SeriesId _id) : id(_id)
 {
@@ -58,21 +60,15 @@ bool OpenSeries::IsCorrectId(SeriesId _id)
     return (_id == id);
 }
 
-ClosedSeries* OpenSeries::CloseSeries()
+DistanceUnits OpenSeries::CloseSeries()
 {
     isClosed = true;
-    ClosedSeries* closedSeries;
     if(minimumNumberOfMessagesForCalculation >= counter)
     {
-        closedSeries = new ClosedSeries();
-    }
-    else
-    {
-        float average = ((float)totalRSSIOfMessages) / counter;
-        DistanceUnits value = Distance::Float_To_DistanceUnits(average);
-
-        closedSeries = new ClosedSeries(value);
+        throw std::runtime_error("Not enough messages to calculate distance.");
     }
 
-    return closedSeries;
+    float average = ((float)totalRSSIOfMessages) / counter;
+
+    return Distance::Float_To_DistanceUnits(average);
 }
