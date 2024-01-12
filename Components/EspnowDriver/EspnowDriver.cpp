@@ -130,7 +130,7 @@ void EspnowDriver::Send(const MacAddress dst_addr, const std::stack<Payload> pay
     // Forums said locking the send should help reduce errors
     // https://esp32.com/viewtopic.php?t=17592
     Enter_Critical_Spinlock(sendLock);
-    err = esp_now_send(communicationChannelEspnowMac.GetAddress(), data.data, data.GetSize());
+    err = esp_now_send(communicationChannelEspnowMac.GetAddress(), (uint8*)data.GetData(), data.GetSize());
     Exit_Critical_Spinlock(sendLock);
 
     // Check if the message was sent successfully

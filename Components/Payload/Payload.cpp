@@ -21,19 +21,19 @@ Payload::Payload(const size_t size) : size(size)
     }
 }
 
-Payload::Payload(const uint8* newData, const size_t size) : size(size)
+Payload::Payload(const void* newData, const size_t size) : size(size)
 {
     if(size > 0)
     {
-        data = (uint8*)malloc(sizeof(uint8) * size);
+        data = malloc(size);
         memcpy(data, newData, size);
     }
 }
 
 Payload::Payload(const MacAddress& mac) : size(MAC_ADDRESS_LENGTH)
 {
-    data = (uint8*)malloc(sizeof(uint8) * size);
-    mac.CopyTo(data);
+    data = malloc(size);
+    mac.CopyTo((uint8*)data);
 }
 
 Payload::~Payload()
@@ -44,57 +44,14 @@ Payload::~Payload()
     }
 }
 
-Payload& Payload::operator+=(const Payload &add)
-{
-    if(add.size > 0)
-    {
-        data = (uint8*)realloc(data, size + add.size);
-        memcpy(data + size, add.data, add.size);
-
-        size += add.size;
-    }
-    return *this;
-}
-
-Payload& Payload::operator>>=(Payload &sub)
-{
-    if(sub.size > 0)
-    {
-        if(size > sub.size)
-        {
-            uint8* temp;
-            temp = (uint8*)malloc(size - sub.size);
-
-            memcpy(sub.data, data, sub.size);
-            size -= sub.size;
-            memcpy(temp, data + sub.size, size);
-
-            free(data);
-            data = temp;
-        }
-        else if (size == sub.size)
-        {
-            memcpy(sub.data, data, size);
-            free(data);
-            size = 0;
-        }
-        else
-        {
-            throw std::invalid_argument("Cannot extract payload bigger than the current one.");
-        }
-    }
-
-    return *this;
-}
-
 size_t Payload::GetSize() const
 {
     return size;
 }
 
-size_t Payload::GetSizeOfSize()
+void* Payload::GetData() const
 {
-    return sizeof(size);
+    return data;
 }
 
 Payload Payload::Compose(std::stack<Payload> payloadStack)
@@ -110,7 +67,7 @@ Payload Payload::Compose(std::stack<Payload> payloadStack)
 
         // Get the size of the payload
         size_t payloadSize = payload.GetSize();
-        static size_t sizeOfPayloadSize = Payload::GetSizeOfSize();
+        static size_t sizeOfPayloadSize = sizeof(size);
 
         // Allocate memory for the size of the payload
         data = (uint8*)realloc(data, len + sizeOfPayloadSize);
@@ -139,12 +96,12 @@ Payload Payload::Compose(std::stack<Payload> payloadStack)
 std::queue<Payload> Payload::Decompose(const Payload& data)
 {
     std::queue<Payload> payloadQueue;
-    uint8* dataPointer = data.data;
+    uint8* dataPointer = (uint8*)data.GetData();
     size_t payloadLen;
     size_t len = data.GetSize();
     while(len > 0)
     {
-        static size_t sizeOfPayloadSize = Payload::GetSizeOfSize();
+        static size_t sizeOfPayloadSize = sizeof(size);
 
         if(len <= sizeOfPayloadSize)
         {

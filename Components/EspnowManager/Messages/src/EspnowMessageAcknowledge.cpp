@@ -10,7 +10,7 @@ EspnowMessageAcknowledge::EspnowMessageAcknowledge(std::queue<Payload> payloadQu
     }
 
     Payload message = payloadQueue.front();
-    status = (bool)(message.data);
+    status = (bool)(message.GetData());
 }
 
 EspnowMessageAcknowledge::EspnowMessageAcknowledge(bool _status)

@@ -1,7 +1,7 @@
 #include "OpenSeries.hpp"
 #include "Distance.hpp"
 
-OpenSeries::OpenSeries(Series_Id _id) : id(_id)
+OpenSeries::OpenSeries(SeriesId _id) : id(_id)
 {
 }
 
@@ -24,7 +24,7 @@ uint8 OpenSeries::GetNumberOfMessagesPerSeries()
  * @param messageId A unique identifier for the message position.
  * @param rssi The Received Signal Strength Indication (RSSI) associated with the message.
  */
-void OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
+void OpenSeries::AddValue(MessagePositionId messageId, RSSI_Type rssi)
 {
     // Check if the OpenSeries instance is already closed.
     if(isClosed)
@@ -53,7 +53,7 @@ void OpenSeries::AddValue(Message_Position_Id messageId, RSSI_Type rssi)
     counter++;
 }
 
-bool OpenSeries::IsCorrectId(Series_Id _id)
+bool OpenSeries::IsCorrectId(SeriesId _id)
 {
     return (_id == id);
 }

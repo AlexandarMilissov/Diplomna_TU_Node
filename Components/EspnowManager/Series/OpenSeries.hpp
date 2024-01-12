@@ -12,15 +12,15 @@ class OpenSeries
         static const uint8 minimumNumberOfMessagesForCalculation = CONFIG_MINIMUM_NUMBER_OF_MESSAGES_PER_SERIES;
         RSSI_Type messagesRSSI[numberOfMessagesPerSeries] = {0};
         RSSI_Type totalRSSIOfMessages = 0;
-        const Series_Id id;
+        const SeriesId id;
         bool isClosed = false;
         uint8 counter = 0;
     public:
-        OpenSeries(Series_Id);
+        OpenSeries(SeriesId);
         ~OpenSeries();
         static uint8 GetNumberOfMessagesPerSeries();
-        void AddValue(Message_Position_Id, RSSI_Type);
-        bool IsCorrectId(Series_Id);
+        void AddValue(MessagePositionId, RSSI_Type);
+        bool IsCorrectId(SeriesId);
         ClosedSeries* CloseSeries();
 };
 

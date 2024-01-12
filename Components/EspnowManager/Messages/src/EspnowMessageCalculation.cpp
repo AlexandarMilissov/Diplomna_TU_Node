@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <string.h>
 
-Series_Id EspnowMessageCalculation::send_series_Id = 0;
-Message_Position_Id EspnowMessageCalculation::send_message_Position_Id = 0;
+SeriesId EspnowMessageCalculation::send_series_Id = 0;
+MessagePositionId EspnowMessageCalculation::send_message_Position_Id = 0;
 
 EspnowMessageCalculation::EspnowMessageCalculation(std::queue<Payload> payloadQueueOriginal)
 {
@@ -22,7 +22,7 @@ EspnowMessageCalculation::EspnowMessageCalculation(std::queue<Payload> payloadQu
         // Get the series id
         Payload seriesIdPayload = payloadQueue.front();
         payloadQueue.pop();
-        series_Id = *(seriesIdPayload.data);
+        seriesId = *((SeriesId*)seriesIdPayload.GetData());
     }
     {
         // Check if the queue is empty
@@ -34,7 +34,7 @@ EspnowMessageCalculation::EspnowMessageCalculation(std::queue<Payload> payloadQu
         // Get the message position id
         Payload messagePositionIdPayload = payloadQueue.front();
         payloadQueue.pop();
-        message_Position_Id = *(messagePositionIdPayload.data);
+        messagePositionId = *((MessagePositionId*)messagePositionIdPayload.GetData());
     }
     {
         // Check if the queue is empty
@@ -46,14 +46,14 @@ EspnowMessageCalculation::EspnowMessageCalculation(std::queue<Payload> payloadQu
         // Get the RSSI
         Payload rssiPayload = payloadQueue.front();
         payloadQueue.pop();
-        RSSI = *((RSSI_Type*)rssiPayload.data);
+        RSSI = *((RSSI_Type*)rssiPayload.GetData());
     }
 }
 
 EspnowMessageCalculation::EspnowMessageCalculation()
 {
-    series_Id = send_series_Id;
-    message_Position_Id = send_message_Position_Id;
+    seriesId = send_series_Id;
+    messagePositionId = send_message_Position_Id;
 
     if((OpenSeries::GetNumberOfMessagesPerSeries() - 1) > send_message_Position_Id)
     {
@@ -66,14 +66,14 @@ EspnowMessageCalculation::EspnowMessageCalculation()
     }
 }
 
-Series_Id EspnowMessageCalculation::GetSeriesID()
+SeriesId EspnowMessageCalculation::GetSeriesID()
 {
-    return series_Id;
+    return seriesId;
 }
 
-Message_Position_Id EspnowMessageCalculation::GetMessagePosition()
+MessagePositionId EspnowMessageCalculation::GetMessagePosition()
 {
-    return message_Position_Id;
+    return messagePositionId;
 }
 
 RSSI_Type EspnowMessageCalculation::GetRSSI()
@@ -85,8 +85,8 @@ std::stack<Payload> EspnowMessageCalculation::GetPayload() const
 {
     EspnowMessageType messageType = NOW_CALCULATION;
 
-    Payload seriesIdPayload((uint8*)(&series_Id), sizeof(series_Id));
-    Payload messagePositionIdPayload((uint8*)(&message_Position_Id), sizeof(message_Position_Id));
+    Payload seriesIdPayload((uint8*)(&seriesId), sizeof(seriesId));
+    Payload messagePositionIdPayload((uint8*)(&messagePositionId), sizeof(messagePositionId));
     Payload messageTypePayload((uint8*)(&messageType), sizeof(messageType));
 
     std::stack<Payload> payloadQueue;

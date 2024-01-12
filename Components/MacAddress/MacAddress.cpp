@@ -20,7 +20,7 @@ MacAddress::MacAddress(const Payload& payload)
     {
         throw std::invalid_argument("Payload size does not match MAC address length.");
     }
-    memcpy(this->address, payload.data, MAC_ADDRESS_LENGTH);
+    memcpy(this->address, payload.GetData(), MAC_ADDRESS_LENGTH);
 }
 
 void MacAddress::CopyTo(uint8* destination) const

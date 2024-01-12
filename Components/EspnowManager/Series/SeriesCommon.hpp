@@ -5,15 +5,15 @@
 typedef sint32 DistanceUnits;
 
 /**
- * @typedef Series_Id
+ * @typedef SeriesId
  * @brief Represents a unique identifier for the series that a given node is sending.
  */
-typedef uint32 Series_Id;
+typedef uint32 SeriesId;
 
 /**
- * @typedef Message_Position_Id
+ * @typedef MessagePositionId
  * @brief Represents a unique identifier for the position of a message in a series.
  */
-typedef uint8 Message_Position_Id;
+typedef uint8 MessagePositionId;
 
 #endif // SERIESCOMMON_HPP_

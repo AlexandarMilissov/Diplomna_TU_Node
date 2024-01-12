@@ -11,7 +11,7 @@ EspnowMessageRequest::EspnowMessageRequest(std::queue<Payload> payloadQueue)
     }
 
     Payload message = payloadQueue.front();
-    subscriptionStatus = *(message.data);
+    subscriptionStatus = *((bool*)message.GetData());
 }
 
 // Functions for sending messages
