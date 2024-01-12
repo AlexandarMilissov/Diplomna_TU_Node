@@ -11,16 +11,9 @@
 #include "IEspnowController.hpp"
 #include "IMonitorable.hpp"
 #include "LogManager.hpp"
-#include <list>
 #include <atomic>
 #include <queue>
-
-// TODO: Replace with tuple
-typedef struct SeriesLife
-{
-    OpenSeries* series;
-    uint8 life;
-}SeriesLife;
+#include <tuple>
 
 class EspnowPeer : public IMonitorable
 {
@@ -33,7 +26,7 @@ class EspnowPeer : public IMonitorable
         LogManager logManager;
         Distance distance;
         MacAddress sourceAddress;
-        std::vector<SeriesLife> openSeries;
+        std::vector<std::tuple<OpenSeries*, uint8>*> openSeries;
         Spinlock subscriptionStateLock = Spinlock_Init;
         Spinlock calculationDataLock = Spinlock_Init;
         std::atomic<bool> isPeerSubscribedToUs   = false;

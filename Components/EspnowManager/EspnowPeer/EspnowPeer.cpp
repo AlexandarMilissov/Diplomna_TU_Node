@@ -101,9 +101,10 @@ EspnowPeer::~EspnowPeer()
     {
         espnowController.Unsubscribe();
     }
-    for(auto& s : openSeries)
+    for(auto& series : openSeries)
     {
-        delete s.series;
+        delete std::get<0>(*series);
+        delete series;
     }
 }
 
@@ -159,27 +160,27 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
 
 void EspnowPeer::ReceiveMessage(EspnowMessageCalculation   message)
 {
-    OpenSeries* series = NULL;
+    OpenSeries* currentOpenSeries = NULL;
 
     Enter_Critical_Spinlock(calculationDataLock);
 
-    for(auto& s : openSeries)
+    for(auto& tuple : openSeries)
     {
-        if(s.series->IsCorrectId(message.GetSeriesID()))
+        OpenSeries* series = std::get<0>(*tuple);
+
+        if(series->IsCorrectId(message.GetSeriesID()))
         {
-            series = s.series;
+            currentOpenSeries = series;
             break;
         }
     }
-    if(NULL == series)
+    if(NULL == currentOpenSeries)
     {
-        series = new OpenSeries(message.GetSeriesID());
-        SeriesLife sl;
-        sl.life = seriesBeginningLife;
-        sl.series = series;
-        openSeries.push_back(sl);
+        currentOpenSeries = new OpenSeries(message.GetSeriesID());
+        auto tuple = new std::tuple<OpenSeries*, uint8>(currentOpenSeries, seriesBeginningLife);
+        openSeries.push_back(tuple);
     }
-    series->AddValue(message.GetMessagePosition(), message.GetRSSI());
+    currentOpenSeries->AddValue(message.GetMessagePosition(), message.GetRSSI());
 
     Exit_Critical_Spinlock(calculationDataLock);
 }
@@ -230,18 +231,18 @@ void EspnowPeer::Refresh()
     Exit_Critical_Spinlock(subscriptionStateLock);
 
     Enter_Critical_Spinlock(calculationDataLock);
-    for(auto it = openSeries.begin(); it != openSeries.end();)
+    auto it = openSeries.begin();
+    while (it != openSeries.end())
     {
-        (*it).life--;
-        if(0 == (*it).life)
+        auto& [series, life] = **it;
+        life--;
+        if(0 == life)
         {
-            ClosedSeries* cs = (*it).series->CloseSeries();
-
+            ClosedSeries* cs = series->CloseSeries();
             distance.AddSeries(cs);
-
-            delete (cs);
-
-            delete((*it).series);
+            delete cs;
+            delete series;
+            delete *it;
             it = openSeries.erase(it);
         }
         else
