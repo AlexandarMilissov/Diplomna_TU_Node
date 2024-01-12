@@ -162,7 +162,10 @@ DistanceUnits Distance::Float_To_DistanceUnits(float value)
     float power = (RSSI_DBM_REF_AT_1_M - static_cast<float>(value)) / (FORMULA_CONSTANT * ENV_VARIABLE);
 
     // Convert the power back to linear scale and scale by distance units in one meter:
-    return round(pow(LOG_SCALE_BASE, power) * resolution);
+
+    float ret = round(pow(LOG_SCALE_BASE, power) * resolution);
+
+    return ret;
 #endif
 }
 

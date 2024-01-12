@@ -11,6 +11,13 @@
 #define CORE_0 0
 #define CORE_1 1
 
+#define DISABLE_OPTIMIZATION \
+    _Pragma("GCC push_options") \
+    _Pragma("GCC optimize (\"O0\")")
+
+#define ENABLE_OPTIMIZATION \
+    _Pragma("GCC pop_options")
+
 typedef portMUX_TYPE Spinlock;
 #define Spinlock_Init portMUX_INITIALIZER_UNLOCKED
 #define Enter_Critical_Spinlock(mux)        taskENTER_CRITICAL(&mux)

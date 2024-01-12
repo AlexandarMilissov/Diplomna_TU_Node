@@ -76,4 +76,3 @@ ClosedSeries* OpenSeries::CloseSeries()
 
     return closedSeries;
 }
-

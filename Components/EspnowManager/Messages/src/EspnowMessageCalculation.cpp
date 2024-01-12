@@ -46,7 +46,7 @@ EspnowMessageCalculation::EspnowMessageCalculation(std::queue<Payload> payloadQu
         // Get the RSSI
         Payload rssiPayload = payloadQueue.front();
         payloadQueue.pop();
-        RSSI = *(rssiPayload.data);
+        RSSI = *((RSSI_Type*)rssiPayload.data);
     }
 }
 
