@@ -20,22 +20,22 @@ extern "C" void app_main(void)
 {
     components = new std::vector<IComponent*>();
 
-    LogManager* logManager = new LogManager();
-    NvsManager* nvsManager = new NvsManager(*logManager);
-    TaskManager* taskManager = new TaskManager(*logManager);
-    CpuMonitor* cpuMonitor = new CpuMonitor();
-    RamMonitor* ramMonitor = new RamMonitor();
-    Monitor* monitor = new Monitor(*logManager, *taskManager);
-    WifiDriver* wifiManager = new WifiDriver();
-    EspnowDriver* espnowDriver = new EspnowDriver(*logManager, *taskManager);
-    EspmeshDriver* espmeshDriver = new EspmeshDriver(*nvsManager, *logManager, *taskManager);
-    EspnowManager* espnowManager = new EspnowManager(*espnowDriver, *logManager, *taskManager);
-    EspmeshManager* espmeshManager = new EspmeshManager(*espmeshDriver, *espnowManager, *logManager, *taskManager);
-    EspmeshServer* espmeshServer = new EspmeshServer(*espmeshDriver, *logManager, *taskManager);
+    auto logManager     = new LogManager    ();
+    auto cpuMonitor     = new CpuMonitor    ();
+    auto ramMonitor     = new RamMonitor    ();
+    auto wifiManager    = new WifiDriver    ();
+    auto nvsManager     = new NvsManager    (*logManager);
+    auto taskManager    = new TaskManager   (*logManager);
+    auto monitor        = new Monitor       (*logManager, *taskManager);
+    auto espnowDriver   = new EspnowDriver  (*logManager, *taskManager);
+    auto espmeshDriver  = new EspmeshDriver (*logManager, *taskManager, *nvsManager);
+    auto espnowManager  = new EspnowManager (*logManager, *taskManager, *espnowDriver);
+    auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *espmeshDriver, *espnowManager);
+    auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *espmeshDriver);
 
     // monitor->Subscribe(cpuMonitor);
-    monitor->Subscribe(ramMonitor);
-    monitor->Subscribe(espnowManager);
+    // monitor->Subscribe(ramMonitor);
+    // monitor->Subscribe(espnowManager);
     // monitor->Subscribe(espmeshManager);
     // monitor->Subscribe(espmeshServer);
 
@@ -52,7 +52,7 @@ extern "C" void app_main(void)
     components->push_back(monitor);
     components->push_back(wifiManager);
     components->push_back(espnowDriver);
-    // components->push_back(espmeshDriver);
+    components->push_back(espmeshDriver);
     components->push_back(espnowManager);
     components->push_back(espmeshManager);
 
@@ -60,8 +60,6 @@ extern "C" void app_main(void)
     {
         component->Init();
     }
-
-    espnowManager->ActivateNetwork();
 
     logManager->Log(E, "System", "This is %s. End of Init.\n", nvsManager->GetVar<std::string>("Info", "name", "Default").c_str());
 }

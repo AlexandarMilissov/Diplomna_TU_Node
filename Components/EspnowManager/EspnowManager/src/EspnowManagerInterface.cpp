@@ -5,13 +5,13 @@
 #include "EspnowPeer.hpp"
 
 EspnowManager::EspnowManager(
-    IMessageSender& lowerLayer,
     LogManager& logManager,
-    IScheduler& taskManager
+    IScheduler& taskManager,
+    IMessageSender& lowerLayer
 ) :
-    lowerLayer(lowerLayer),
     logManager(logManager),
-    taskManager(taskManager)
+    taskManager(taskManager),
+    lowerLayer(lowerLayer)
 {}
 
 EspnowManager::~EspnowManager()

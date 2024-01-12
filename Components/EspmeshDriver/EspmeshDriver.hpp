@@ -12,9 +12,9 @@
 class EspmeshDriver : public IComponent, public IMessageSender
 {
 private:
-    NvsManager& nvsManager;
     LogManager& logManager;
     IScheduler& scheduler;
+    NvsManager& nvsManager;
 
     static std::vector<EspmeshDriver*> drivers;
 
@@ -31,9 +31,9 @@ private:
     void Receive();
 public:
     EspmeshDriver(
-        NvsManager& nvsManager,
         LogManager& logManager,
-        IScheduler& scheduler
+        IScheduler& scheduler,
+        NvsManager& nvsManager
     );
 
     void Init();

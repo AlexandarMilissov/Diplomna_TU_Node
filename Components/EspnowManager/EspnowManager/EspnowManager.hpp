@@ -37,9 +37,9 @@ private:
     std::vector<EspnowPeer*> espnowPeers;
     Spinlock peerListLock = Spinlock_Init;
 
-    IMessageSender& lowerLayer;
     LogManager& logManager;
     IScheduler& taskManager;
+    IMessageSender& lowerLayer;
 
     void MainFunctionUpdatePeers();
     void MainFunctionSendCyclicKeepAlive();
@@ -48,9 +48,9 @@ private:
 
 public:
     EspnowManager(
-        IMessageSender& lowerLayer,
         LogManager& logManager,
-        IScheduler& taskManager
+        IScheduler& taskManager,
+        IMessageSender& lowerLayer
     );
 
     ~EspnowManager();

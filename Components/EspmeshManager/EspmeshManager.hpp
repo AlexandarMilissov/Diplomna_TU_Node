@@ -26,10 +26,10 @@ typedef enum
 class EspmeshManager : public IComponent, public IMessageReceiver, public IMonitorable
 {
 private:
-    IMessageSender& lowerLayer;
-    IEspnowController& espnowController;
     LogManager& logManager;
     IScheduler& taskManager;
+    IMessageSender& lowerLayer;
+    IEspnowController& espnowController;
 
     std::atomic<EspmeshManagerState> internalState = MESH_NO_INIT;
     MacAddress rootAddress;
@@ -39,15 +39,15 @@ private:
     void MainFunctionSendKeepAlive();
 public:
     EspmeshManager(
-        IMessageSender& lowerLayer,
-        IEspnowController& espnowController,
         LogManager& logManager,
-        IScheduler& taskManager
+        IScheduler& taskManager,
+        IMessageSender& lowerLayer,
+        IEspnowController& espnowController
         ) :
-        lowerLayer(lowerLayer),
-        espnowController(espnowController),
         logManager(logManager),
-        taskManager(taskManager)
+        taskManager(taskManager),
+        lowerLayer(lowerLayer),
+        espnowController(espnowController)
         {}
     ~EspmeshManager() {}
     void Init();

@@ -17,13 +17,13 @@ static uint8_t rx_buf[RX_SIZE] = { 0, };
 std::vector<EspmeshDriver*> EspmeshDriver::drivers;
 
 EspmeshDriver::EspmeshDriver(
-    NvsManager& nvsManager,
     LogManager& logManager,
-    IScheduler& scheduler
+    IScheduler& scheduler,
+    NvsManager& nvsManager
 ) :
-    nvsManager(nvsManager),
     logManager(logManager),
-    scheduler(scheduler)
+    scheduler(scheduler),
+    nvsManager(nvsManager)
 {
     drivers.push_back(this);
 }

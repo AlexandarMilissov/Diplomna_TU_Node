@@ -12,19 +12,19 @@
 class EspmeshServer : public IComponent, public IMessageReceiver, public IMonitorable
 {
 private:
-    IMessageSender& lowerLayer;
     LogManager& logManager;
     IScheduler& taskManager;
+    IMessageSender& lowerLayer;
 
 public:
     EspmeshServer(
-        IMessageSender& lowerLayer,
         LogManager& logManager,
-        IScheduler& taskManager
+        IScheduler& taskManager,
+        IMessageSender& lowerLayer
         ) :
-        lowerLayer(lowerLayer),
         logManager(logManager),
-        taskManager(taskManager)
+        taskManager(taskManager),
+        lowerLayer(lowerLayer)
     {}
 
     void Init();
