@@ -74,6 +74,8 @@ std::string EspnowPeer::GetMonitorData()
 
     peerLog += distance.GetMonitorData();
 
+    peerLog += "\n";
+
     float failure_rate = ((float)(failedSeries * 100)) / ((float)(failedSeries + distance.GetValuesCount()));
     peerLog += std::to_string(failedSeries) + " failed series.\n";
     peerLog += std::to_string(failure_rate) + "% failure rate.\n";

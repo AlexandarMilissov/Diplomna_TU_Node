@@ -17,7 +17,7 @@ void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> 
 
     // Identify the sender
     Enter_Critical_Spinlock(peerListLock);
-    for(EspnowPeer* peer : Peers)
+    for(EspnowPeer* peer : espnowPeers)
     {
         if(peer->IsCorrectAddress(address))
         {
@@ -29,7 +29,7 @@ void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> 
     if(NULL == sender)
     {
         sender = new EspnowPeer(lowerLayer, *this, logManager, address);
-        Peers.push_back(sender);
+        espnowPeers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListLock);
 

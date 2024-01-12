@@ -34,7 +34,7 @@ private:
     std::atomic<EspnowManagerState> internalState = NOW_NO_INIT;
     std::atomic<uint16> calculationSubscribers = 0;
 
-    std::vector<EspnowPeer*> Peers;
+    std::vector<EspnowPeer*> espnowPeers;
     Spinlock peerListLock = Spinlock_Init;
 
     IMessageSender& lowerLayer;

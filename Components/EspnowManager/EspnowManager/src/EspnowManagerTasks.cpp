@@ -22,7 +22,7 @@
 
 void EspnowManager::Init()
 {
-    Peers = {};
+    espnowPeers = {};
 
     logManager.SetMinimalLevel("EspnowManager", I);
 
@@ -63,7 +63,7 @@ void EspnowManager::MainFunctionUpdatePeers()
     std::vector<EspnowPeer*> deadPeers;
 
     Enter_Critical_Spinlock(peerListLock);
-    for(auto peer : Peers)
+    for(auto peer : espnowPeers)
     {
         if(!peer->IsAlive())
         {
@@ -73,11 +73,11 @@ void EspnowManager::MainFunctionUpdatePeers()
     for(auto peer : deadPeers)
     {
         delete peer;
-        Peers.erase(std::remove(Peers.begin(), Peers.end(), peer), Peers.end());
+        espnowPeers.erase(std::remove(espnowPeers.begin(), espnowPeers.end(), peer), espnowPeers.end());
     }
     Exit_Critical_Spinlock(peerListLock);
 
-    for (auto peer : Peers)
+    for (auto peer : espnowPeers)
     {
         peer->Refresh();
     }
@@ -101,7 +101,7 @@ void EspnowManager::MainFunctionSendCyclicKeepAlive()
     lowerLayer.SendBroadcast(payloadStack);
 
     // Send needed subscription requests
-    for(auto& peer : Peers)
+    for(auto& peer : espnowPeers)
     {
         peer->SendSubscriptionRequest();
     }
@@ -148,7 +148,7 @@ std::string EspnowManager::GetMonitorData()
 {
     std::string messagesLog = "";
 
-    for(auto& peer : Peers)
+    for(auto& peer : espnowPeers)
     {
         messagesLog += peer->GetMonitorData();
     }

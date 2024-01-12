@@ -17,11 +17,11 @@ EspnowManager::EspnowManager(
 EspnowManager::~EspnowManager()
 {
     Enter_Critical_Spinlock(peerListLock);
-    for(auto& peer : Peers)
+    for(auto& peer : espnowPeers)
     {
         delete peer;
     }
-    Peers.clear();
+    espnowPeers.clear();
     Exit_Critical_Spinlock(peerListLock);
 }
 
