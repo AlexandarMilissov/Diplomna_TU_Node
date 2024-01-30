@@ -8,6 +8,7 @@
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "NvsManager.hpp"
+#include "MacAddress.hpp"
 
 class EspmeshDriver : public IComponent, public IMessageSender
 {
@@ -16,14 +17,34 @@ private:
     IScheduler& scheduler;
     NvsManager& nvsManager;
 
+    MacAddress myAddress;
+    MacAddress parentAddress;
+    MacAddress rootAddress;
+    MacAddress broadcastAddress;
+    Ipv4Address* myIp = NULL;
+    bool* isRoot = NULL;
+
+    size_t receiveBufferLength;
+    uint8* receiveBuffer = NULL;
+
     static std::vector<EspmeshDriver*> drivers;
 
     std::vector<IMessageReceiver*> upperLayerMessageables;
 
-    static void ReceiveMeshEvent(void*, esp_event_base_t, sint32, void*);
+    static void ReceiveWifiEvent(void*, esp_event_base_t, sint32, void*);
     void DistributeMeshEvents(void*, esp_event_base_t, sint32, void*);
+    void DistributeIpEvents(void*, esp_event_base_t, sint32, void*);
+
     void ReceiveMeshEventRootAddress(void*, esp_event_base_t, sint32, void*);
     void ReceiveMeshEventChildDisconnected(void*, esp_event_base_t, sint32, void*);
+    void ReceiveMeshEventParentConnected(void*, esp_event_base_t, sint32, void*);
+    void ReceiveMeshEventParentDisconnected(void*, esp_event_base_t, sint32, void*);
+    void ReceiveMeshEventToDsState(void*, esp_event_base_t, sint32, void*);
+
+    void ReceiveIpEventStaGotIp(void*, esp_event_base_t, sint32, void*);
+    void ReceiveIpEventStaLostIp(void*, esp_event_base_t, sint32, void*);
+
+    void NotifyUpperLayerRootIsSet();
 
     void ConnectRouterless();
     void ConnectRouter();
@@ -35,6 +56,8 @@ public:
         IScheduler& scheduler,
         NvsManager& nvsManager
     );
+
+    ~EspmeshDriver();
 
     void Init();
 

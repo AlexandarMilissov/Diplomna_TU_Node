@@ -23,15 +23,15 @@ extern "C" void app_main(void)
     auto logManager     = new LogManager    ();
     auto cpuMonitor     = new CpuMonitor    ();
     auto ramMonitor     = new RamMonitor    ();
-    auto wifiManager    = new WifiDriver    ();
+    auto wifiDriver     = new WifiDriver    ();
     auto nvsManager     = new NvsManager    (*logManager);
     auto taskManager    = new TaskManager   (*logManager);
     auto monitor        = new Monitor       (*logManager, *taskManager);
     auto espnowDriver   = new EspnowDriver  (*logManager, *taskManager);
     auto espmeshDriver  = new EspmeshDriver (*logManager, *taskManager, *nvsManager);
     auto espnowManager  = new EspnowManager (*logManager, *taskManager, *espnowDriver);
-    auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *espmeshDriver, *espnowManager);
     auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *espmeshDriver);
+    auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *espmeshDriver, *espnowManager);
 
     // monitor->Subscribe(cpuMonitor);
     // monitor->Subscribe(ramMonitor);
@@ -50,7 +50,7 @@ extern "C" void app_main(void)
     components->push_back(cpuMonitor);
     components->push_back(ramMonitor);
     components->push_back(monitor);
-    components->push_back(wifiManager);
+    components->push_back(wifiDriver);
     components->push_back(espnowDriver);
     components->push_back(espmeshDriver);
     components->push_back(espnowManager);

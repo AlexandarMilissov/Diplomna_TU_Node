@@ -38,6 +38,11 @@ void MacAddress::SetAddress(uint8* address)
     memcpy(this->address, address, MAC_ADDRESS_LENGTH);
 }
 
+bool MacAddress::IsDefault() const
+{
+    return memcmp(this->address, MacAddress().address, MAC_ADDRESS_LENGTH) == 0;
+}
+
 bool MacAddress::operator==(const MacAddress& other) const
 {
     return memcmp(this->address, other.address, MAC_ADDRESS_LENGTH) == 0;

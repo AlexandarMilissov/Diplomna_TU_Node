@@ -3,16 +3,10 @@
 #include "IEspmeshMessage.hpp"
 
 #include "esp_mesh.h"
-
 #include "esp_event.h"
 
 #include <string>
 #include <cstring>
-
-#define RX_SIZE          (1500)
-#define TX_SIZE          (1460)
-static uint8_t tx_buf[TX_SIZE] = { 0, };
-static uint8_t rx_buf[RX_SIZE] = { 0, };
 
 std::vector<EspmeshDriver*> EspmeshDriver::drivers;
 
@@ -28,11 +22,30 @@ EspmeshDriver::EspmeshDriver(
     drivers.push_back(this);
 }
 
-void EspmeshDriver::ReceiveMeshEvent(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+EspmeshDriver::~EspmeshDriver()
 {
-    for(EspmeshDriver* driver : drivers)
+    free(myIp);
+    free(isRoot);
+    free(receiveBuffer);
+}
+
+void EspmeshDriver::ReceiveWifiEvent(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    if(event_base == MESH_EVENT)
     {
-        driver->DistributeMeshEvents(arg, event_base, event_id, event_data);
+        // Event base is mesh
+        for(EspmeshDriver* driver : drivers)
+        {
+            driver->DistributeMeshEvents(arg, event_base, event_id, event_data);
+        }
+    }
+    else if (event_base == IP_EVENT)
+    {
+        // Event base is IP
+        for (EspmeshDriver* driver : drivers)
+        {
+            driver->DistributeIpEvents(arg, event_base, event_id, event_data);
+        }
     }
 }
 
@@ -79,14 +92,14 @@ void EspmeshDriver::ConnectRouterless()
 void EspmeshDriver::ConnectRouter()
 {
     // Enable mesh power saving function
-    ESP_ERROR_CHECK(esp_mesh_enable_ps());
+    ESP_ERROR_CHECK(esp_mesh_disable_ps());
     ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(30));
     ESP_ERROR_CHECK(esp_mesh_set_type(MESH_IDLE));
     ESP_ERROR_CHECK(esp_mesh_allow_root_conflicts(false));
     ESP_ERROR_CHECK(esp_mesh_fix_root(false));
 
-    std::string ssid = nvsManager.GetVar<std::string>("espMesh", "ssid", CONFIG_MESH_ROUTER_SSID);
-    std::string password = nvsManager.GetVar<std::string>("espMesh", "routerPass", CONFIG_MESH_ROUTER_PASSWD);
+    std::string           ssid = nvsManager.GetVar<std::string>("espMesh", "ssid",       CONFIG_MESH_ROUTER_SSID);
+    std::string       password = nvsManager.GetVar<std::string>("espMesh", "routerPass", CONFIG_MESH_ROUTER_PASSWD);
     std::string meshApPassword = nvsManager.GetVar<std::string>("espMesh", "meshApPass", CONFIG_MESH_AP_PASSWD);
 
     mesh_cfg_t cfg = {
@@ -123,10 +136,16 @@ void EspmeshDriver::ConnectRouter()
 void EspmeshDriver::Init()
 {
     logManager.SetMinimalLevel("EspmeshDriver", I);
+
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, EspmeshDriver::ReceiveWifiEvent, NULL));
+
+    receiveBufferLength = nvsManager.GetVar<uint16>("espMesh", "recvBuffLen", 1500);
+    receiveBuffer = (uint8*)malloc(receiveBufferLength);
+
     /*  mesh initialization */
     ESP_ERROR_CHECK(esp_mesh_init());
     /*  register mesh events handler */
-    ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, EspmeshDriver::ReceiveMeshEvent, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(MESH_EVENT, ESP_EVENT_ANY_ID, EspmeshDriver::ReceiveWifiEvent, NULL));
 
     ConnectRouter();
 
@@ -137,7 +156,7 @@ void EspmeshDriver::Init()
             esp_mesh_is_root_fixed() ? "root fixed" : "root not fixed",
             esp_mesh_get_topology(), esp_mesh_get_topology() ? "(chain)":"(tree)", esp_mesh_is_ps_enabled());
 
-    TaskConfig taskConfig(
+    TaskConfig taskConfigReceive(
         "EspmeshDriver Receive",
         [this](){ Receive(); },
         10,
@@ -146,7 +165,7 @@ void EspmeshDriver::Init()
         10
     );
 
-    scheduler.RequestTask(taskConfig);
+    scheduler.RequestTask(taskConfigReceive);
 }
 
 void EspmeshDriver::Subscribe(IMessageReceiver& component)
@@ -154,54 +173,101 @@ void EspmeshDriver::Subscribe(IMessageReceiver& component)
     upperLayerMessageables.push_back(&component);
 }
 
-void EspmeshDriver::Send(const MacAddress address, const std::stack<Payload> data)
+void EspmeshDriver::Send(const MacAddress address, const std::stack<Payload> dataStack)
 {
-    // esp_err_t err;
-    // mesh_addr_t to;
-    // mesh_data_t mesh_data;
-    // address.CopyTo(to.addr);
-    // mesh_data.data = data.data;
-    // mesh_data.size = data.GetSize();
-    // mesh_data.proto = MESH_PROTO_BIN;
-    // mesh_data.tos = MESH_TOS_P2P;
-    // int flags = 0;
-    // err = esp_mesh_send(NULL, &mesh_data, flags, NULL, 0);
-    // if(err != ESP_OK)
-    // {
-    //     logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
-    // }
+    if(address == myAddress || address == broadcastAddress)
+    {
+        std::queue<Payload> dataQueue;
+        std::stack<Payload> dataStackCopy = dataStack;
+
+        while (!dataStackCopy.empty()) {
+            dataQueue.push(dataStackCopy.top());
+            dataStackCopy.pop();
+        }
+
+        for(auto messageable : upperLayerMessageables)
+        {
+            messageable->Receive(address, dataQueue);
+        }
+    }
+
+    esp_err_t err;
+    mesh_addr_t meshAddress;
+    mesh_data_t meshData;
+
+    address.CopyTo(meshAddress.addr);
+    Payload data = Payload::Compose(dataStack);
+    meshData.data = (uint8*)data.GetData();
+    meshData.size = data.GetSize();
+    meshData.proto = MESH_PROTO_BIN;
+    meshData.tos = MESH_TOS_P2P;
+    int flags = MESH_DATA_P2P;
+    err = esp_mesh_send(&meshAddress, &meshData, flags, NULL, 0);
+    if(ESP_OK != err)
+    {
+        logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
+    }
 }
 
 void EspmeshDriver::SendBroadcast(const std::stack<Payload> data)
 {
-
+    Send(broadcastAddress, data);
 }
 
 void EspmeshDriver::Receive()
 {
-    mesh_rx_pending_t pending;
-    mesh_addr_t meshAddress;
-    esp_mesh_get_rx_pending(&pending);
-    int flags = MESH_DATA_FROMDS;
-    for(int i = 0; i < pending.toDS; i++)
+    mesh_addr_t from;
+    mesh_data_t meshData;
+    meshData.data = receiveBuffer;
+    meshData.size = receiveBufferLength;
+
+    int flag = 0;
+    uint8 operationsOfCycle = 0xFF;
+
+    while(operationsOfCycle > 0)
     {
-        mesh_data_t meshData;
-        esp_err_t err = esp_mesh_recv(&meshAddress, &meshData, 0, &flags, NULL, 0);
-        if(err == ESP_OK)
+        esp_err_t err = esp_mesh_recv(&from, &meshData, 0, &flag, NULL, 0);
+
+        if(ESP_ERR_MESH_TIMEOUT == err)
         {
-            MacAddress address(meshAddress.addr);
-            Payload payload(meshData.data, meshData.size);
-            std::queue<Payload> payloadQueue;
-            payloadQueue.push(payload);
-            for(auto messageable : upperLayerMessageables)
-            {
-                messageable->Receive(address, payloadQueue);
-            }
+            // No message received
+            break;
         }
-        else
+        else if(ESP_OK != err)
         {
-            logManager.Log(E, "EspmeshDriver", "Receive data fail.");
+            logManager.Log(E, "EspmeshDriver", "Receive data fail: %s", esp_err_to_name(err));
+            return;
         }
+
+        MacAddress address = MacAddress(from.addr);
+        std::queue<Payload> dataQueue = Payload::Decompose(meshData.data, meshData.size);
+
+        for(auto messageable : upperLayerMessageables)
+        {
+            messageable->Receive(address, dataQueue);
+        }
+
+        operationsOfCycle--;
+    }
+}
+
+void EspmeshDriver::DistributeIpEvents(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    LogSeverity logSeverity = I;
+    switch ((ip_event_t)event_id)
+    {
+    case IP_EVENT_STA_GOT_IP:
+        logManager.Log(logSeverity, "EspmeshDriver", "IP event: IP_EVENT_STA_GOT_IP");
+        ReceiveIpEventStaGotIp(arg, event_base, event_id, event_data);
+        break;
+    case IP_EVENT_STA_LOST_IP:
+        logManager.Log(logSeverity, "EspmeshDriver", "IP event: IP_EVENT_STA_LOST_IP");
+        ReceiveIpEventStaLostIp(arg, event_base, event_id, event_data);
+        break;
+
+    default:
+        logManager.Log(logSeverity, "EspmeshDriver", "IP event: Unknown event");
+        break;
     }
 }
 
@@ -225,6 +291,7 @@ void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base,
             break;
         case MESH_EVENT_CHILD_DISCONNECTED:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_CHILD_DISCONNECTED");
+            ReceiveMeshEventChildDisconnected(arg, event_base, event_id, event_data);
             break;
         case MESH_EVENT_ROUTING_TABLE_ADD:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_ROUTING_TABLE_ADD");
@@ -234,9 +301,11 @@ void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base,
             break;
         case MESH_EVENT_PARENT_CONNECTED:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_PARENT_CONNECTED");
+            ReceiveMeshEventParentConnected(arg, event_base, event_id, event_data);
             break;
         case MESH_EVENT_PARENT_DISCONNECTED:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_PARENT_DISCONNECTED");
+            ReceiveMeshEventParentDisconnected(arg, event_base, event_id, event_data);
             break;
         case MESH_EVENT_NO_PARENT_FOUND:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_NO_PARENT_FOUND");
@@ -246,6 +315,7 @@ void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base,
             break;
         case MESH_EVENT_TODS_STATE:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_TODS_STATE");
+            ReceiveMeshEventToDsState(arg, event_base, event_id, event_data);
             break;
         case MESH_EVENT_ROOT_ADDRESS:
             logManager.Log(logSeverity, "EspmeshDriver", "Mesh event: MESH_EVENT_ROOT_ADDRESS");
@@ -301,31 +371,96 @@ void EspmeshDriver::DistributeMeshEvents(void *arg, esp_event_base_t event_base,
 
 void EspmeshDriver::ReceiveMeshEventRootAddress(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
 {
-    uint8 root_address[6];
-    bool isRoot = esp_mesh_is_root();
-    EspMeshMessageType messageType = MESH_ROOT_UPDATED;
+    isRoot = (bool*)malloc(sizeof(bool));
+    *isRoot = esp_mesh_is_root();
 
     if(isRoot)
     {
-        std::memset(root_address, 0, sizeof(root_address));
+        rootAddress = myAddress;
     }
     else
     {
-        mesh_event_root_address_t* root_address = (mesh_event_root_address_t*)event_data;
-        std::memcpy(&root_address, root_address->addr, sizeof(root_address));
+        rootAddress = MacAddress(((mesh_event_root_address_t*)event_data)->addr);
     }
 
-    // Payload addressPayload = Payload(root_address, sizeof(root_address));
-    // Payload dataPayload = Payload((uint8*)(&messageType), sizeof(messageType));
-    // dataPayload += Payload((uint8_t*)(&isRoot), sizeof(isRoot));
-    // for(auto messageable : upperLayerMessageables)
-    // {
-    //     messageable->Receive(addressPayload, dataPayload);
-    // }
+    if(*isRoot == false || myIp != NULL)
+    {
+        NotifyUpperLayerRootIsSet();
+    }
 }
 
 void EspmeshDriver::ReceiveMeshEventChildDisconnected(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
 {
     mesh_event_child_disconnected_t* child_disconnected = (mesh_event_child_disconnected_t*)event_data;
     logManager.Log(W, "EspmeshDriver", "Child disconnected. Reason is %d", child_disconnected->reason);
+}
+
+void EspmeshDriver::ReceiveMeshEventParentConnected(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    mesh_addr_t meshAddress;
+    esp_mesh_get_parent_bssid(&meshAddress);
+    parentAddress = MacAddress(meshAddress.addr);
+}
+
+void EspmeshDriver::ReceiveMeshEventParentDisconnected(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    parentAddress = MacAddress();
+}
+
+void EspmeshDriver::ReceiveMeshEventToDsState(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    mesh_event_toDS_state_t* toDsState = (mesh_event_toDS_state_t*)event_data;
+
+    bool toDsStateBool = toDsState;
+
+    std::queue<Payload> dataQueue;
+    EspMeshMessageType messageType = MESH_EXTERNAL_IP_ACCESS_UPDATED;
+
+    dataQueue.push(Payload((uint8*)(&messageType),  sizeof(messageType)));
+    dataQueue.push(Payload((uint8*)(&toDsStateBool), sizeof(toDsStateBool)));
+
+    for(auto messageable : upperLayerMessageables)
+    {
+        messageable->Receive(myAddress, dataQueue);
+    }
+
+}
+
+void EspmeshDriver::ReceiveIpEventStaGotIp(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
+    myIp = (Ipv4Address*)malloc(sizeof(Ipv4Address));
+    if(myIp == NULL)
+    {
+        logManager.Log(E, "EspmeshDriver", "Failed to allocate memory for myIp");
+        return;
+    }
+    (void)memcpy(myIp, &event->ip_info.ip, sizeof(Ipv4Address));
+
+    logManager.Log(E, "EspmeshDriver", "IP:" IPSTR, IP2STR(myIp));
+
+    if(isRoot != NULL)
+    {
+        NotifyUpperLayerRootIsSet();
+    }
+}
+
+void EspmeshDriver::ReceiveIpEventStaLostIp(void *arg, esp_event_base_t event_base, sint32 event_id, void *event_data)
+{
+    free(myIp);
+    myIp = NULL;
+}
+
+void EspmeshDriver::NotifyUpperLayerRootIsSet()
+{
+    std::queue<Payload> dataQueue;
+    EspMeshMessageType messageType = MESH_ROOT_UPDATED;
+
+    dataQueue.push(Payload((uint8*)(&messageType),  sizeof(messageType)));
+    dataQueue.push(Payload((uint8*)(isRoot),        sizeof(isRoot)));
+
+    for(auto messageable : upperLayerMessageables)
+    {
+        messageable->Receive(rootAddress, dataQueue);
+    }
 }

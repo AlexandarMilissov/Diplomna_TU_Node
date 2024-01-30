@@ -19,8 +19,7 @@ typedef enum
 {
     MESH_NO_INIT,    // Before any values are initialized
     MESH_INIT,       // After everything has been initialized, Network is not active
-    MESH_ROOT,       // Network is active and this node is the root
-    MESH_NON_ROOT    // Network is active and this node is not the root
+    MESH_RUN,        // Network is active
 }EspmeshManagerState;
 
 class EspmeshManager : public IComponent, public IMessageReceiver, public IMonitorable
@@ -33,6 +32,7 @@ private:
 
     std::atomic<EspmeshManagerState> internalState = MESH_NO_INIT;
     MacAddress rootAddress;
+    MacAddress broadcastAddress;
 
     void MainFunction();
 

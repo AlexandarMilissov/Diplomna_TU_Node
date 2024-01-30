@@ -73,6 +73,7 @@ class Payload
         static Payload Compose(std::stack<Payload>);
 
         static std::queue<Payload> Decompose(const Payload&);
+        static std::queue<Payload> Decompose(const void*, const size_t);
 };
 
 #endif // PAYLOAD_HPP_

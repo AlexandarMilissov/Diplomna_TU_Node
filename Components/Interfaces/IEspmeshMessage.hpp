@@ -2,13 +2,8 @@
 #define IESPMESHMESSAGE_HPP_
 
 typedef enum {
-    MESH,
-    SERVER
-}EspMeshApplication;
-
-typedef enum {
-    MESH_KEEP_ALIVE,
-    MESH_ROOT_UPDATED
+    MESH_ROOT_UPDATED,
+    MESH_EXTERNAL_IP_ACCESS_UPDATED,
 }EspMeshMessageType;
 
 class IEspmeshMessage

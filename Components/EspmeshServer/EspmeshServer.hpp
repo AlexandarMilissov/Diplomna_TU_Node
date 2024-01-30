@@ -16,6 +16,13 @@ private:
     IScheduler& taskManager;
     IMessageSender& lowerLayer;
 
+    bool isServer = false;
+
+    void RootUpdated(std::queue<Payload>);
+    void ToDsStateUpdated(std::queue<Payload>);
+
+    void StartServer();
+    void StopServer();
 public:
     EspmeshServer(
         LogManager& logManager,

@@ -7,6 +7,7 @@
 #include "sdkconfig.h"
 #include "stdbool.h"
 #include "esp_now.h"
+#include "esp_netif_types.h"
 
 #define CORE_0 0
 #define CORE_1 1
@@ -34,6 +35,8 @@ typedef int8_t   sint8;
 typedef int16_t  sint16;
 typedef int32_t  sint32;
 typedef int64_t  sint64;
+
+typedef esp_ip4_addr Ipv4Address;
 
 typedef signed int RSSI_Type;
 

@@ -20,10 +20,15 @@ WifiDriver::WifiDriver()
     broadcastMac = MacAddress(broadcast_esp_now_mac);
 }
 
+#include "esp_log.h"
+
 void WifiDriver::Init()
 {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // Added to fix the netif problem of wifi mesh.
+    (void)esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 

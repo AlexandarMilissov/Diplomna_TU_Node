@@ -5,6 +5,7 @@
 #include "IComponent.hpp"
 #include "esp_mac.h"
 #include "MacAddress.hpp"
+#include "NvsManager.hpp"
 
 /**
  * @brief The WifiDriver class handles the initialization of the WiFi module.

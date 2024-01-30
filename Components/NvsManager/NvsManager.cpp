@@ -97,6 +97,11 @@ bool NvsManager::GetVarErrorCheck(esp_err_t err)
 template <>
 void NvsManager::SetVar<uint8>(std::string handleKey, std::string valueKey, uint8* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_u8(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -105,6 +110,11 @@ void NvsManager::SetVar<uint8>(std::string handleKey, std::string valueKey, uint
 template <>
 void NvsManager::SetVar<uint16>(std::string handleKey, std::string valueKey, uint16* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_u16(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -113,6 +123,11 @@ void NvsManager::SetVar<uint16>(std::string handleKey, std::string valueKey, uin
 template <>
 void NvsManager::SetVar<uint32>(std::string handleKey, std::string valueKey, uint32* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_u32(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -121,6 +136,11 @@ void NvsManager::SetVar<uint32>(std::string handleKey, std::string valueKey, uin
 template <>
 void NvsManager::SetVar<uint64>(std::string handleKey, std::string valueKey, uint64* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_u64(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -129,6 +149,11 @@ void NvsManager::SetVar<uint64>(std::string handleKey, std::string valueKey, uin
 template <>
 void NvsManager::SetVar<sint8>(std::string handleKey, std::string valueKey, sint8* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_i8(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -137,6 +162,11 @@ void NvsManager::SetVar<sint8>(std::string handleKey, std::string valueKey, sint
 template <>
 void NvsManager::SetVar<sint16>(std::string handleKey, std::string valueKey, sint16* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_i16(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -145,6 +175,11 @@ void NvsManager::SetVar<sint16>(std::string handleKey, std::string valueKey, sin
 template <>
 void NvsManager::SetVar<sint32>(std::string handleKey, std::string valueKey, sint32* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_i32(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -153,6 +188,11 @@ void NvsManager::SetVar<sint32>(std::string handleKey, std::string valueKey, sin
 template <>
 void NvsManager::SetVar<sint64>(std::string handleKey, std::string valueKey, sint64* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_i64(handle, valueKey.c_str(), *value);
     SetVarErrorCheck(err, handle);
@@ -161,6 +201,11 @@ void NvsManager::SetVar<sint64>(std::string handleKey, std::string valueKey, sin
 template <>
 void NvsManager::SetVar<std::string>(std::string handleKey, std::string valueKey, std::string* value)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error setting value to NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_set_str(handle, valueKey.c_str(), value->c_str());
     SetVarErrorCheck(err, handle);
@@ -169,6 +214,12 @@ void NvsManager::SetVar<std::string>(std::string handleKey, std::string valueKey
 template <>
 uint8 NvsManager::GetVar<uint8>(std::string handleKey, std::string valueKey, uint8 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     uint8 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_u8(handle, valueKey.c_str(), &value);
@@ -184,6 +235,12 @@ uint8 NvsManager::GetVar<uint8>(std::string handleKey, std::string valueKey, uin
 template <>
 uint16 NvsManager::GetVar<uint16>(std::string handleKey, std::string valueKey, uint16 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     uint16 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_u16(handle, valueKey.c_str(), &value);
@@ -199,6 +256,12 @@ uint16 NvsManager::GetVar<uint16>(std::string handleKey, std::string valueKey, u
 template <>
 uint32 NvsManager::GetVar<uint32>(std::string handleKey, std::string valueKey, uint32 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     uint32 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_u32(handle, valueKey.c_str(), &value);
@@ -214,6 +277,12 @@ uint32 NvsManager::GetVar<uint32>(std::string handleKey, std::string valueKey, u
 template <>
 uint64 NvsManager::GetVar<uint64>(std::string handleKey, std::string valueKey, uint64 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     uint64 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_u64(handle, valueKey.c_str(), &value);
@@ -229,6 +298,12 @@ uint64 NvsManager::GetVar<uint64>(std::string handleKey, std::string valueKey, u
 template <>
 sint8 NvsManager::GetVar<sint8>(std::string handleKey, std::string valueKey, sint8 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     sint8 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_i8(handle, valueKey.c_str(), &value);
@@ -244,6 +319,12 @@ sint8 NvsManager::GetVar<sint8>(std::string handleKey, std::string valueKey, sin
 template <>
 sint16 NvsManager::GetVar<sint16>(std::string handleKey, std::string valueKey, sint16 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     sint16 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_i16(handle, valueKey.c_str(), &value);
@@ -259,6 +340,12 @@ sint16 NvsManager::GetVar<sint16>(std::string handleKey, std::string valueKey, s
 template <>
 sint32 NvsManager::GetVar<sint32>(std::string handleKey, std::string valueKey, sint32 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     sint32 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_i32(handle, valueKey.c_str(), &value);
@@ -274,6 +361,12 @@ sint32 NvsManager::GetVar<sint32>(std::string handleKey, std::string valueKey, s
 template <>
 sint64 NvsManager::GetVar<sint64>(std::string handleKey, std::string valueKey, sint64 defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     sint64 value;
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_get_i64(handle, valueKey.c_str(), &value);
@@ -289,6 +382,12 @@ sint64 NvsManager::GetVar<sint64>(std::string handleKey, std::string valueKey, s
 template <>
 std::string NvsManager::GetVar<std::string>(std::string handleKey, std::string valueKey, std::string defaultValue)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     std::string value;
     size_t required_size;
     nvs_handle_t handle = *GetHandle(handleKey);
@@ -323,6 +422,12 @@ std::string NvsManager::GetVar<std::string>(std::string handleKey, std::string v
 
 void NvsManager::EraseVar(std::string handleKey, std::string valueKey)
 {
+    if(valueKey.length() > 15)
+    {
+        std::string err_msg = std::string("Error getting value from NVS: ") + valueKey + " is too long (max 15 characters)";
+        throw std::runtime_error(err_msg);
+    }
+
     nvs_handle_t handle = *GetHandle(handleKey);
     esp_err_t err = nvs_erase_key(handle, valueKey.c_str());
     if(ESP_OK != err)

@@ -19,6 +19,7 @@ public:
     void CopyTo(uint8* destination) const;
     uint8* GetAddress() const;
     void SetAddress(uint8*);
+    bool IsDefault() const;
 
     bool operator==(const MacAddress& other) const;
     bool operator==(const uint8* other) const;

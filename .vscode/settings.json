@@ -142,8 +142,10 @@
         "authmode",
         "avrg",
         "Begguger",
+        "bssid",
         "CLOSEDSERIES",
         "CONSOLELOGGER",
+        "dhcpc",
         "Espmesh",
         "ESPMESHDRIVER",
         "ESPMESHMANAGER",
@@ -160,6 +162,7 @@
         "IESPMESHMESSAGE",
         "IESPNOWCONTROLLER",
         "ifidx",
+        "ifkey",
         "ILOGMANAGER",
         "IMESSAGEABLE",
         "IMESSAGESENDER",
@@ -181,6 +184,7 @@
         "monitorables",
         "nchan",
         "netif",
+        "netifs",
         "nonmesh",
         "NVSMANAGER",
         "pvparrams",
@@ -207,5 +211,6 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "http-localhost-9000",
         "projectKey": "Diplomna"
-    }
+    },
+    "cSpell.language": "en,lorem,bg-BG"
 }

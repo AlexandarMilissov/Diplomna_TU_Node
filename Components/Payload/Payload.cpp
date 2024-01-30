@@ -133,3 +133,8 @@ std::queue<Payload> Payload::Decompose(const Payload& data)
 
     return payloadQueue;
 }
+
+std::queue<Payload> Payload::Decompose(const void* data, const size_t len)
+{
+    return Decompose(Payload(data, len));
+}
