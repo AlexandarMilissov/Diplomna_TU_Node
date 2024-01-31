@@ -1,4 +1,5 @@
 #include "EspnowPeer.hpp"
+#include "Messages.hpp"
 #include <cstring>
 #include <string>
 #include <stdexcept>
@@ -16,7 +17,7 @@ void EspnowPeer::Receive(const std::queue<Payload> payloadQueueOriginal)
     // Get the message identifier
     Payload messageIdentifierPayload = payloadQueue.front();
     payloadQueue.pop();
-    EspnowMessageType messageIdentifier = *((EspnowMessageType*)messageIdentifierPayload.GetData());
+    MessageType messageIdentifier = *((MessageType*)messageIdentifierPayload.GetData());
 
     try
     {

@@ -3,6 +3,7 @@
 #include "Common.hpp"
 
 #include "IEspmeshMessage.hpp"
+#include "Messages.hpp"
 #include <cstring>
 #include <string>
 
@@ -40,7 +41,7 @@ void EspmeshManager::Receive(const MacAddress address, const std::queue<Payload>
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload messageTypePayload = payloadQueue.front();
     payloadQueue.pop();
-    EspMeshMessageType messageType = *((EspMeshMessageType*)messageTypePayload.GetData());
+    MessageType messageType = *((MessageType*)messageTypePayload.GetData());
 
     switch (messageType)
     {

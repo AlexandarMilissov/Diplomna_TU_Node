@@ -3,14 +3,6 @@
 
 #include "Payload.hpp"
 
-typedef enum EspnowMessageType
-{
-    NOW_REQUEST,
-    NOW_CALCULATION,
-    NOW_KEEP_ALIVE,
-    NOW_ACKNOWLEDGE
-}EspnowMessageType;
-
 class IEspnowMessage
 {
     public:

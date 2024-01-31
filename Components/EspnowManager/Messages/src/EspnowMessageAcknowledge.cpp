@@ -1,4 +1,5 @@
 #include "EspnowMessageAcknowledge.hpp"
+#include "Messages.hpp"
 #include "EspnowManager.hpp"
 #include <stdexcept>
 
@@ -27,7 +28,7 @@ std::stack<Payload> EspnowMessageAcknowledge::GetPayload() const
 {
     Payload data((uint8*)(&status), sizeof(status));
 
-    EspnowMessageType messageType = NOW_ACKNOWLEDGE;
+    MessageType messageType = NOW_ACKNOWLEDGE;
     Payload message((uint8*)(&messageType), sizeof(messageType));
 
     std::stack<Payload> payloadStack;

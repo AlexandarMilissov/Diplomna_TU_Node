@@ -1,5 +1,6 @@
 #include "EspnowMessageRequest.hpp"
 #include "EspnowManager.hpp"
+#include "Messages.hpp"
 #include <stdexcept>
 
 // Functions for receiving messages
@@ -24,7 +25,7 @@ std::stack<Payload> EspnowMessageRequest::GetPayload() const
 {
     Payload data((uint8*)(&subscriptionStatus), sizeof(subscriptionStatus));
 
-    EspnowMessageType messageType = NOW_REQUEST;
+    MessageType messageType = NOW_REQUEST;
     Payload message((uint8*)(&messageType), sizeof(messageType));
 
     std::stack<Payload> payloadStack;

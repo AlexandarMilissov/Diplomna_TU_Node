@@ -9,6 +9,8 @@
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
 
+#include "lwip/sockets.h"
+
 class EspmeshServer : public IComponent, public IMessageReceiver, public IMonitorable
 {
 private:

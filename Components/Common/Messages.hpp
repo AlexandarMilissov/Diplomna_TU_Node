@@ -1,0 +1,14 @@
+#ifndef MESSAGES_HPP_
+#define MESSAGES_HPP_
+
+typedef enum
+{
+    NOW_REQUEST,
+    NOW_CALCULATION,
+    NOW_KEEP_ALIVE,
+    NOW_ACKNOWLEDGE,
+    MESH_ROOT_UPDATED,
+    MESH_EXTERNAL_IP_ACCESS_UPDATED,
+}MessageType;
+
+#endif // MESSAGES_HPP_

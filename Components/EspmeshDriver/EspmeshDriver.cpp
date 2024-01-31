@@ -1,6 +1,7 @@
 #include "EspmeshDriver.hpp"
 #include "Common.hpp"
 #include "IEspmeshMessage.hpp"
+#include "Messages.hpp"
 
 #include "esp_mesh.h"
 #include "esp_event.h"
@@ -414,9 +415,9 @@ void EspmeshDriver::ReceiveMeshEventToDsState(void *arg, esp_event_base_t event_
     bool toDsStateBool = toDsState;
 
     std::queue<Payload> dataQueue;
-    EspMeshMessageType messageType = MESH_EXTERNAL_IP_ACCESS_UPDATED;
+    MessageType messageType = MESH_EXTERNAL_IP_ACCESS_UPDATED;
 
-    dataQueue.push(Payload((uint8*)(&messageType),  sizeof(messageType)));
+    dataQueue.push(Payload((uint8*)(&messageType)  , sizeof(messageType)));
     dataQueue.push(Payload((uint8*)(&toDsStateBool), sizeof(toDsStateBool)));
 
     for(auto messageable : upperLayerMessageables)
@@ -454,7 +455,7 @@ void EspmeshDriver::ReceiveIpEventStaLostIp(void *arg, esp_event_base_t event_ba
 void EspmeshDriver::NotifyUpperLayerRootIsSet()
 {
     std::queue<Payload> dataQueue;
-    EspMeshMessageType messageType = MESH_ROOT_UPDATED;
+    MessageType messageType = MESH_ROOT_UPDATED;
 
     dataQueue.push(Payload((uint8*)(&messageType),  sizeof(messageType)));
     dataQueue.push(Payload((uint8*)(isRoot),        sizeof(isRoot)));

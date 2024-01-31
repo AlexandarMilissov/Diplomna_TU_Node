@@ -1,6 +1,7 @@
 #include "EspnowMessageCalculation.hpp"
 #include "OpenSeries.hpp"
 #include "EspnowManager.hpp"
+#include "Messages.hpp"
 #include <stdexcept>
 #include <string.h>
 
@@ -83,7 +84,7 @@ RSSI_Type EspnowMessageCalculation::GetRSSI()
 
 std::stack<Payload> EspnowMessageCalculation::GetPayload() const
 {
-    EspnowMessageType messageType = NOW_CALCULATION;
+    MessageType messageType = NOW_CALCULATION;
 
     Payload seriesIdPayload((uint8*)(&seriesId), sizeof(seriesId));
     Payload messagePositionIdPayload((uint8*)(&messagePositionId), sizeof(messagePositionId));

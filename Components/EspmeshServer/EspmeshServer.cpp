@@ -1,5 +1,6 @@
 #include "EspmeshServer.hpp"
 #include "IEspmeshMessage.hpp"
+#include "Messages.hpp"
 #include "esp_wifi.h"
 #include "esp_wifi_netif.h"
 #include "esp_netif.h"
@@ -15,7 +16,7 @@ void EspmeshServer::Receive(const MacAddress address, const std::queue<Payload> 
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload messageTypePayload = payloadQueue.front();
     payloadQueue.pop();
-    EspMeshMessageType messageType = *((EspMeshMessageType*)messageTypePayload.GetData());
+    MessageType messageType = *((MessageType*)messageTypePayload.GetData());
 
     switch (messageType)
     {

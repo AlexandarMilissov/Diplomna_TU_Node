@@ -1,6 +1,6 @@
 #include "EspnowMessageKeepAlive.hpp"
 #include "EspnowManager.hpp"
-
+#include "Messages.hpp"
 
 EspnowMessageKeepAlive::EspnowMessageKeepAlive(std::queue<Payload> payload)
 {
@@ -13,7 +13,7 @@ EspnowMessageKeepAlive::EspnowMessageKeepAlive()
 
 std::stack<Payload> EspnowMessageKeepAlive::GetPayload() const
 {
-    EspnowMessageType messageType = NOW_KEEP_ALIVE;
+    MessageType messageType = NOW_KEEP_ALIVE;
     Payload messageIdentifier((uint8*)(&messageType), sizeof(messageType));
 
     std::stack<Payload> payloadStack;
