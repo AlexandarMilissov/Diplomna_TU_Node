@@ -9,4 +9,6 @@ typedef struct
     uint16 port;
 }NetSocket;
 
+bool operator<(const NetSocket&, const NetSocket&);
+
 #endif // NETSOCKET_HPP_

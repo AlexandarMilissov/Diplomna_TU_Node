@@ -8,10 +8,10 @@
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "NvsManager.hpp"
+#include "NetSocket.hpp"
 
 #include "lwip/sockets.h"
-
-#include "NetSocket.hpp"
+#include <map>
 
 typedef sint32 NetSocketDescriptor;
 
@@ -24,6 +24,10 @@ private:
     bool isTcpRunning = false;
 
     NetSocketDescriptor udpSocket = -1;
+    NetSocketDescriptor tcpSocket = -1;
+
+    Spinlock tcpClientsSpinlock = Spinlock_Init;
+    std::map<NetSocket, NetSocketDescriptor> tcpClients;
 
     LogManager& logManager;
     IScheduler& scheduler;
@@ -45,6 +49,8 @@ private:
 
     void SendUdp(const NetIdentifier, const std::stack<Payload>);
     void SendTcp(const NetIdentifier, const std::stack<Payload>);
+
+    void AcceptTcp();
 
 public:
     PortDriver(LogManager&, IScheduler&, NvsManager&);

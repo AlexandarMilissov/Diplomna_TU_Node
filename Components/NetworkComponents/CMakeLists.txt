@@ -1,5 +1,6 @@
 idf_component_register(SRCS
                         "MacAddress/MacAddress.cpp"
+                        "NetSocket/NetSocket.cpp"
                        INCLUDE_DIRS
                         "./MacAddress"
                         "./NetSocket"

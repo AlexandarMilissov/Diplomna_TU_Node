@@ -1,9 +1,11 @@
 #include "PortDriver.hpp"
 #include "Messages.hpp"
-#include <cstring>
 
 #include "lwip/inet.h"
+#include <errno.h>
+#include <sys/socket.h>
 #include <unistd.h>
+#include <cstring>
 #include <queue>
 #include <cstring>
 
@@ -83,6 +85,7 @@ void PortDriver::GotIp(const uint32 ip)
     logManager.Log(E, "PortDriver", "My IP: " IPSTR "\n", IP2STR(&ipBytes));
 
     StartUdp();
+    StartTcp();
 }
 
 void PortDriver::LostIp()
@@ -162,6 +165,64 @@ void PortDriver::StartUdp()
 
 void PortDriver::StartTcp()
 {
+    uint8 socketDomain = AF_INET;
+    uint8 socketType = SOCK_STREAM;
+    uint8 socketProtocol = IPPROTO_IP;
+
+
+    tcpSocket = socket(socketDomain, socketType, socketProtocol);
+    if(tcpSocket < 0)
+    {
+        logManager.Log(E, "PortDriver", "Failed to create tcpSocket: %d\n", tcpSocket);
+        return;
+    }
+
+    sint32 flags = fcntl(tcpSocket, F_GETFL, 0);
+    if (flags == -1) {
+        perror("Error getting socket flags");
+        exit(EXIT_FAILURE);
+    }
+    flags |= O_NONBLOCK;
+    if (fcntl(tcpSocket, F_SETFL, flags) == -1) {
+        perror("Error setting socket flags");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sockaddr_in serverSettings;
+    serverSettings.sin_addr.s_addr = htonl(INADDR_ANY);
+    serverSettings.sin_family = socketDomain;
+    serverSettings.sin_port = htons(PORT);
+
+    if(0 > bind(tcpSocket, (SA)&serverSettings, sizeof(serverSettings)))
+    {
+        logManager.Log(E, "PortDriver", "Failed to bind tcpSocket: %d\n", tcpSocket);
+        return;
+    }
+
+    listen(tcpSocket, SOMAXCONN);
+
+    isTcpRunning = true;
+
+    TaskConfig acceptTcp = TaskConfig(
+        "AcceptTcp",
+        [this]() { AcceptTcp(); },
+        1000,
+        CORE_1,
+        8192,
+        10
+    );
+
+    TaskConfig receiveTcp = TaskConfig(
+        "ReceiveTcp",
+        [this]() { ReceiveTcp(); },
+        1000,
+        CORE_1,
+        8192,
+        10
+    );
+
+    scheduler.RequestTask(acceptTcp);
+    scheduler.RequestTask(receiveTcp);
 }
 
 void PortDriver::StopUdp()
@@ -201,10 +262,20 @@ void PortDriver::ReceiveUdp()
             &receivedClientAddrLength
         );
 
-        // If the received size is less than 0, there is no data to receive, so exit the loop.
+        // Check if there is an error in the received data.
+        // If the error is EWOULDBLOCK or EAGAIN, there is no more data to be received.
+        // If the error is different, log an error and exit the loop.
         if(receivedSize < 0)
         {
-            break;
+            if(errno == EWOULDBLOCK || errno == EAGAIN)
+            {
+                break;
+            }
+            else
+            {
+                logManager.Log(E, "PortDriver", "Failed to receive data; error: %d\n", errno);
+                break;
+            }
         }
         // If the received message is empty, log a warning and exit the loop.
         else if (receivedSize == 0)
@@ -243,6 +314,72 @@ void PortDriver::ReceiveUdp()
 
 void PortDriver::ReceiveTcp()
 {
+    uint8 receiveData[100] = { 0 };
+    ssize_t receivedLen = 0;
+
+    for(auto client : tcpClients)
+    {
+        NetSocket clientSocketInfo = client.first;
+        NetSocketDescriptor clientSocket = client.second;
+        uint8 maxIterations = 0x0F;
+        while(maxIterations > 0)
+        {
+            receivedLen = recv(
+                clientSocket,
+                receiveData,
+                sizeof(receiveData)/sizeof(receiveData[0]),
+                MSG_DONTWAIT);
+
+            if(receivedLen < 0)
+            {
+                if(errno == EWOULDBLOCK || errno == EAGAIN)
+                {
+                    break;
+                }
+                else if(errno == ENOTCONN)
+                {
+                    close(clientSocket);
+
+                    Enter_Critical_Spinlock(tcpClientsSpinlock);
+                    tcpClients.erase(clientSocketInfo);
+                    Exit_Critical_Spinlock(tcpClientsSpinlock);
+
+                    logManager.Log(E, "PortDriver", "Client is not connected: %d\n", clientSocket);
+                    break;
+                }
+                else
+                {
+                    logManager.Log(E, "PortDriver", "Failed to receive data; error: %d\n", errno);
+                    break;
+                }
+            }
+            else if(receivedLen == 0)
+            {
+                close(clientSocket);
+                Enter_Critical_Spinlock(tcpClientsSpinlock);
+                tcpClients.erase(clientSocketInfo);
+                Exit_Critical_Spinlock(tcpClientsSpinlock);
+                break;
+            }
+            else if(receivedLen == sizeof(receiveData)/sizeof(receiveData[0]))
+            {
+                logManager.Log(E, "PortDriver", "Received data is too large: %d\n", receivedLen);
+                break;
+            }
+
+            NetIdentifier nedId = {
+                .socket = clientSocketInfo
+            };
+            auto payloadQueue = Payload::Decompose((void*)receiveData, receivedLen);
+
+            for(auto messageable : upperLayerMessageables)
+            {
+                messageable->Receive(nedId, payloadQueue);
+            }
+
+            maxIterations--;
+        }
+    }
 }
 
 void PortDriver::SendUdp(const NetIdentifier netId, const std::stack<Payload> originalPayloadStack)
@@ -286,4 +423,52 @@ void PortDriver::SendUdp(const NetIdentifier netId, const std::stack<Payload> or
 void PortDriver::SendTcp(const NetIdentifier, const std::stack<Payload>)
 {
 
+}
+
+void PortDriver::AcceptTcp()
+{
+    sint32 keepAlive = 1;
+    sint32 keepIdle = 2;
+    sint32 keepInterval = 4;
+    sint32 keepCount = 3;
+    struct sockaddr_in clientAddress;
+    socklen_t clientAddressLength = sizeof(clientAddress);
+
+    uint8 maxIterations = SOMAXCONN;
+
+    while(maxIterations > 0)
+    {
+        NetSocketDescriptor clientSocket = accept(tcpSocket, (SA)&clientAddress, &clientAddressLength);
+
+        if(clientSocket < 0)
+        {
+            if(errno == EWOULDBLOCK || errno == EAGAIN)
+            {
+                break;
+            }
+            else
+            {
+                logManager.Log(E, "PortDriver", "Failed to accept client: %d\n", clientSocket);
+                break;
+            }
+        }
+
+        logManager.Log(I, "PortDriver", "Accepted client: %d\n", clientSocket);
+
+        setsockopt(clientSocket, SOL_SOCKET,  SO_KEEPALIVE,  &keepAlive,    sizeof(sint32));
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_KEEPIDLE,  &keepIdle,     sizeof(sint32));
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(sint32));
+        setsockopt(clientSocket, IPPROTO_TCP, TCP_KEEPCNT,   &keepCount,    sizeof(sint32));
+
+        NetSocket clientSocketInfo = {
+            .ip = clientAddress.sin_addr.s_addr,
+            .port = ntohs(clientAddress.sin_port)
+        };
+
+        Enter_Critical_Spinlock(tcpClientsSpinlock);
+        tcpClients[clientSocketInfo] = clientSocket;
+        Exit_Critical_Spinlock(tcpClientsSpinlock);
+
+        maxIterations--;
+    }
 }
