@@ -8,5 +8,5 @@ idf_component_register(SRCS
                         esp_wifi
                         WifiDriver
                         Interfaces
-                        MacAddress
+                        NetworkComponents
                        )

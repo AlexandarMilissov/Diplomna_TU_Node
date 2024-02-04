@@ -8,6 +8,7 @@
 #include "IMonitorable.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
+#include "NvsManager.hpp"
 
 #include "lwip/sockets.h"
 
@@ -16,12 +17,17 @@ class EspmeshServer : public IComponent, public IMessageReceiver, public IMonito
 private:
     LogManager& logManager;
     IScheduler& taskManager;
-    IMessageSender& lowerLayer;
+    NvsManager& nvsManager;
+    IMessageSender& innerNetwork;
+    IMessageSender& outerNetwork;
 
     bool isServer = false;
 
-    void RootUpdated(std::queue<Payload>);
-    void ToDsStateUpdated(std::queue<Payload>);
+    void ReceiveRootUpdated(std::queue<Payload>);
+    void ReceiveToDsStateUpdated(std::queue<Payload>);
+    void ReceiveUdpDiscoverRequest(NetIdentifier, std::queue<Payload>);
+
+    void SendUdpDiscoverResponse(NetIdentifier);
 
     void StartServer();
     void StopServer();
@@ -29,16 +35,20 @@ public:
     EspmeshServer(
         LogManager& logManager,
         IScheduler& taskManager,
-        IMessageSender& lowerLayer
+        NvsManager& nvsManager,
+        IMessageSender& innerNetwork,
+        IMessageSender& outerNetwork
         ) :
         logManager(logManager),
         taskManager(taskManager),
-        lowerLayer(lowerLayer)
+        nvsManager(nvsManager),
+        innerNetwork(innerNetwork),
+        outerNetwork(outerNetwork)
     {}
 
     void Init();
 
-    void Receive(const MacAddress, const std::queue<Payload>);
+    void Receive(const NetIdentifier, const std::queue<Payload>);
 
     std::string GetMonitorData();
 };

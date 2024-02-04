@@ -66,7 +66,10 @@ void EspnowPeer::SendSubscriptionRequest()
     }
     EspnowMessageRequest RSSI_Message = EspnowMessageRequest(areWeSubscribedToPeer);
     std::stack<Payload> payloadStack = RSSI_Message.GetPayload();
-    lowerLayer.Send(sourceAddress, payloadStack);
+
+    NetIdentifier netId;
+    sourceAddress.CopyTo(netId.mac);
+    lowerLayer.Send(netId, payloadStack);
 }
 
 std::string EspnowPeer::GetMonitorData()
@@ -160,10 +163,11 @@ void EspnowPeer::ReceiveMessage(EspnowMessageRequest       message)
     if(NULL != ackn)
     {
         std::stack<Payload> payloadStack = ackn->GetPayload();
-        lowerLayer.Send(sourceAddress, payloadStack);
+        NetIdentifier netId;
+        sourceAddress.CopyTo(netId.mac);
+        lowerLayer.Send(netId, payloadStack);
         delete ackn;
     }
-
 }
 
 void EspnowPeer::ReceiveMessage(EspnowMessageCalculation   message)

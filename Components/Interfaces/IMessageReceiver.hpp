@@ -4,12 +4,13 @@
 #include "Common.hpp"
 #include "Payload.hpp"
 #include "MacAddress.hpp"
+#include "NetIdentifier.hpp"
 #include <stack>
 
 class IMessageReceiver
 {
 public:
-    virtual void Receive(const MacAddress, std::queue<Payload>) = 0;
+    virtual void Receive(const NetIdentifier, std::queue<Payload>) = 0;
     virtual ~IMessageReceiver() = default;
 };
 

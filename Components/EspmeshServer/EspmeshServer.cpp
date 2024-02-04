@@ -11,7 +11,7 @@ void EspmeshServer::Init()
     logManager.Log(V, "EspmeshServer", "Init\n");
 }
 
-void EspmeshServer::Receive(const MacAddress address, const std::queue<Payload> originalPayloadQueue)
+void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payload> originalPayloadQueue)
 {
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload messageTypePayload = payloadQueue.front();
@@ -22,22 +22,66 @@ void EspmeshServer::Receive(const MacAddress address, const std::queue<Payload> 
     {
     case MESH_ROOT_UPDATED:
     {
-        RootUpdated(payloadQueue);
+        ReceiveRootUpdated(payloadQueue);
         break;
     }
     case MESH_EXTERNAL_IP_ACCESS_UPDATED:
     {
-        ToDsStateUpdated(payloadQueue);
+        ReceiveToDsStateUpdated(payloadQueue);
+        break;
+    }
+    case UDP_DISCOVER_REQUEST:
+    {
+        ReceiveUdpDiscoverRequest(address, payloadQueue);
         break;
     }
     default:
+        logManager.Log(E, "EspmeshServer", "Unknown message type: %d\n", messageType);
         break;
     }
 
     logManager.Log(V, "EspmeshServer", "Receive\n");
 }
 
-void EspmeshServer::ToDsStateUpdated(std::queue<Payload> originalPayloadQueue)
+void EspmeshServer::ReceiveUdpDiscoverRequest(NetIdentifier netId, std::queue<Payload> payloadQueue)
+{
+    NetSocket socket = netId.socket;
+    uint8 address[4] = { 0 };
+    memcpy(address, &socket.ip, 4);
+    uint16 port = socket.port;
+    logManager.Log(I, "EspmeshServer", "Received ReceiveUdpDiscoverRequest from: %d.%d.%d.%d:%d",
+        address[0], address[1], address[2], address[3],
+        port);
+
+    SendUdpDiscoverResponse(netId);
+}
+
+void EspmeshServer::SendUdpDiscoverResponse(NetIdentifier netId)
+{
+    // Prepare the response data
+    #define ID_SIZE 6
+    MessageType messageType = UDP_DISCOVER_RESPONSE;
+    uint8 id[ID_SIZE] = {
+        nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
+    };
+
+    std::string name = nvsManager.GetVar<std::string>("Info", "name", "Default");
+
+    // Compose the response
+    std::stack<Payload> payloadStack;
+    payloadStack.push(Payload(name));
+    payloadStack.push(Payload((void*)id, ID_SIZE));
+    payloadStack.push(Payload((void*)(&messageType), sizeof(MessageType)));
+
+    outerNetwork.Send(netId, payloadStack);
+}
+
+void EspmeshServer::ReceiveToDsStateUpdated(std::queue<Payload> originalPayloadQueue)
 {
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload toDsStatePayload = payloadQueue.front();
@@ -55,7 +99,7 @@ void EspmeshServer::ToDsStateUpdated(std::queue<Payload> originalPayloadQueue)
     }
 }
 
-void EspmeshServer::RootUpdated(std::queue<Payload> originalPayloadQueue)
+void EspmeshServer::ReceiveRootUpdated(std::queue<Payload> originalPayloadQueue)
 {
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload rootAddressPayload = payloadQueue.front();

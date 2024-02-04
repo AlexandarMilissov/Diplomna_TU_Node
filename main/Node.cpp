@@ -12,6 +12,7 @@
 #include "CpuMonitor.hpp"
 #include "RamMonitor.hpp"
 #include "Monitor.hpp"
+#include "PortDriver.hpp"
 
 #include <vector>
 
@@ -28,9 +29,10 @@ extern "C" void app_main(void)
     auto taskManager    = new TaskManager   (*logManager);
     auto monitor        = new Monitor       (*logManager, *taskManager);
     auto espnowDriver   = new EspnowDriver  (*logManager, *taskManager);
+    auto portDriver     = new PortDriver    (*logManager, *taskManager, *nvsManager);
     auto espmeshDriver  = new EspmeshDriver (*logManager, *taskManager, *nvsManager);
+    auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *nvsManager, *espmeshDriver, *portDriver);
     auto espnowManager  = new EspnowManager (*logManager, *taskManager, *espnowDriver);
-    auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *espmeshDriver);
     auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *espmeshDriver, *espnowManager);
 
     // monitor->Subscribe(cpuMonitor);
@@ -39,10 +41,14 @@ extern "C" void app_main(void)
     // monitor->Subscribe(espmeshManager);
     // monitor->Subscribe(espmeshServer);
 
+    wifiDriver->Subscribe(*portDriver);
+
     espnowDriver->Subscribe(*espnowManager);
 
     espmeshDriver->Subscribe(*espmeshManager);
     espmeshDriver->Subscribe(*espmeshServer);
+
+    portDriver->Subscribe(*espmeshServer);
 
     components->push_back(logManager);
     components->push_back(nvsManager);
@@ -55,6 +61,7 @@ extern "C" void app_main(void)
     components->push_back(espmeshDriver);
     components->push_back(espnowManager);
     components->push_back(espmeshManager);
+    components->push_back(portDriver);
 
     for(IComponent* component : *components)
     {

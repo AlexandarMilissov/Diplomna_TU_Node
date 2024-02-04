@@ -10,6 +10,7 @@ idf_component_register(SRCS "Node.cpp"
                        EspmeshDriver
                        EspmeshManager
                        EspmeshServer
+                       PortDriver
 
                        Interfaces
                        )

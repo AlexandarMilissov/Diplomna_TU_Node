@@ -36,7 +36,7 @@ void EspmeshManager::MainFunction()
     // espnowController.ActivateNetwork();
 }
 
-void EspmeshManager::Receive(const MacAddress address, const std::queue<Payload> originalPayloadQueue)
+void EspmeshManager::Receive(const NetIdentifier address, const std::queue<Payload> originalPayloadQueue)
 {
     std::queue<Payload> payloadQueue = originalPayloadQueue;
     Payload messageTypePayload = payloadQueue.front();
@@ -47,7 +47,7 @@ void EspmeshManager::Receive(const MacAddress address, const std::queue<Payload>
     {
     case MESH_ROOT_UPDATED:
     {
-        rootAddress = address;
+        rootAddress = MacAddress(address.mac);
         break;
     }
     default:

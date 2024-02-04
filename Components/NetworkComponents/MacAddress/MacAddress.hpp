@@ -13,7 +13,7 @@ private:
     uint8 address[6];
 public:
     MacAddress();
-    MacAddress(uint8*);
+    MacAddress(const uint8*);
     MacAddress(const Payload&);
 
     void CopyTo(uint8* destination) const;

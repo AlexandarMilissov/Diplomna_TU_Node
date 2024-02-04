@@ -21,8 +21,7 @@ private:
     MacAddress parentAddress;
     MacAddress rootAddress;
     MacAddress broadcastAddress;
-    Ipv4Address* myIp = NULL;
-    bool* isRoot = NULL;
+    bool isRoot = false;
 
     size_t receiveBufferLength;
     uint8* receiveBuffer = NULL;
@@ -31,20 +30,14 @@ private:
 
     std::vector<IMessageReceiver*> upperLayerMessageables;
 
-    static void ReceiveWifiEvent(void*, esp_event_base_t, sint32, void*);
+    static void ReceiveMeshEvent(void*, esp_event_base_t, sint32, void*);
     void DistributeMeshEvents(void*, esp_event_base_t, sint32, void*);
-    void DistributeIpEvents(void*, esp_event_base_t, sint32, void*);
 
     void ReceiveMeshEventRootAddress(void*, esp_event_base_t, sint32, void*);
     void ReceiveMeshEventChildDisconnected(void*, esp_event_base_t, sint32, void*);
     void ReceiveMeshEventParentConnected(void*, esp_event_base_t, sint32, void*);
     void ReceiveMeshEventParentDisconnected(void*, esp_event_base_t, sint32, void*);
     void ReceiveMeshEventToDsState(void*, esp_event_base_t, sint32, void*);
-
-    void ReceiveIpEventStaGotIp(void*, esp_event_base_t, sint32, void*);
-    void ReceiveIpEventStaLostIp(void*, esp_event_base_t, sint32, void*);
-
-    void NotifyUpperLayerRootIsSet();
 
     void ConnectRouterless();
     void ConnectRouter();
@@ -61,8 +54,8 @@ public:
 
     void Init();
 
-    void Subscribe(IMessageReceiver& component);
-    void Send(const MacAddress, const std::stack<Payload>);
+    void Subscribe(IMessageReceiver&);
+    void Send(const NetIdentifier, const std::stack<Payload>);
     void SendBroadcast(const std::stack<Payload>);
 };
 

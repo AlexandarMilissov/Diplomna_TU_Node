@@ -62,7 +62,7 @@ public:
 
     void Init();
 
-    void Receive(const MacAddress, const std::queue<Payload>);
+    void Receive(const NetIdentifier, const std::queue<Payload>);
 
     std::string GetMonitorData();
 };

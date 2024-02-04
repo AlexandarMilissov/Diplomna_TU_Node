@@ -4,6 +4,7 @@
 #include "Common.hpp"
 #include <stack>
 #include <queue>
+#include <string>
 
 class MacAddress;
 
@@ -55,6 +56,13 @@ class Payload
          * @param mac The MAC address of the payload.
          */
         Payload(const MacAddress&);
+
+        /**
+         * @brief Constructs a Payload object with the given string.
+         *
+         * @param str The string to be stored in the Payload object.
+         */
+        Payload(const std::string);
 
         /**
          * @brief Destructor for the Payload object.

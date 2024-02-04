@@ -7,7 +7,7 @@
 #include "EspnowManager.hpp"
 #include "EspnowPeer.hpp"
 
-void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> payloadQueue)
+void EspnowManager::Receive(const NetIdentifier address, const std::queue<Payload> payloadQueue)
 {
     if(internalState != NOW_RUN)
     {
@@ -19,7 +19,7 @@ void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> 
     Enter_Critical_Spinlock(peerListLock);
     for(EspnowPeer* peer : espnowPeers)
     {
-        if(peer->IsCorrectAddress(address))
+        if(peer->IsCorrectAddress(address.mac))
         {
             sender = peer;
             break;
@@ -28,7 +28,7 @@ void EspnowManager::Receive(const MacAddress address, const std::queue<Payload> 
 
     if(NULL == sender)
     {
-        sender = new EspnowPeer(lowerLayer, *this, logManager, address);
+        sender = new EspnowPeer(lowerLayer, *this, logManager, address.mac);
         espnowPeers.push_back(sender);
     }
     Exit_Critical_Spinlock(peerListLock);

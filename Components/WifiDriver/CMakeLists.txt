@@ -3,5 +3,5 @@ idf_component_register(SRCS "WifiDriver.cpp"
                        REQUIRES
                        Common
                        esp_wifi
-                       MacAddress
+                       NetworkComponents
                        )

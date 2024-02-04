@@ -36,6 +36,12 @@ Payload::Payload(const MacAddress& mac) : size(MAC_ADDRESS_LENGTH)
     mac.CopyTo((uint8*)data);
 }
 
+Payload::Payload(const std::string str) : size(str.length())
+{
+    data = malloc(size);
+    memcpy(data, str.c_str(), size);
+}
+
 Payload::~Payload()
 {
     if(size > 0)
@@ -99,6 +105,7 @@ std::queue<Payload> Payload::Decompose(const Payload& data)
     uint8* dataPointer = (uint8*)data.GetData();
     size_t payloadLen;
     size_t len = data.GetSize();
+
     while(len > 0)
     {
         static size_t sizeOfPayloadSize = sizeof(size);

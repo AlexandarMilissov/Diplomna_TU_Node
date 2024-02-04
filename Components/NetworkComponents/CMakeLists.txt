@@ -1,0 +1,9 @@
+idf_component_register(SRCS
+                        "MacAddress/MacAddress.cpp"
+                       INCLUDE_DIRS
+                        "./MacAddress"
+                        "./NetSocket"
+                        "./NetIdentifier"
+                       REQUIRES
+                       Common
+                       )

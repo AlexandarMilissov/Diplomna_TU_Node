@@ -49,7 +49,7 @@ public:
 
     void Subscribe(IMessageReceiver&);
 
-    void Send(const MacAddress, const std::stack<Payload>);
+    void Send(const NetIdentifier, const std::stack<Payload>);
     void SendBroadcast(const std::stack<Payload>);
 };
 

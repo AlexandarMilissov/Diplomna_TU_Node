@@ -113,14 +113,16 @@ void EspnowDriver::Subscribe(IMessageReceiver& messageable)
     upperLayer.push_back(&messageable);
 }
 
-void EspnowDriver::Send(const MacAddress dst_addr, const std::stack<Payload> payloadStackOriginal)
+void EspnowDriver::Send(const NetIdentifier destinationIdentifier, const std::stack<Payload> payloadStackOriginal)
 {
+    MacAddress destinationAddress = destinationIdentifier.mac;
+
     esp_err_t err;
     // Copy the payload stack to avoid modifying the original
     std::stack<Payload> payloadStack = payloadStackOriginal;
 
     // Add the destination address to the payload
-    payloadStack.push(Payload(dst_addr));
+    payloadStack.push(Payload(destinationAddress));
 
 
     // Combine the payloads into one data array
@@ -150,7 +152,9 @@ void EspnowDriver::Send(const MacAddress dst_addr, const std::stack<Payload> pay
 
 void EspnowDriver::SendBroadcast(const std::stack<Payload> payloadStack)
 {
-    Send(broadcastEspnowMac, payloadStack);
+    NetIdentifier netId;
+    broadcastEspnowMac.CopyTo(netId.mac);
+    Send(netId, payloadStack);
 }
 
 void EspnowDriver::InterruptReceive(const esp_now_recv_info_t *recv_info, const uint8 *data, int len)
@@ -298,10 +302,13 @@ void EspnowDriver::Receive(const MacAddress sourceAddress, const RSSI_Type rssi,
         // Add the RSSI to the payload queue
         payloadQueue.push(rssiPayload);
 
+        NetIdentifier sourceNetId;
+        sourceAddress.CopyTo(sourceNetId.mac);
+
         // Send the message to the upper layer
         for(auto messageable : upperLayer)
         {
-            messageable->Receive(sourceAddress, payloadQueue);
+            messageable->Receive(sourceNetId, payloadQueue);
         }
     }
 }

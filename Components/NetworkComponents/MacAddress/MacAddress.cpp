@@ -9,7 +9,7 @@ MacAddress::MacAddress()
     memset(this->address, 0, MAC_ADDRESS_LENGTH);
 }
 
-MacAddress::MacAddress(uint8* address)
+MacAddress::MacAddress(const uint8* address)
 {
     memcpy(this->address, address, MAC_ADDRESS_LENGTH);
 }

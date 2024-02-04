@@ -52,7 +52,7 @@ public:
     ~EspmeshManager() {}
     void Init();
 
-    void Receive(const MacAddress, std::queue<Payload>);
+    void Receive(const NetIdentifier, std::queue<Payload>);
 
     std::string GetMonitorData();
 };
