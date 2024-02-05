@@ -18,9 +18,9 @@ TaskConfig::TaskConfig(
         core(core),
         stack_size(stack_size),
         priority(priority),
-        OnCompletion(OnCompletion),
         finite(finite),
-        repetition(repetition)
+        repetition(repetition),
+        OnCompletion(OnCompletion)
 {
     bool validation = true;
     if(256 > stack_size)
@@ -31,7 +31,6 @@ TaskConfig::TaskConfig(
     {
         validation = false;
     }
-
     if(portTICK_PERIOD_MS > period)
     {
         validation = false;
@@ -41,6 +40,38 @@ TaskConfig::TaskConfig(
         validation = false;
     }
 
+    if(!validation)
+    {
+        throw std::invalid_argument("Invalid task configuration.");
+    }
+}
+
+TaskConfig::TaskConfig(
+        const char* name,
+        const uint8 core,
+        const uint32 stack_size,
+        const UBaseType_t priority,
+        const std::function<void()> function
+    ) :
+        name(name),
+        CyclicFunction([](){}),
+        period(0),
+        core(core),
+        stack_size(stack_size),
+        priority(priority),
+        finite(true),
+        repetition(0),
+        OnCompletion(function)
+{
+    bool validation = true;
+    if(256 > stack_size)
+    {
+        validation = false;
+    }
+    if(NULL == function)
+    {
+        validation = false;
+    }
     if(!validation)
     {
         throw std::invalid_argument("Invalid task configuration.");

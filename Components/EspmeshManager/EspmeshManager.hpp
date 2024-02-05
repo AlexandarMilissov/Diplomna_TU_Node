@@ -11,6 +11,7 @@
 #include "IMonitorable.hpp"
 #include "IScheduler.hpp"
 #include "LogManager.hpp"
+#include "NvsManager.hpp"
 
 #include <string>
 #include <atomic>
@@ -27,6 +28,7 @@ class EspmeshManager : public IComponent, public IMessageReceiver, public IMonit
 private:
     LogManager& logManager;
     IScheduler& taskManager;
+    NvsManager& nvsManager;
     IMessageSender& lowerLayer;
     IEspnowController& espnowController;
 
@@ -36,16 +38,19 @@ private:
 
     void MainFunction();
 
-    void MainFunctionSendKeepAlive();
+    void ReceiveMeshRootAddress(const NetIdentifier);
+    void SendToRootMeshNodeConnected();
 public:
     EspmeshManager(
         LogManager& logManager,
         IScheduler& taskManager,
+        NvsManager& nvsManager,
         IMessageSender& lowerLayer,
         IEspnowController& espnowController
         ) :
         logManager(logManager),
         taskManager(taskManager),
+        nvsManager(nvsManager),
         lowerLayer(lowerLayer),
         espnowController(espnowController)
         {}

@@ -33,7 +33,7 @@ extern "C" void app_main(void)
     auto espmeshDriver  = new EspmeshDriver (*logManager, *taskManager, *nvsManager);
     auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *nvsManager, *espmeshDriver, *portDriver);
     auto espnowManager  = new EspnowManager (*logManager, *taskManager, *espnowDriver);
-    auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *espmeshDriver, *espnowManager);
+    auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *nvsManager, *espmeshDriver, *espnowManager);
 
     // monitor->Subscribe(cpuMonitor);
     // monitor->Subscribe(ramMonitor);

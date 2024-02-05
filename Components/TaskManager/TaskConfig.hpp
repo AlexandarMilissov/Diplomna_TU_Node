@@ -16,9 +16,9 @@ private:
     const uint8 core;                           /**< Core on which the task should run. */
     const uint32 stack_size;                    /**< Stack size for the task. */
     const UBaseType_t priority;                 /**< Priority of the task. */
-    const std::function<void()> OnCompletion;   /**< The function that should be called upon completion. */
     const bool finite;                          /**< Flag indicating if the task is finite or not. */
     uint16 repetition;                          /**< Number of times the task should repeat. */
+    const std::function<void()> OnCompletion;   /**< The function that should be called upon completion. */
 public:
     TaskConfig(
         const char *,
@@ -30,6 +30,14 @@ public:
         const bool = false,
         const uint16 = 0,
         const std::function<void()> = [](){}
+    );
+
+    TaskConfig(
+        const char *,
+        const uint8,
+        const uint32,
+        const UBaseType_t,
+        const std::function<void()>
     );
 
     const char* GetName();

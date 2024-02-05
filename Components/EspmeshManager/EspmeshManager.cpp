@@ -47,12 +47,46 @@ void EspmeshManager::Receive(const NetIdentifier address, const std::queue<Paylo
     {
     case MESH_ROOT_UPDATED:
     {
-        rootAddress = MacAddress(address.mac);
+        ReceiveMeshRootAddress(address);
+        break;
+    }
+    case MESH_PARENT_CONNECTED:
+    {
+        SendToRootMeshNodeConnected();
+        break;
+    }
+    case MESH_GET_NODES:
+    {
+        SendToRootMeshNodeConnected();
         break;
     }
     default:
         break;
     }
+}
+
+void EspmeshManager::SendToRootMeshNodeConnected()
+{
+    std::stack<Payload> payloadStack;
+
+    std::string name = nvsManager.GetVar<std::string>("Info", "name", "Default");
+    MessageType message = MESH_NODE_CONNECTED;
+
+    Payload namePayload(name);
+    Payload messagePayload((void*)(&message), sizeof(message));
+
+    payloadStack.push(namePayload);
+    payloadStack.push(messagePayload);
+
+    NetIdentifier netId;
+    rootAddress.CopyTo(netId.mac);
+
+    lowerLayer.Send(netId, payloadStack);
+}
+
+void EspmeshManager::ReceiveMeshRootAddress(const NetIdentifier address)
+{
+    rootAddress = MacAddress(address.mac);
 }
 
 std::string EspmeshManager::GetMonitorData()

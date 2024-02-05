@@ -41,12 +41,28 @@ void PortDriver::Send(const NetIdentifier netId, const std::stack<Payload> paylo
     }
     else
     {
-        SendTcp(netId, payloadStack);
+        if(tcpClients.count(netId.socket) > 0)
+        {
+            SendTcp(tcpClients[netId.socket], payloadStack);
+        }
     }
 }
 
-void PortDriver::SendBroadcast(const std::stack<Payload>)
+void PortDriver::SendBroadcast(const std::stack<Payload> payloadStack)
 {
+    std::vector<NetSocketDescriptor> netSocketDescriptors;
+
+    Enter_Critical_Spinlock(tcpClientsSpinlock);
+    for(auto client : tcpClients)
+    {
+        netSocketDescriptors.push_back(client.second);
+    }
+    Exit_Critical_Spinlock(tcpClientsSpinlock);
+
+    for(auto client : tcpClients)
+    {
+        SendTcp(client.second, payloadStack);
+    }
 }
 
 void PortDriver::Receive(const NetIdentifier netId, std::queue<Payload> originalPayloadQueue)
@@ -90,7 +106,8 @@ void PortDriver::GotIp(const uint32 ip)
 
 void PortDriver::LostIp()
 {
-
+    StopTcp();
+    StopUdp();
 }
 
 void PortDriver::StartUdp()
@@ -236,6 +253,15 @@ void PortDriver::StopUdp()
 
 void PortDriver::StopTcp()
 {
+    close(tcpSocket);
+    isTcpRunning = false;
+    Enter_Critical_Spinlock(tcpClientsSpinlock);
+    for(auto client : tcpClients)
+    {
+        close(client.second);
+    }
+    tcpClients.clear();
+    Exit_Critical_Spinlock(tcpClientsSpinlock);
 }
 
 void PortDriver::ReceiveUdp()
@@ -420,9 +446,14 @@ void PortDriver::SendUdp(const NetIdentifier netId, const std::stack<Payload> or
     close(sendUdpSocket);
 }
 
-void PortDriver::SendTcp(const NetIdentifier, const std::stack<Payload>)
+void PortDriver::SendTcp(const NetSocketDescriptor socket, const std::stack<Payload> data)
 {
-
+    Payload payload = Payload::Compose(data);
+    ssize_t sent = send(socket, payload.GetData(), payload.GetSize(), 0);
+    if(sent < 0)
+    {
+        logManager.Log(E, "PortDriver", "Failed to send data: %d\n", sent);
+    }
 }
 
 void PortDriver::AcceptTcp()

@@ -24,8 +24,9 @@ private:
     bool isServer = false;
 
     void ReceiveRootUpdated(std::queue<Payload>);
-    void ReceiveToDsStateUpdated(std::queue<Payload>);
     void ReceiveUdpDiscoverRequest(NetIdentifier, std::queue<Payload>);
+    void ReceiveTcpGetNodesRequest();
+    void ReceiveMeshNodeConnected(NetIdentifier, std::queue<Payload>);
 
     void SendUdpDiscoverResponse(NetIdentifier);
 

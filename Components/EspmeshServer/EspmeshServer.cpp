@@ -25,22 +25,60 @@ void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payloa
         ReceiveRootUpdated(payloadQueue);
         break;
     }
-    case MESH_EXTERNAL_IP_ACCESS_UPDATED:
-    {
-        ReceiveToDsStateUpdated(payloadQueue);
-        break;
-    }
     case UDP_DISCOVER_REQUEST:
     {
         ReceiveUdpDiscoverRequest(address, payloadQueue);
         break;
     }
+    case TCP_GET_NODES_REQUEST:
+    {
+        ReceiveTcpGetNodesRequest();
+        break;
+    }
+    case MESH_NODE_CONNECTED:
+    {
+        ReceiveMeshNodeConnected(address, payloadQueue);
+        break;
+    }
     default:
-        logManager.Log(E, "EspmeshServer", "Unknown message type: %d\n", messageType);
         break;
     }
 
     logManager.Log(V, "EspmeshServer", "Receive\n");
+}
+
+void EspmeshServer::ReceiveMeshNodeConnected(NetIdentifier netId, std::queue<Payload> payloadQueue)
+{
+    logManager.Log(I, "EspmeshServer", "ReceiveMeshNodeConnected\n");
+
+    std::stack<Payload> payloadStack;
+
+    while(!payloadQueue.empty())
+    {
+        payloadStack.push(payloadQueue.front());
+        payloadQueue.pop();
+    }
+
+    Payload payload = Payload(MacAddress(netId.mac));
+    payloadStack.push(payload);
+
+    MessageType message = TCP_NODE_CONNECTED;
+    Payload messagePayload((void*)(&message), sizeof(message));
+
+    payloadStack.push(messagePayload);
+
+    outerNetwork.SendBroadcast(payloadStack);
+}
+
+void EspmeshServer::ReceiveTcpGetNodesRequest()
+{
+    logManager.Log(E, "EspmeshServer", "ReceiveTcpDiscoverRequest\n");
+
+    MessageType message = MESH_GET_NODES;
+    Payload payload((void*)(&message), sizeof(message));
+    std::stack<Payload> payloadStack;
+    payloadStack.push(payload);
+    innerNetwork.SendBroadcast(payloadStack);
 }
 
 void EspmeshServer::ReceiveUdpDiscoverRequest(NetIdentifier netId, std::queue<Payload> payloadQueue)
@@ -79,24 +117,6 @@ void EspmeshServer::SendUdpDiscoverResponse(NetIdentifier netId)
     payloadStack.push(Payload((void*)(&messageType), sizeof(MessageType)));
 
     outerNetwork.Send(netId, payloadStack);
-}
-
-void EspmeshServer::ReceiveToDsStateUpdated(std::queue<Payload> originalPayloadQueue)
-{
-    std::queue<Payload> payloadQueue = originalPayloadQueue;
-    Payload toDsStatePayload = payloadQueue.front();
-    payloadQueue.pop();
-
-    bool isExternalNetworkReachable = *((bool*)toDsStatePayload.GetData());
-
-    if(isExternalNetworkReachable)
-    {
-        logManager.Log(I, "EspmeshServer", "External network is reachable\n");
-    }
-    else
-    {
-        logManager.Log(I, "EspmeshServer", "External network is not reachable\n");
-    }
 }
 
 void EspmeshServer::ReceiveRootUpdated(std::queue<Payload> originalPayloadQueue)

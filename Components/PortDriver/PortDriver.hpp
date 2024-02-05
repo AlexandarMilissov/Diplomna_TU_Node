@@ -48,7 +48,7 @@ private:
     void ReceiveTcp();
 
     void SendUdp(const NetIdentifier, const std::stack<Payload>);
-    void SendTcp(const NetIdentifier, const std::stack<Payload>);
+    void SendTcp(const NetSocketDescriptor, const std::stack<Payload>);
 
     void AcceptTcp();
 

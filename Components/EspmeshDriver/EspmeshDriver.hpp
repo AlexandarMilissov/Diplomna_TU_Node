@@ -10,6 +10,8 @@
 #include "NvsManager.hpp"
 #include "MacAddress.hpp"
 
+#include "esp_mesh.h"
+
 class EspmeshDriver : public IComponent, public IMessageSender
 {
 private:
@@ -30,14 +32,14 @@ private:
 
     std::vector<IMessageReceiver*> upperLayerMessageables;
 
-    static void ReceiveMeshEvent(void*, esp_event_base_t, sint32, void*);
+    static void ReceiveMeshEventStatic(void*, esp_event_base_t, sint32, void*);
     void DistributeMeshEvents(void*, esp_event_base_t, sint32, void*);
+    void EventTask(std::function<void()>);
 
-    void ReceiveMeshEventRootAddress(void*, esp_event_base_t, sint32, void*);
-    void ReceiveMeshEventChildDisconnected(void*, esp_event_base_t, sint32, void*);
-    void ReceiveMeshEventParentConnected(void*, esp_event_base_t, sint32, void*);
-    void ReceiveMeshEventParentDisconnected(void*, esp_event_base_t, sint32, void*);
-    void ReceiveMeshEventToDsState(void*, esp_event_base_t, sint32, void*);
+    void ReceiveMeshEventRootAddress(mesh_event_root_address_t);
+    void ReceiveMeshEventChildDisconnected(mesh_event_child_disconnected_t);
+    void ReceiveMeshEventParentConnected();
+    void ReceiveMeshEventParentDisconnected();
 
     void ConnectRouterless();
     void ConnectRouter();

@@ -135,7 +135,8 @@
         "executor": "cpp",
         "io_context": "cpp",
         "socket": "cpp",
-        "internet": "cpp"
+        "internet": "cpp",
+        "timer": "cpp"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM8",
