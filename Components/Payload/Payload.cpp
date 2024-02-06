@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cstring>
 #include "MacAddress.hpp"
+#include "Messages.hpp"
 
 Payload::Payload(const Payload& original) : size(original.size)
 {
@@ -36,10 +37,17 @@ Payload::Payload(const MacAddress& mac) : size(MAC_ADDRESS_LENGTH)
     mac.CopyTo((uint8*)data);
 }
 
-Payload::Payload(const std::string str) : size(str.length())
+Payload::Payload(const std::string str) : size(str.length() + 1)
 {
     data = malloc(size);
     memcpy(data, str.c_str(), size);
+    ((uint8*)data)[size - 1] = '\0';
+}
+
+Payload::Payload(MessageType message) : size(sizeof(message))
+{
+    data = malloc(size);
+    memcpy(data, &message, size);
 }
 
 Payload::~Payload()

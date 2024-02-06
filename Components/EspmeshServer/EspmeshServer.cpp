@@ -49,8 +49,6 @@ void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payloa
 
 void EspmeshServer::ReceiveMeshNodeConnected(NetIdentifier netId, std::queue<Payload> payloadQueue)
 {
-    logManager.Log(I, "EspmeshServer", "ReceiveMeshNodeConnected\n");
-
     std::stack<Payload> payloadStack;
 
     while(!payloadQueue.empty())
@@ -72,8 +70,6 @@ void EspmeshServer::ReceiveMeshNodeConnected(NetIdentifier netId, std::queue<Pay
 
 void EspmeshServer::ReceiveTcpGetNodesRequest()
 {
-    logManager.Log(E, "EspmeshServer", "ReceiveTcpDiscoverRequest\n");
-
     MessageType message = MESH_GET_NODES;
     Payload payload((void*)(&message), sizeof(message));
     std::stack<Payload> payloadStack;

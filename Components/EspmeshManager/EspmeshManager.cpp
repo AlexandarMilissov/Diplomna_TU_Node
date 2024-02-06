@@ -19,15 +19,6 @@ void EspmeshManager::Init()
     );
     taskManager.RequestTask(config);
 
-    // TaskConfig configSendKeepAlive = TaskConfig(
-    //     "EspmeshManagerSendKeepAlive",
-    //     [this]() { MainFunctionSendKeepAlive(); },
-    //     3000,
-    //     CORE_1,
-    //     8192,
-    //     10
-    // );
-
     internalState = MESH_INIT;
 }
 
@@ -51,10 +42,6 @@ void EspmeshManager::Receive(const NetIdentifier address, const std::queue<Paylo
         break;
     }
     case MESH_PARENT_CONNECTED:
-    {
-        SendToRootMeshNodeConnected();
-        break;
-    }
     case MESH_GET_NODES:
     {
         SendToRootMeshNodeConnected();
@@ -69,14 +56,8 @@ void EspmeshManager::SendToRootMeshNodeConnected()
 {
     std::stack<Payload> payloadStack;
 
-    std::string name = nvsManager.GetVar<std::string>("Info", "name", "Default");
-    MessageType message = MESH_NODE_CONNECTED;
-
-    Payload namePayload(name);
-    Payload messagePayload((void*)(&message), sizeof(message));
-
-    payloadStack.push(namePayload);
-    payloadStack.push(messagePayload);
+    payloadStack.push(Payload(nvsManager.GetVar<std::string>("Info", "name", "Default")));
+    payloadStack.push(Payload(MESH_NODE_CONNECTED));
 
     NetIdentifier netId;
     rootAddress.CopyTo(netId.mac);

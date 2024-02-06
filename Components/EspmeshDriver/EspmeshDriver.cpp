@@ -176,17 +176,22 @@ void EspmeshDriver::Send(const NetIdentifier netAddress, const std::stack<Payloa
     MacAddress address = MacAddress(netAddress.mac);
 
     esp_err_t err;
-    mesh_addr_t meshAddress;
+    mesh_addr_t* meshAddress = NULL;
     mesh_data_t meshData;
 
-    address.CopyTo(meshAddress.addr);
+    if(address != rootAddress)
+    {
+        meshAddress = (mesh_addr_t*)malloc(sizeof(mesh_addr_t));
+        address.CopyTo(meshAddress->addr);
+    }
     Payload data = Payload::Compose(dataStack);
     meshData.data = (uint8*)data.GetData();
     meshData.size = data.GetSize();
     meshData.proto = MESH_PROTO_BIN;
     meshData.tos = MESH_TOS_P2P;
     int flags = MESH_DATA_P2P;
-    err = esp_mesh_send(&meshAddress, &meshData, flags, NULL, 0);
+    err = esp_mesh_send(meshAddress, &meshData, flags, NULL, 0);
+    free(meshAddress);
     if(ESP_OK != err)
     {
         logManager.Log(E, "EspmeshDriver", "Send data fail: %s", esp_err_to_name(err));
@@ -206,13 +211,20 @@ void EspmeshDriver::Receive()
     mesh_data_t meshData;
     meshData.data = receiveBuffer;
     meshData.size = receiveBufferLength;
+    meshData.proto = MESH_PROTO_BIN;
+    meshData.tos = MESH_TOS_P2P;
 
+    sint32 timeout = 0;
     int flag = 0;
+    mesh_opt_t* options = NULL;
+    sint32 optionsCount = 0;
+
     uint8 operationsOfCycle = 0xFF;
 
     while(operationsOfCycle > 0)
     {
-        esp_err_t err = esp_mesh_recv(&from, &meshData, 0, &flag, NULL, 0);
+        meshData.size = receiveBufferLength;
+        esp_err_t err = esp_mesh_recv(&from, &meshData, timeout, &flag, options, optionsCount);
 
         if(ESP_ERR_MESH_TIMEOUT == err)
         {
@@ -222,6 +234,10 @@ void EspmeshDriver::Receive()
         else if(ESP_OK != err)
         {
             logManager.Log(E, "EspmeshDriver", "Receive data fail: %s", esp_err_to_name(err));
+            if(ESP_ERR_MESH_ARGUMENT == err)
+            {
+                err = esp_mesh_recv(&from, &meshData, timeout, &flag, options, optionsCount);
+            }
             return;
         }
 

@@ -6,6 +6,8 @@
 #include <queue>
 #include <string>
 
+#include "Messages.hpp"
+
 class MacAddress;
 
 /**
@@ -63,6 +65,13 @@ class Payload
          * @param str The string to be stored in the Payload object.
          */
         Payload(const std::string);
+
+        /**
+         * @brief Constructs a Payload object with the given message.
+         *
+         * @param message The message to be stored in the Payload.
+         */
+        Payload(MessageType);
 
         /**
          * @brief Destructor for the Payload object.

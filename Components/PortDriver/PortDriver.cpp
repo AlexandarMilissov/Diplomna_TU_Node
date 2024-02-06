@@ -172,7 +172,7 @@ void PortDriver::StartUdp()
     TaskConfig config = TaskConfig(
         "ReceiveUdp",
         [this]() { ReceiveUdp(); },
-        1000,
+        250,
         CORE_1,
         8192,
         10
@@ -343,6 +343,8 @@ void PortDriver::ReceiveTcp()
     uint8 receiveData[100] = { 0 };
     ssize_t receivedLen = 0;
 
+    std::vector<NetSocket> socketsToRemove;
+
     for(auto client : tcpClients)
     {
         NetSocket clientSocketInfo = client.first;
@@ -366,9 +368,7 @@ void PortDriver::ReceiveTcp()
                 {
                     close(clientSocket);
 
-                    Enter_Critical_Spinlock(tcpClientsSpinlock);
-                    tcpClients.erase(clientSocketInfo);
-                    Exit_Critical_Spinlock(tcpClientsSpinlock);
+                    socketsToRemove.push_back(client.first);
 
                     logManager.Log(E, "PortDriver", "Client is not connected: %d\n", clientSocket);
                     break;
@@ -382,9 +382,7 @@ void PortDriver::ReceiveTcp()
             else if(receivedLen == 0)
             {
                 close(clientSocket);
-                Enter_Critical_Spinlock(tcpClientsSpinlock);
-                tcpClients.erase(clientSocketInfo);
-                Exit_Critical_Spinlock(tcpClientsSpinlock);
+                socketsToRemove.push_back(client.first);
                 break;
             }
             else if(receivedLen == sizeof(receiveData)/sizeof(receiveData[0]))
@@ -405,6 +403,13 @@ void PortDriver::ReceiveTcp()
 
             maxIterations--;
         }
+    }
+
+    for(auto socket : socketsToRemove)
+    {
+        Enter_Critical_Spinlock(tcpClientsSpinlock);
+        tcpClients.erase(socket);
+        Exit_Critical_Spinlock(tcpClientsSpinlock);
     }
 }
 
