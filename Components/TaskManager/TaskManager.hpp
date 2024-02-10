@@ -2,13 +2,13 @@
 #define TASKMANAGER_HPP
 
 #include "Common.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "LogManager.hpp"
 #include "NvsManager.hpp"
 
 #include "IScheduler.hpp"
 
-class TaskManager : public IScheduler, public IComponent
+class TaskManager : public IScheduler, public BaseComponent
 {
 private:
 

@@ -9,4 +9,5 @@ idf_component_register(SRCS
                         WifiDriver
                         Interfaces
                         NetworkComponents
+                        BaseComponent
                        )

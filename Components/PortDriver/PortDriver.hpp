@@ -2,7 +2,7 @@
 #define PORTDRIVER_HPP_
 
 #include "Common.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
 #include "LogManager.hpp"
@@ -15,7 +15,7 @@
 
 typedef sint32 NetSocketDescriptor;
 
-class PortDriver : public IComponent, public IMessageSender, public IMessageReceiver
+class PortDriver : public BaseComponent, public IMessageSender, public IMessageReceiver
 {
 private:
     static const uint16 PORT = 9876;
@@ -56,7 +56,6 @@ public:
     PortDriver(LogManager&, IScheduler&, NvsManager&);
     ~PortDriver();
 
-    void Init();
     void Send(const NetIdentifier, const std::stack<Payload>);
     void SendBroadcast(const std::stack<Payload>);
     void Receive(const NetIdentifier, std::queue<Payload>);

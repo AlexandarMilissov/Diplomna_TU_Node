@@ -4,12 +4,12 @@
 #include <vector>
 #include <string>
 #include "Common.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "IMonitorable.hpp"
 
-class Monitor : public IComponent
+class Monitor : public BaseComponent
 {
 private:
     std::vector<IMonitorable*> monitorables;

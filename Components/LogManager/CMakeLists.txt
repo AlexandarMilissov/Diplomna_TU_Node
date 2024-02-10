@@ -8,4 +8,5 @@ idf_component_register(SRCS
                        "./Interfaces/UARTLogger"
                        REQUIRES
                        Common
+                       BaseComponent
                        )

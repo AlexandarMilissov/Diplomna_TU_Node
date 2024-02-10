@@ -4,7 +4,7 @@
 #include "Common.hpp"
 
 #include "IScheduler.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "IEspnowController.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
@@ -23,7 +23,7 @@ typedef enum
     MESH_RUN,        // Network is active
 }EspmeshManagerState;
 
-class EspmeshManager : public IComponent, public IMessageReceiver, public IMonitorable
+class EspmeshManager : public BaseComponent, public IMessageReceiver, public IMonitorable
 {
 private:
     LogManager& logManager;

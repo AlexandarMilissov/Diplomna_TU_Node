@@ -1,18 +1,6 @@
 #include "CpuMonitor.hpp"
 #include "TaskManager.hpp"
 
-CpuMonitor::CpuMonitor(/* args */)
-{
-}
-
-CpuMonitor::~CpuMonitor()
-{
-}
-
-void CpuMonitor::Init()
-{
-}
-
 std::string CpuMonitor::GetMonitorData()
 {
     TaskStatus_t *pxTaskStatusArray;

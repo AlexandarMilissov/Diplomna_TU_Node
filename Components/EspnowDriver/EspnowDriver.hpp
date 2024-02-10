@@ -6,7 +6,7 @@
 #include "esp_now.h"
 #include <vector>
 #include <queue>
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
 #include "LogManager.hpp"
@@ -18,7 +18,7 @@ typedef std::tuple<MacAddress, RSSI_Type , int, uint8*> ReceivedMessageTuple;
 /**
  * @brief The EspnowDriver class provides functionality for initializing and sending data using ESP-NOW protocol.
  */
-class EspnowDriver : public IComponent, public IMessageSender
+class EspnowDriver : public BaseComponent, public IMessageSender
 {
 private:
     static MacAddress myEspnowMac;

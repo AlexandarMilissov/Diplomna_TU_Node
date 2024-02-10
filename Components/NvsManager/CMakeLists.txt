@@ -3,4 +3,5 @@ idf_component_register(SRCS "NvsManager.cpp"
                        REQUIRES
                        Common
                        nvs_flash
+                       BaseComponent
                        )

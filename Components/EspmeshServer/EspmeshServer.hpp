@@ -2,7 +2,7 @@
 #define ESPMESHSERVER_HPP_
 
 #include "Common.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "LogManager.hpp"
 #include "IScheduler.hpp"
 #include "IMonitorable.hpp"
@@ -12,7 +12,7 @@
 
 #include "lwip/sockets.h"
 
-class EspmeshServer : public IComponent, public IMessageReceiver, public IMonitorable
+class EspmeshServer : public BaseComponent, public IMessageReceiver, public IMonitorable
 {
 private:
     LogManager& logManager;

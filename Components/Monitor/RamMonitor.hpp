@@ -2,9 +2,9 @@
 #define RAMMONITOR_HPP_
 
 #include "IMonitorable.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 
-class RamMonitor : public IMonitorable, public IComponent
+class RamMonitor : public IMonitorable, public BaseComponent
 {
 private:
     size_t maximum_heap_regions;

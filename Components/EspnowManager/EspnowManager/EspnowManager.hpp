@@ -9,7 +9,7 @@
 #include <vector>
 #include <tuple>
 
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "IEspnowController.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
@@ -28,7 +28,7 @@ typedef enum
     NOW_RUN,        // Network is active
 }EspnowManagerState;
 
-class EspnowManager : public IComponent, public IEspnowController, public IMessageReceiver, public IMonitorable
+class EspnowManager : public BaseComponent, public IEspnowController, public IMessageReceiver, public IMonitorable
 {
 private:
     std::atomic<EspnowManagerState> internalState = NOW_NO_INIT;

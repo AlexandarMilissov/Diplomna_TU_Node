@@ -16,10 +16,8 @@
 
 #include <vector>
 
-std::vector<IComponent*>* components;
 extern "C" void app_main(void)
 {
-    components = new std::vector<IComponent*>();
 
     auto logManager     = new LogManager    ();
     auto cpuMonitor     = new CpuMonitor    ();
@@ -34,6 +32,10 @@ extern "C" void app_main(void)
     auto espmeshServer  = new EspmeshServer (*logManager, *taskManager, *nvsManager, *espmeshDriver, *portDriver);
     auto espnowManager  = new EspnowManager (*logManager, *taskManager, *espnowDriver);
     auto espmeshManager = new EspmeshManager(*logManager, *taskManager, *nvsManager, *espmeshDriver, *espnowManager);
+
+    DUMMY_STATEMENT(cpuMonitor);
+    DUMMY_STATEMENT(ramMonitor);
+    DUMMY_STATEMENT(monitor);
 
     // monitor->Subscribe(cpuMonitor);
     // monitor->Subscribe(ramMonitor);
@@ -50,20 +52,8 @@ extern "C" void app_main(void)
 
     portDriver->Subscribe(*espmeshServer);
 
-    components->push_back(logManager);
-    components->push_back(nvsManager);
-    components->push_back(taskManager);
-    components->push_back(cpuMonitor);
-    components->push_back(ramMonitor);
-    components->push_back(monitor);
-    components->push_back(wifiDriver);
-    components->push_back(espnowDriver);
-    components->push_back(espmeshDriver);
-    components->push_back(espnowManager);
-    components->push_back(espmeshManager);
-    components->push_back(portDriver);
 
-    for(IComponent* component : *components)
+    for(BaseComponent* component : BaseComponent::GetComponents())
     {
         component->Init();
     }

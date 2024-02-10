@@ -2,7 +2,7 @@
 #define ESPMESHDRIVER_HPP_
 
 #include "Common.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "IMessageSender.hpp"
 #include "IMessageReceiver.hpp"
 #include "LogManager.hpp"
@@ -12,7 +12,7 @@
 
 #include "esp_mesh.h"
 
-class EspmeshDriver : public IComponent, public IMessageSender
+class EspmeshDriver : public BaseComponent, public IMessageSender
 {
 private:
     LogManager& logManager;

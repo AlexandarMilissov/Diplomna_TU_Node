@@ -2,19 +2,12 @@
 #define CPUMONITOR_HPP_
 
 #include "IMonitorable.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include <string>
 
-class CpuMonitor : public IComponent , public IMonitorable
+class CpuMonitor : public BaseComponent , public IMonitorable
 {
-private:
-    /* data */
 public:
-    CpuMonitor(/* args */);
-    ~CpuMonitor();
-
-    void Init();
-
     std::string GetMonitorData();
 };
 

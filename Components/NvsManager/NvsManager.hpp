@@ -1,14 +1,14 @@
 #ifndef NVSMANAGER_HPP_
 #define NVSMANAGER_HPP_
 
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 #include "LogManager.hpp"
 
 #include "nvs_flash.h"
 
 #include <map>
 
-class NvsManager : public IComponent
+class NvsManager : public BaseComponent
 {
 private:
     LogManager& logManager;

@@ -26,10 +26,6 @@ PortDriver::~PortDriver()
 {
 }
 
-void PortDriver::Init()
-{
-}
-
 void PortDriver::Send(const NetIdentifier netId, const std::stack<Payload> payloadStack)
 {
     Payload protocolPayload = payloadStack.top();

@@ -1,0 +1,9 @@
+idf_component_register(SRCS
+                        "BaseComponent.cpp"
+                        "Setting.cpp"
+                        "ComponentSettings.cpp"
+                       INCLUDE_DIRS
+                        "."
+                       REQUIRES
+                       "Common"
+                       )

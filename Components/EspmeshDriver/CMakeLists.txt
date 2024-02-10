@@ -3,4 +3,5 @@ idf_component_register(SRCS "EspmeshDriver.cpp"
                        REQUIRES
                        Common
                        Interfaces
+                       BaseComponent
                        )

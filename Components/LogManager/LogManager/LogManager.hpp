@@ -6,9 +6,9 @@
 #include <string>
 #include "LogSeverity.hpp"
 #include "ILogger.hpp"
-#include "IComponent.hpp"
+#include "BaseComponent.hpp"
 
-class LogManager : public IComponent
+class LogManager : public BaseComponent
 {
     private:
         std::vector<ILogger*> loggers;
