@@ -11,6 +11,11 @@ void EspmeshServer::Init()
     logManager.Log(V, "EspmeshServer", "Init\n");
 }
 
+std::string EspmeshServer::GetMonitorData()
+{
+    return "EspmeshServer";
+}
+
 void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payload> originalPayloadQueue)
 {
     std::queue<Payload> payloadQueue = originalPayloadQueue;
@@ -20,9 +25,9 @@ void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payloa
 
     switch (messageType)
     {
-    case MESH_ROOT_UPDATED:
+    case MESH_NODE_CONNECTED:
     {
-        ReceiveRootUpdated(payloadQueue);
+        ReceiveMeshNodeConnected(address, payloadQueue);
         break;
     }
     case UDP_DISCOVER_REQUEST:
@@ -35,9 +40,9 @@ void EspmeshServer::Receive(const NetIdentifier address, const std::queue<Payloa
         ReceiveTcpGetNodesRequest();
         break;
     }
-    case MESH_NODE_CONNECTED:
+    case TCP_GLOBAL_OPTIONS_REQUEST:
     {
-        ReceiveMeshNodeConnected(address, payloadQueue);
+        ReceiveTcpGlobalOptionsRequest();
         break;
     }
     default:
@@ -57,6 +62,11 @@ void EspmeshServer::ReceiveMeshNodeConnected(NetIdentifier netId, std::queue<Pay
         payloadQueue.pop();
     }
 
+    SendTcpNodeConnected(netId, payloadStack);
+}
+
+void EspmeshServer::SendTcpNodeConnected(NetIdentifier netId, std::stack<Payload> payloadStack)
+{
     Payload payload = Payload(MacAddress(netId.mac));
     payloadStack.push(payload);
 
@@ -69,6 +79,11 @@ void EspmeshServer::ReceiveMeshNodeConnected(NetIdentifier netId, std::queue<Pay
 }
 
 void EspmeshServer::ReceiveTcpGetNodesRequest()
+{
+    SendMeshGetNodes();
+}
+
+void EspmeshServer::SendMeshGetNodes()
 {
     MessageType message = MESH_GET_NODES;
     Payload payload((void*)(&message), sizeof(message));
@@ -115,57 +130,37 @@ void EspmeshServer::SendUdpDiscoverResponse(NetIdentifier netId)
     outerNetwork.Send(netId, payloadStack);
 }
 
-void EspmeshServer::ReceiveRootUpdated(std::queue<Payload> originalPayloadQueue)
+void EspmeshServer::ReceiveTcpGlobalOptionsRequest()
 {
-    std::queue<Payload> payloadQueue = originalPayloadQueue;
-    Payload rootAddressPayload = payloadQueue.front();
-    payloadQueue.pop();
+    auto componentSettings = BaseComponent::GetAllGlobalSettings();
 
-    bool isRoot = *((bool*)rootAddressPayload.GetData());
-
-    if(isRoot && isServer)
+    for (auto componentSetting : componentSettings)
     {
-        logManager.Log(E, "EspmeshServer", "Root updated to this node, but this node is already a server\n");
+        std::stack<Payload> payloadStack;
+        auto settings = componentSetting.GetSettings();
+        if(settings.size() == 0)
+        {
+            continue;
+        }
 
-        // Do nothing, the current node is already a server
-    }
-    else if(isRoot && !isServer)
-    {
-        isServer = true;
-        logManager.Log(I, "EspmeshServer", "Root updated to this node, this node is now a server\n");
+        for (auto setting : settings)
+        {
+            payloadStack.push(Payload(setting.GetUpdateRequired()));
+            payloadStack.push(Payload(setting.GetSaveToNvs()));
+            payloadStack.push(Payload(setting.GetValue()));
+            payloadStack.push(Payload(setting.GetType()));
+            payloadStack.push(Payload(setting.GetChecksum()));
+            payloadStack.push(Payload(setting.GetName()));
+        }
+        payloadStack.push(Payload(componentSetting.GetName()));
 
-        // Start the server
-        StartServer();
-    }
-    else if(!isRoot && isServer)
-    {
-        isServer = false;
-        logManager.Log(I, "EspmeshServer", "Root updated to another node, this node is no longer a server\n");
-
-        // Stop the server
-        StopServer();
-    }
-    else if(!isRoot && !isServer)
-    {
-        logManager.Log(I, "EspmeshServer", "Root updated to another node, this node is not a server\n");
-
-        // Do nothing, the current node is not a server and will not become one
+        SendTcpGlobalOptionsResponse(payloadStack);
     }
 }
 
-
-void EspmeshServer::StartServer()
+void EspmeshServer::SendTcpGlobalOptionsResponse(std::stack<Payload> payloadStack)
 {
+    payloadStack.push(Payload(TCP_GLOBAL_OPTIONS_RESPONSE));
 
-}
-
-void EspmeshServer::StopServer()
-{
-    logManager.Log(V, "EspmeshServer", "StopServer\n");
-}
-
-
-std::string EspmeshServer::GetMonitorData()
-{
-    return "EspmeshServer";
+    outerNetwork.SendBroadcast(payloadStack);
 }

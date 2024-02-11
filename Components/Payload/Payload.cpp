@@ -4,6 +4,7 @@
 #include <cstring>
 #include "MacAddress.hpp"
 #include "Messages.hpp"
+#include "Setting.hpp"
 
 Payload::Payload(const Payload& original) : size(original.size)
 {
@@ -12,6 +13,27 @@ Payload::Payload(const Payload& original) : size(original.size)
         data = (uint8*)malloc(sizeof(uint8) * size);
         memcpy(data, original.data, size);
     }
+}
+
+Payload& Payload::operator=(const Payload& original)
+{
+    if(this != &original)
+    {
+        if(size > 0)
+        {
+            free(data);
+        }
+
+        size = original.size;
+
+        if(size > 0)
+        {
+            data = (uint8*)malloc(sizeof(uint8) * size);
+            memcpy(data, original.data, size);
+        }
+    }
+
+    return *this;
 }
 
 Payload::Payload(const size_t size) : size(size)
@@ -37,17 +59,40 @@ Payload::Payload(const MacAddress& mac) : size(MAC_ADDRESS_LENGTH)
     mac.CopyTo((uint8*)data);
 }
 
-Payload::Payload(const std::string str) : size(str.length() + 1)
+Payload::Payload(const std::string str) : size(str.length())
 {
     data = malloc(size);
     memcpy(data, str.c_str(), size);
-    ((uint8*)data)[size - 1] = '\0';
 }
 
 Payload::Payload(MessageType message) : size(sizeof(message))
 {
     data = malloc(size);
     memcpy(data, &message, size);
+}
+
+Payload::Payload(ValueType type) : size(sizeof(type))
+{
+    data = malloc(size);
+    memcpy(data, &type, size);
+}
+
+Payload::Payload(uint32 value) : size(sizeof(value))
+{
+    data = malloc(size);
+    memcpy(data, &value, size);
+}
+
+Payload::Payload(uint64 value) : size(sizeof(value))
+{
+    data = malloc(size);
+    memcpy(data, &value, size);
+}
+
+Payload::Payload(bool value) : size(sizeof(value))
+{
+    data = malloc(size);
+    memcpy(data, &value, size);
 }
 
 Payload::~Payload()

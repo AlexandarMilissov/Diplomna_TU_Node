@@ -22,8 +22,8 @@ extern "C" void app_main(void)
     auto logManager     = new LogManager    ();
     auto cpuMonitor     = new CpuMonitor    ();
     auto ramMonitor     = new RamMonitor    ();
-    auto wifiDriver     = new WifiDriver    ();
     auto nvsManager     = new NvsManager    (*logManager);
+    auto wifiDriver     = new WifiDriver    ();
     auto taskManager    = new TaskManager   (*logManager);
     auto monitor        = new Monitor       (*logManager, *taskManager);
     auto espnowDriver   = new EspnowDriver  (*logManager, *taskManager);

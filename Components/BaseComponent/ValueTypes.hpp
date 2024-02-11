@@ -5,7 +5,8 @@ typedef enum ValueType
 {
     UINT32,
     FLOAT,
-    STRING
+    STRING,
+    MAC_ADDRESS
 } ValueType;
 
 #endif // VALUETYPES_HPP_

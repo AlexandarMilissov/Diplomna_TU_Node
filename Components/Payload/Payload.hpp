@@ -7,8 +7,10 @@
 #include <string>
 
 #include "Messages.hpp"
+#include "ValueTypes.hpp"
 
 class MacAddress;
+class Setting;
 
 /**
  * @brief The Payload class represents a data payload.
@@ -36,6 +38,13 @@ class Payload
          * @param payload The payload to copy.
          */
         Payload(const Payload&);
+
+        /**
+         * @brief Copy assignment operator for the Payload object.
+         *
+         * @param payload The payload to copy.
+        */
+        Payload& operator=(const Payload&);
 
         /**
          * @brief Construct a new Payload object.
@@ -72,6 +81,34 @@ class Payload
          * @param message The message to be stored in the Payload.
          */
         Payload(MessageType);
+
+        /**
+         * @brief Constructs a Payload object with the value type.
+         *
+         * @param message The message to be stored in the Payload.
+         */
+        Payload(ValueType);
+
+        /**
+         * @brief Constructs a Payload object with the given value.
+         *
+         * @param value The value to be stored in the Payload.
+         */
+        Payload(uint32);
+
+        /**
+         * @brief Constructs a Payload object with the given value.
+         *
+         * @param value The value to be stored in the Payload.
+         */
+        Payload(uint64);
+
+        /**
+         * @brief Constructs a Payload object with the given value.
+         *
+         * @param value The value to be stored in the Payload.
+         */
+        Payload(bool);
 
         /**
          * @brief Destructor for the Payload object.

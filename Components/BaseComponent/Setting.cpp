@@ -2,32 +2,38 @@
 
 Setting::Setting(
     std::string name,
-    void* id,
+    uint64 checksum,
     ValueType type,
+    Payload value,
     bool saveToNvs,
     bool updateRequired
-)
-{
-    this->name = name;
-    this->id = id;
-    this->type = type;
-    this->saveToNvs = saveToNvs;
-    this->updateRequired = updateRequired;
-}
+) :
+    name(name),
+    checksum(checksum),
+    type(type),
+    value(value),
+    saveToNvs(saveToNvs),
+    updateRequired(updateRequired)
+{}
 
 std::string Setting::GetName()
 {
     return name;
 }
 
-void* Setting::GetId()
+uint64 Setting::GetChecksum()
 {
-    return id;
+    return checksum;
 }
 
 ValueType Setting::GetType()
 {
     return type;
+}
+
+Payload Setting::GetValue()
+{
+    return value;
 }
 
 bool Setting::GetSaveToNvs()

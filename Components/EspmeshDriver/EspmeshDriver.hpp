@@ -45,6 +45,10 @@ private:
     void ConnectRouter();
 
     void Receive();
+
+    uint64 GetMeshIdChecksum();
+    Setting GetMeshIdSetting();
+    void SetMeshIdSetting(Setting);
 public:
     EspmeshDriver(
         LogManager& logManager,
@@ -55,6 +59,8 @@ public:
     ~EspmeshDriver();
 
     void Init();
+    std::string GetName();
+    std::vector<Setting> GetComponentGlobalSettings();
 
     void Subscribe(IMessageReceiver&);
     void Send(const NetIdentifier, const std::stack<Payload>);

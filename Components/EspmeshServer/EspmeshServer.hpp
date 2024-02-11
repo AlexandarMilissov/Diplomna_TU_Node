@@ -21,17 +21,22 @@ private:
     IMessageSender& innerNetwork;
     IMessageSender& outerNetwork;
 
-    bool isServer = false;
-
-    void ReceiveRootUpdated(std::queue<Payload>);
-    void ReceiveUdpDiscoverRequest(NetIdentifier, std::queue<Payload>);
-    void ReceiveTcpGetNodesRequest();
+    // Mesh message handlers
     void ReceiveMeshNodeConnected(NetIdentifier, std::queue<Payload>);
+    // UDP message handlers
+    void ReceiveUdpDiscoverRequest(NetIdentifier, std::queue<Payload>);
+    // TCP message handlers
+    void ReceiveTcpGetNodesRequest();
+    void ReceiveTcpGlobalOptionsRequest();
 
+    // Mesh message senders
+    void SendMeshGetNodes();
+    // UDP message senders
     void SendUdpDiscoverResponse(NetIdentifier);
+    // TCP message senders
+    void SendTcpNodeConnected(NetIdentifier, std::stack<Payload>);
+    void SendTcpGlobalOptionsResponse(std::stack<Payload>);
 
-    void StartServer();
-    void StopServer();
 public:
     EspmeshServer(
         LogManager& logManager,

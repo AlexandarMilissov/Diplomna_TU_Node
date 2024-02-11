@@ -1,29 +1,35 @@
 #ifndef SETTING_HPP_
 #define SETTING_HPP_
 
+#include "Common.hpp"
 #include <string>
 #include "ValueTypes.hpp"
+#include "Payload.hpp"
 
 class Setting
 {
 private:
     std::string name;
-    void* id;
+    uint64 checksum;
     ValueType type;
+    Payload value;
+
     bool saveToNvs;
     bool updateRequired;
 public:
     Setting(
         std::string,
-        void*,
+        uint64,
         ValueType,
+        Payload,
         bool,
         bool
     );
 
     std::string GetName();
-    void* GetId();
+    uint64 GetChecksum();
     ValueType GetType();
+    Payload GetValue();
     bool GetSaveToNvs();
     bool GetUpdateRequired();
 };

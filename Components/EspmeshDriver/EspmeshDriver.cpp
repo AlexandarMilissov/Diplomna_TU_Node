@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 #include <algorithm>
+#include <stdexcept>
 
 std::vector<EspmeshDriver*> EspmeshDriver::drivers;
 
@@ -51,42 +52,44 @@ void EspmeshDriver::EventTask(std::function<void()> eventFunction)
 
 void EspmeshDriver::ConnectRouterless()
 {
-    // Disable mesh power saving function
-    ESP_ERROR_CHECK(esp_mesh_disable_ps());
-    ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(30));
-    ESP_ERROR_CHECK(esp_mesh_set_type(MESH_ROOT));
-    ESP_ERROR_CHECK(esp_mesh_allow_root_conflicts(true));
-    ESP_ERROR_CHECK(esp_mesh_fix_root(true));
+    throw std::runtime_error("Not implemented");
 
-    mesh_cfg_t cfg = {
-        .channel = nvsManager.GetVar<uint8>("espMesh", "channel", CONFIG_MESH_CHANNEL),
-        .allow_channel_switch = false,
-        .mesh_id = {
-            .addr = {
-                nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
-                nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
-                nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
-                nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
-                nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
-                nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
-            },
-        },
-        .router = {
-            .ssid_len = 0,
-            .password = { 0 }
-        },
-        .mesh_ap = {
-            .password = { 0 },
-            .max_connection = nvsManager.GetVar<uint8>("espMesh", "maxConn", CONFIG_MESH_AP_CONNECTIONS),
-            .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMesh", "nonMeshMaxConn", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
-        },
-        .crypto_funcs = &g_wifi_default_mesh_crypto_funcs
-    };
+    // // Disable mesh power saving function
+    // ESP_ERROR_CHECK(esp_mesh_disable_ps());
+    // ESP_ERROR_CHECK(esp_mesh_set_ap_assoc_expire(30));
+    // ESP_ERROR_CHECK(esp_mesh_set_type(MESH_ROOT));
+    // ESP_ERROR_CHECK(esp_mesh_allow_root_conflicts(true));
+    // ESP_ERROR_CHECK(esp_mesh_fix_root(true));
 
-    std::string meshApPassword = nvsManager.GetVar<std::string>("espMesh", "meshApPass", CONFIG_MESH_AP_PASSWD);
-    memcpy((uint8_t *) &cfg.mesh_ap.password, meshApPassword.c_str(), meshApPassword.length());
-    ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMesh", "authMode", CONFIG_MESH_AP_AUTHMODE)));
-    ESP_ERROR_CHECK(esp_mesh_set_config(&cfg));
+    // mesh_cfg_t cfg = {
+    //     .channel = nvsManager.GetVar<uint8>("espMesh", "channel", CONFIG_MESH_CHANNEL),
+    //     .allow_channel_switch = false,
+    //     .mesh_id = {
+    //         .addr = {
+    //             nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+    //             nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+    //             nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+    //             nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+    //             nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+    //             nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
+    //         },
+    //     },
+    //     .router = {
+    //         .ssid_len = 0,
+    //         .password = { 0 }
+    //     },
+    //     .mesh_ap = {
+    //         .password = { 0 },
+    //         .max_connection = nvsManager.GetVar<uint8>("espMesh", "maxConn", CONFIG_MESH_AP_CONNECTIONS),
+    //         .nonmesh_max_connection = nvsManager.GetVar<uint8>("espMesh", "nonMeshMaxConn", CONFIG_MESH_NON_MESH_AP_CONNECTIONS)
+    //     },
+    //     .crypto_funcs = &g_wifi_default_mesh_crypto_funcs
+    // };
+
+    // std::string meshApPassword = nvsManager.GetVar<std::string>("espMesh", "meshApPass", CONFIG_MESH_AP_PASSWD);
+    // memcpy((uint8_t *) &cfg.mesh_ap.password, meshApPassword.c_str(), meshApPassword.length());
+    // ESP_ERROR_CHECK(esp_mesh_set_ap_authmode((wifi_auth_mode_t)nvsManager.GetVar<uint8>("espMesh", "authMode", CONFIG_MESH_AP_AUTHMODE)));
+    // ESP_ERROR_CHECK(esp_mesh_set_config(&cfg));
 }
 
 void EspmeshDriver::ConnectRouter()
@@ -164,6 +167,81 @@ void EspmeshDriver::Init()
     );
 
     scheduler.RequestTask(taskConfigReceive);
+}
+
+std::string EspmeshDriver::GetName()
+{
+    return "EspmeshDriver";
+}
+
+uint64 EspmeshDriver::GetMeshIdChecksum()
+{
+    uint8 id[] = {
+        nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
+    };
+    uint64 checksum = id[0] + id[1] + id[2] + id[3] + id[4] + id[5];
+    return checksum;
+}
+
+Setting EspmeshDriver::GetMeshIdSetting()
+{
+    uint8 id[] = {
+        nvsManager.GetVar<uint8>("espMesh", "id0", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id1", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id2", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id3", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id4", 0x77),
+        nvsManager.GetVar<uint8>("espMesh", "id5", 0x77)
+    };
+    MacAddress mesh = id;
+    uint32 checksum = GetMeshIdChecksum();
+    return Setting(
+        "Mesh ID",
+        checksum,
+        MAC_ADDRESS,
+        mesh,
+        true,
+        true
+    );
+}
+
+void EspmeshDriver::SetMeshIdSetting(Setting setting)
+{
+    if(setting.GetType() != MAC_ADDRESS)
+    {
+        logManager.Log(E, "EspmeshDriver", "SetMeshIdSetting: Setting type is not MAC_ADDRESS");
+    }
+
+    if(setting.GetChecksum() != GetMeshIdChecksum())
+    {
+        logManager.Log(E, "EspmeshDriver", "SetMeshIdSetting: Setting checksum is not correct");
+    }
+
+    MacAddress mesh = setting.GetValue();
+
+    uint8 id[6] = { 0 };
+    mesh.CopyTo(id);
+
+    nvsManager.SetVar<uint8>("espMesh", "id0", id + 0);
+    nvsManager.SetVar<uint8>("espMesh", "id1", id + 1);
+    nvsManager.SetVar<uint8>("espMesh", "id2", id + 2);
+    nvsManager.SetVar<uint8>("espMesh", "id3", id + 3);
+    nvsManager.SetVar<uint8>("espMesh", "id4", id + 4);
+    nvsManager.SetVar<uint8>("espMesh", "id5", id + 5);
+}
+
+std::vector<Setting> EspmeshDriver::GetComponentGlobalSettings()
+{
+    std::vector<Setting> settings;
+
+    settings.push_back(GetMeshIdSetting());
+
+    return settings;
 }
 
 void EspmeshDriver::Subscribe(IMessageReceiver& component)
